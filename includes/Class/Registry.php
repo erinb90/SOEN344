@@ -1,4 +1,6 @@
 <?php
+use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\DriverManager;
 
 /**
  * Class Registry
@@ -18,15 +20,15 @@ class Registry
     private static $params;
 
     /**
-     * @var \Doctrine\DBAL\Configuration
+     * @var Configuration
      */
     private static $config;
 
     /**
      * @param $connectionParams array
-     * @param \Doctrine\DBAL\Configuration $config
+     * @param Configuration $config
      */
-    public static function setConfig($connectionParams, \Doctrine\DBAL\Configuration $config)
+    public static function setConfig($connectionParams, Configuration $config)
     {
         self::$config = $config;
         self::$params = $connectionParams;
@@ -46,7 +48,7 @@ class Registry
             self::$connection = null;
             try
             {
-                self::$connection = \Doctrine\DBAL\DriverManager::getConnection(self::$params, self::$config);
+                self::$connection = DriverManager::getConnection(self::$params, self::$config);
             }
             catch (PDOException $e)
             {
