@@ -1,3 +1,8 @@
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php';
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
