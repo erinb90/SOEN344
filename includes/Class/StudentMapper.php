@@ -3,10 +3,6 @@
 // Start the session
 session_start();
 
-include_once dirname(__FILE__).'/../Utilities/ServerConnection.php';
-
-include "StudentDomain.php";
-include "StudentTDG.php";
 
 class StudentMapper
 {

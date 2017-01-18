@@ -1,9 +1,5 @@
 <?php
 
-include dirname(__FILE__)."RoomMapper";
-include dirname(__FILE__)."StudentMapper";
-include dirname(__FILE__)."ReservationMapper";
-
 class UnitOfWork
 {
 	private $conn;

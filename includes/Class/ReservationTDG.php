@@ -3,8 +3,6 @@
 // Start the session
 session_start();
 
-include_once dirname(__FILE__).'ReservationMapper.php';
-
 class ReservationTDG
 {
     /* All times should be in the following format : STR_TO_DATE('10/24/11 10:00 PM','%m/%d/%Y %h:%i %p').

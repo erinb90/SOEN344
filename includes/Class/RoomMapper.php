@@ -1,8 +1,5 @@
 <?php
 
-include "RoomDomain.php";
-include "RoomTDG.php";
-
 class RoomMapper
 {
 	private $roomActive;

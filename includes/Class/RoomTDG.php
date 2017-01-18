@@ -1,6 +1,5 @@
 <?php
 
-include_once dirname(__FILE__).'RoomMapper.php';
 
 class RoomTDG
 {

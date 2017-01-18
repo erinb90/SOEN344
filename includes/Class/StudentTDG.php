@@ -3,8 +3,6 @@
 // Start the session
 session_start();
 
-include dirname(__FILE__)."StudentMapper";
-
 class StudentTDG
 {
 	/*

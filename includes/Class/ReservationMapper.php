@@ -1,8 +1,5 @@
 <?php
 
-include "ReservationDomain.php";
-include "ReservationTDG.php";
-
 class ReservationMapper
 {
 	private $reservationActive;
