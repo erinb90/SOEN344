@@ -1,0 +1,10 @@
+{
+    "name": "soen344/theforceawakens",
+    "description": "ENCS room reservation system for Concordia University.",
+    "type": "project",
+    "require-dev": {
+        "phpunit/phpunit": "^5.7",
+        "phpunit/dbunit": "^1.2"
+    },
+    "minimum-stability": "stable"
+}
