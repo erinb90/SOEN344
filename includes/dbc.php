@@ -2,7 +2,7 @@
 error_reporting(E_ALL ^ E_NOTICE);
 function my_autoloader($class)
 {
-    $f = $_SERVER['DOCUMENT_ROOT'] . "/PHP/Class/" . $class . '.php';
+    $f = $_SERVER['DOCUMENT_ROOT'] . "/includes/Class/" . $class . '.php';
     if (is_file($f))
     {
         include_once($f);
