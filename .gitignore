@@ -1,17 +1,4 @@
-/Error
-/nbproject
-/Site/nbproject
-.DS_Store
-
-.DS_Store
-
-Site/PHP/.DS_Store
-
-Site/.DS_Store
-
-Site/PHP/.DS_Store
-
-Site/.DS_Store
-.idea
-
-vendor
+# Php storm project files
+.idea/
+# Composer packages
+vendor/
