@@ -1,9 +1,6 @@
 <?php
 
-// Start the session
-session_start();
-
-class ReservationTDG
+class ReservationTDG implements TDG
 {
     /* All times should be in the following format : STR_TO_DATE('10/24/11 10:00 PM','%m/%d/%Y %h:%i %p').
 	 * 
@@ -17,6 +14,16 @@ class ReservationTDG
 	
 	//Replacement for the * in sql due to special formatting required for the DateTime columns
 	private $star;
+
+    public function getPk()
+    {
+        // TODO: Implement getPk() method.
+    }
+
+    public function getTable()
+    {
+        // TODO: Implement getTable() method.
+    }
 	
 	public function __construct() {
 		$this->star = "reservationID, studentID, roomID, date_format(startTimeDate,'%Y/%m/%d %H:%i') as startTimeDate, date_format(endTimeDate,'%Y/%m/%d %H:%i') as endTimeDate, title, description, waitlisted";

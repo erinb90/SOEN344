@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class StudentDomainTest
+ */
 class StudentDomainTest extends PHPUnit_Framework_TestCase
 {
     /**
