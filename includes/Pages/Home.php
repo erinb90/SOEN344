@@ -253,8 +253,8 @@ $db->closeServerConn($conn);
                     <br>
                     <div id="legendContainer">
                         <h6 class="legendTitle">LEGEND</h6>
-                        <h6 class="green">Your Booking</h4>
-                        <h6 class="red">Booked</h4>
+                        <h6 class="green">Your Booking</h6>
+                        <h6 class="red">Booked</h6>
                     </div>
 				</div>
 
