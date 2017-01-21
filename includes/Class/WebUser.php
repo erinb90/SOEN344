@@ -10,7 +10,7 @@ class WebUser
 {
 
     /**
-     * @var User
+     * @var StudentDomain
      */
     static private $_User;
 
@@ -22,16 +22,16 @@ class WebUser
     }
 
     /**
-     * @param User $user
+     * @param StudentDomain $user
      */
-    public static function setUser(User $user)
+    public static function setUser(StudentDomain $user)
     {
         self::$_User = $user;
     }
 
 
     /**
-     * @return User returns the user
+     * @return StudentDomain returns the user
      */
     public static function getUser()
     {

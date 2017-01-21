@@ -1,7 +1,6 @@
 <?php
 
-// Start the session
-session_start();
+
 
 class StudentTDG
 {
@@ -25,7 +24,20 @@ class StudentTDG
 		}else 
 			return false;
 	}
-	
+
+
+    public function findByEmail($username)
+    {
+        $query = Registry::getConnection()->createQueryBuilder();
+        $query->select("*");
+        $query->from("Student", "Student");
+        $query->where("Student" . '.' . "email" . "='" . $username . "'");
+        $sth = $query->execute();
+        $m = $sth->fetchAll();
+
+        return $m[0];
+    }
+
 	//Verify User exsitence in the db
 	public function checkUserExist($email, $conn){
 		

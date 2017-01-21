@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <?php
 
+session_start();
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php';
+
+/*
 //Start session
 session_start();
 
@@ -110,6 +114,7 @@ function getHours($endTime = FALSE){
 
 
 $db->closeServerConn($conn);
+*/
 ?>
 
 <html lang="en">
@@ -171,7 +176,11 @@ $db->closeServerConn($conn);
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
     
 	<!-- All Javascript for Home.php page -->
+
+    <!--
 	<script src="../../Javascript/Home.js"></script>
+
+	-->
     
     <!-- Google Web Font Format for title -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
@@ -196,7 +205,7 @@ $db->closeServerConn($conn);
 	$regular = "<body>";
 	$timer = '<body onload="lockoutSubmit('.$made.'),lockoutModify('.$made.'),lockoutDelete('.$made.')">';
 	
-	echo $timer;
+	//echo $timer;
 	
 ?>
    
@@ -253,8 +262,8 @@ $db->closeServerConn($conn);
                     <br>
                     <div id="legendContainer">
                         <h6 class="legendTitle">LEGEND</h6>
-                        <h6 class="green">Your Booking</h4>
-                        <h6 class="red">Booked</h4>
+                        <h6 class="green">Your Booking</h6>
+                        <h6 class="red">Booked</h6>
                     </div>
 				</div>
 

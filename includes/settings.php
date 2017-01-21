@@ -4,7 +4,7 @@ return array(
     'protocol'      => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://",
     'timezone'      => 'America/Montreal',
     'db' => array(
-        'development' => 'mysql://soen344:soen343@soen344.icubicksolutions.com/soen344',
+        'development' => 'mysql://soen344:soen344@icubicksolutions.com/soen344',
         'production'  => 'mysql://username:password@host/MY_DB',
     ),
     'reservations' => array(
