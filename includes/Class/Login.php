@@ -31,7 +31,7 @@ class Login
 
         // initialize credentials
         $this->_credentials = array(
-            'username' => "",
+            'email' => "",
             'password' => ""
         );
 
@@ -47,15 +47,21 @@ class Login
      */
     private function checkUser()
     {
-        $UserMapper = new UserMapper();
+        $UserMapper = new StudentMapper();
 
-        $User = $UserMapper->findByUsername(trim($this->_credentials["username"]));
+        /**
+         * @var StudentDomain $User
+         */
+        $User = $UserMapper->findByEmail(trim($this->_credentials["email"]));
+
+
+        print_r($User);
 
         if ($User)
         {
             $PasswordHash = new PasswordHash(8, FALSE); // hash the password
             $stored = $User->getPassword();
-            $this->_userId = $User->getUid();
+            $this->_userId = $User->getSID();
             // compare given password with stored password
             if (!$PasswordHash->CheckPassword($this->_credentials['password'], $stored))
             {
@@ -86,7 +92,7 @@ class Login
         {
             session_start();
             @session_regenerate_id(true);
-            $_SESSION['username'] = $this->_credentials['username'];
+            $_SESSION['email'] = $this->_credentials['email'];
             $_SESSION['uid'] = $this->_userId;
             return true;
         }

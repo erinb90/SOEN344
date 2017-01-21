@@ -12,7 +12,21 @@ class RoomMapper extends AbstractMapper
 	{
 		$this->_RoomTDG = new RoomTDG();
 	}
-	
+
+
+	/**
+	 * @return array an array of room objects
+	 */
+	public function getAllRooms()
+	{
+		$data = $this->_RoomTDG->findAll();
+		$models = array();
+		foreach ($data as $row)
+		{
+			$models[] = $this->getModel($row);
+		}
+		return $models;
+	}
 
 	/**
 	public function checkBusy($rID, $conn){
@@ -21,7 +35,7 @@ class RoomMapper extends AbstractMapper
 	 * /
 	 *
 
-
+	 *
 	/**
 	 * @param \stdClass $data
 	 *
@@ -29,7 +43,6 @@ class RoomMapper extends AbstractMapper
 	 */
 	public function getModel($data)
 	{
-		// TODO: Implement getModel() method.
 
 		if(!$data)
 		{

@@ -12,7 +12,8 @@ class StudentDomain
 	private $sID = "";
 	private $oldPass = "";
 	private $newPass = "";
-	
+
+    private $_password;
 	/*
 		No Default Constructor is Necessary for this class
 	*/
@@ -68,6 +69,16 @@ class StudentDomain
 	
 	 public function setNewEmail($newEmail) {
         $this->newEmail = $newEmail;
+    }
+
+    public function getPassword()
+    {
+        return $this->_password;
+    }
+
+    public function setPassword($pass)
+    {
+        $this->_password = $pass;
     }
     
     public function setProgram($program) {
