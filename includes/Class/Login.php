@@ -55,7 +55,6 @@ class Login
         $User = $UserMapper->findByEmail(trim($this->_credentials["email"]));
 
 
-        print_r($User);
 
         if ($User)
         {

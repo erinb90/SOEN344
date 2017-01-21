@@ -1,22 +1,9 @@
 <?php
 
 
-class RoomTDG
+class RoomTDG extends TDG
 {
-    /*
-		No Default Constructor is Necessary for this class
-	*/
-	/* 
-		No Set methods are necessary for this class, as the Student cannot edit the information for any Room
-	*/
-	
-	/* 
-		No insert/update methods are necessary for this class, as the Student cannot edit the information for any Room
-	*/
-	
-	/* 
-		The Get methods for all Entities in the room table can be found here
-     */
+
     public function getName($rID, $conn){
 	
 		$sql = "SELECT name FROM room WHERE roomID ='".$rID."'";
@@ -52,8 +39,19 @@ class RoomTDG
 		
 		return $row["description"];
     }
-	
-	public function getAllRooms($conn){
+
+    public function findAll()
+    {
+        $query = Registry::getConnection()->createQueryBuilder();
+        $query->select("*");
+        $query->from($this->getTable());
+        $sth = $query->execute();
+        $m = $sth->fetchAll();
+        return $m;
+    }
+
+	public function getAllRooms($conn)
+    {
 		
 		$sql = "Select * from room";
 		$result = $conn->query($sql);
@@ -85,4 +83,34 @@ class RoomTDG
 			$result = $conn->query($sql);
 		}
 	}
+
+    public function getPk()
+    {
+        return "roomID";
+    }
+
+    public function getTable()
+    {
+        return "room";
+    }
+
+    public function insert(stdClass &$object)
+    {
+        // TODO: Implement insert() method.
+    }
+
+    public function delete(stdClass &$object)
+    {
+        // TODO: Implement delete() method.
+    }
+
+    public function update(stdClass &$object)
+    {
+        // TODO: Implement update() method.
+    }
+
+    public function findByPk($id)
+    {
+        // TODO: Implement findByPk() method.
+    }
 }

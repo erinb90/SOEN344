@@ -114,7 +114,14 @@ function getHours($endTime = FALSE){
 
 
 $db->closeServerConn($conn);
+
 */
+
+
+
+$RoomDirectory = new RoomDirectory();
+
+
 ?>
 
 <html lang="en">
@@ -177,10 +184,9 @@ $db->closeServerConn($conn);
     
 	<!-- All Javascript for Home.php page -->
 
-    <!--
 	<script src="../../Javascript/Home.js"></script>
 
-	-->
+
     
     <!-- Google Web Font Format for title -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
@@ -189,13 +195,13 @@ $db->closeServerConn($conn);
 <?php
     if($modify)
     {
-		echo '<script> $(document).ready(function(){$("#editModal").modal("show");}); </script>';
+		//echo '<script> $(document).ready(function(){$("#editModal").modal("show");}); </script>';
 		$_SESSION['modify'] = NULL; //Should clear out modify session if user refreshes
     }
 	
 	if($roomAvailable)
     {
-		echo '<script> $(document).ready(function(){$("#myModal").modal("show");}); </script>';
+		//echo '<script> $(document).ready(function(){$("#myModal").modal("show");}); </script>';
     }
 	
 ?>
@@ -203,7 +209,7 @@ $db->closeServerConn($conn);
 <?php
 	
 	$regular = "<body>";
-	$timer = '<body onload="lockoutSubmit('.$made.'),lockoutModify('.$made.'),lockoutDelete('.$made.')">';
+	//$timer = '<body onload="lockoutSubmit('.$made.'),lockoutModify('.$made.'),lockoutDelete('.$made.')">';
 	
 	//echo $timer;
 	
@@ -247,9 +253,18 @@ $db->closeServerConn($conn);
 							<div>
 								<select id = "roomOptions" class="btn btn-default btn-lg network-name" name = "rID">
 									<?php
-										foreach($rooms->getRoomList() as $val){
-											echo "<option value = '{$val[0]->getRID()}'>{$val[0]->getName()}</option>\n";
-										}
+
+									/**
+									 * @var RoomDomain $RoomDomain
+									 */
+									foreach($RoomDirectory->getRooms() as $RoomDomain)
+									{
+										?>
+
+										<option id="<?php echo $RoomDomain->getRID();?>"><?php echo $RoomDomain->getName();?></option>
+
+										<?php
+									}
 									?>
 								</select>
 								<!-- Hidden input for temporary datepicker fix-->
@@ -295,14 +310,14 @@ $db->closeServerConn($conn);
 										<br>										
 										<label>Start Time:</label> 
 											<select id ="startTime" name = "startTime">
-												<?php getHours()?>
+												<?php// getHours()?>
 											</select>&nbsp &nbsp &nbsp
 										<label>End Time:</label>
 											<select id ="endTime" name = "endTime">
-												<?php getHours( TRUE)?>
+												<?php// getHours( TRUE)?>
 											</select>&nbsp &nbsp &nbsp
-											<input readonly = "readonly" id = "roomOptionsMod" class="roomNum" name = "roomName" value="<?php if($roomReserve != NULL) echo $roomReserve->getName(); ?>"/>
-											<input hidden name = "roomID" value="<?php if($roomReserve != NULL) echo $roomReserve->getRID(); ?>">
+											<input readonly = "readonly" id = "roomOptionsMod" class="roomNum" name = "roomName" value="<?php //if($roomReserve != NULL) echo $roomReserve->getName(); ?>"/>
+											<input hidden name = "roomID" value="<?php// if($roomReserve != NULL) echo $roomReserve->getRID(); ?>">
 									</div>
 									<div class="form-group">
 										<label>Repeat Reservation for:</label>
@@ -374,22 +389,18 @@ $db->closeServerConn($conn);
 										<label>Start Time:</label> 
 											<select name = "startTime">
 												<?php
-												$getStartHoursSelect = true;
-												getHours();
-												$getStartHoursSelect = false;
+
 												?>
 											</select>&nbsp &nbsp &nbsp
 										<label>End Time:</label>
 											<select name = "endTime">
 												<?php
-												$getEndHoursSelect = true;
-												getHours(TRUE);
-												$getEndHoursSelect = false;
+
 												?>
 											</select>&nbsp &nbsp &nbsp
 										
-										<input readonly = "readonly" id = "roomOptionsMod" class="roomNum" name = "roomName" value="<?php if($roomReserve != NULL) echo $roomReserve->getName(); ?>"/>
-										<input hidden name = "roomID" value="<?php if($roomReserve != NULL) echo $roomReserve->getRID(); ?>">
+										<input readonly = "readonly" id = "roomOptionsMod" class="roomNum" name = "roomName" value="<?php //if($roomReserve != NULL) echo $roomReserve->getName(); ?>"/>
+										<input hidden name = "roomID" value="<?php //if($roomReserve != NULL) echo $roomReserve->getRID(); ?>">
 									</div>
 									<button type="submit" name="action" value="modifying" class="btn btn-default btn-success btn-block">Submit</button>
 								</form>
@@ -458,12 +469,13 @@ $db->closeServerConn($conn);
 							<div class="modal-body">
                                 <h5 id="legendC">Confirmed Reservations</h5>
                                 <h5 id="legendW">Waitlisted Reservations</h5><br>
-									<?php 
+									<?php
+									/*
 									$conn = $db->getServerConn();
-									
+
 									$count = 1;
 									foreach($studentReservations as &$singleReservation)
-									{   
+									{
 										$active = new RoomMapper($singleReservation["roomID"], $conn);
 										$activeRoom = $active->getName();
 										$deleteButton = '<button type="Submit" name="action" value = "delete" id="deleteButton" class="center btn btn-default"> Delete Reservation '.$count.'</button>';
@@ -473,13 +485,13 @@ $db->closeServerConn($conn);
 										$startDateTime = explode(" ", $singleReservation["startTimeDate"]);
 										$endDateTime = explode(" ", $singleReservation["endTimeDate"]);
 										$waitlisted = explode(" ", $singleReservation["waitlisted"]);
-										
+
 										date_default_timezone_set('US/Eastern');
 										$timeNow = date("Y-m-d H:i:s");
 
 										if(strtotime($singleReservation["startTimeDate"]) > strtotime($timeNow)) {
 											echo "<form id='myReservationform' action='CheckRoomAvailable.php' method='post'>";
-											if ($waitlisted[0] == "1") {	
+											if ($waitlisted[0] == "1") {
 												echo "<section class = 'leftcolumnW'>";
 													echo $hidden;
 													echo $hidden2;
@@ -508,8 +520,8 @@ $db->closeServerConn($conn);
 											$count = $count + 1;
 										}
 									}
-									
-									$db->closeServerConn($conn);
+
+									$db->closeServerConn($conn);*/
 									?>
 							</div><!-- End modal-body -->
 						</div><!-- End modal content -->
