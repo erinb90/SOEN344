@@ -19,7 +19,7 @@ class Login
     /**
      * @var int user id
      */
-    private $_userId;
+    private $_studentID;
 
     /**
      * Login constructor.
@@ -60,7 +60,7 @@ class Login
         {
             $PasswordHash = new PasswordHash(8, FALSE); // hash the password
             $stored = $User->getPassword();
-            $this->_userId = $User->getSID();
+            $this->_studentID = $User->getSID();
             // compare given password with stored password
             if (!$PasswordHash->CheckPassword($this->_credentials['password'], $stored))
             {
@@ -92,7 +92,7 @@ class Login
             session_start();
             @session_regenerate_id(true);
             $_SESSION['email'] = $this->_credentials['email'];
-            $_SESSION['uid'] = $this->_userId;
+            $_SESSION['sid'] = $this->_studentID;
             return true;
         }
         return false;

@@ -156,7 +156,7 @@ class StudentMapper extends AbstractMapper
 	/**
 	 * @param \stdClass $data
 	 *
-	 * @return mixed
+	 * @return StudentDomain
 	 */
 	public function getModel($data)
 	{

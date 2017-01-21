@@ -96,5 +96,10 @@ class StudentDomain
 	public function setNewPassword($newPass) {
         $this->newPass = $newPass;
     }
+
+    public function getFullname()
+    {
+        return $this->getFirstName() . ' ' . $this->getLastName();
+    }
 }
 ?>

@@ -2,7 +2,7 @@
 
 
 
-class StudentTDG
+class StudentTDG extends TDG
 {
 	/*
 		No Default Constructor is Necessary for this class
@@ -30,8 +30,8 @@ class StudentTDG
     {
         $query = Registry::getConnection()->createQueryBuilder();
         $query->select("*");
-        $query->from("Student", "Student");
-        $query->where("Student" . '.' . "email" . "='" . $username . "'");
+        $query->from($this->getTable(), $this->getTable());
+        $query->where($this->getTable() . '.' . "email" . "='" . $username . "'");
         $sth = $query->execute();
         $m = $sth->fetchAll();
 
@@ -225,6 +225,45 @@ class StudentTDG
 				$_SESSION["userMSG"] = $temp;
 			}
 		}
+    }
+
+    public function getPk()
+    {
+        return "studentID";
+    }
+
+    public function getTable()
+    {
+        return "students";
+    }
+
+    public function insert(stdClass &$object)
+    {
+        // TODO: Implement insert() method.
+    }
+
+    public function delete(stdClass &$object)
+    {
+        // TODO: Implement delete() method.
+    }
+
+    public function update(stdClass &$object)
+    {
+        // TODO: Implement update() method.
+    }
+
+    public function findByPk($id)
+    {
+        $query = Registry::getConnection()->createQueryBuilder();
+        $query->select("*");
+        $query->from($this->getTable(), $this->getTable());
+        $query->where($this->getTable() . '.' . $this->getPk() . "='" . $id . "'");
+        $sth = $query->execute();
+        $m = $sth->fetchAll();
+
+
+
+        return $m[0];
     }
 }
 ?>
