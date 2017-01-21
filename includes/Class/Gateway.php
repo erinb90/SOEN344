@@ -8,8 +8,8 @@
  */
 interface Gateway
 {
-    public  function insert(stdClass &$object);
-    public  function delete(stdClass &$object);
-    public  function update(stdClass &$object);
+    public  function insert(DomainObject &$object);
+    public  function delete(DomainObject &$object);
+    public  function update(DomainObject &$object);
     public  function findByPk($id);
 }

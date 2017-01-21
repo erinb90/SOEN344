@@ -11,9 +11,9 @@ abstract class TDG implements Gateway
 
     public abstract function getPk();
     public abstract function getTable();
-    public abstract function insert(stdClass &$object);
-    public abstract function delete(stdClass &$object);
-    public abstract function update(stdClass &$object);
+    public abstract function insert(DomainObject &$object);
+    public abstract function delete(DomainObject &$object);
+    public abstract function update(DomainObject &$object);
     public abstract function findByPk($id);
 
 }

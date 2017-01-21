@@ -1,128 +1,9 @@
-<!DOCTYPE html>
 <?php
-
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php';
-
-/*
-//Start session
-session_start();
-
-include "../Class/StudentMapper.php";
-include "../Class/RoomMapper.php";
-include "../Class/ReservationMapper.php";
-include "../Class/WaitlistMapper.php";
-include "../Class/RoomList.php";
-include dirname(__FILE__)."/../Utilities/tableHelper.php";
-include_once dirname(__FILE__).'/../Utilities/ServerConnection.php';
-
-$db = new ServerConnection();
-$conn = $db->getServerConn();
-
-$email = $_SESSION['email'];
-$userMSG = $_SESSION["userMSG"] ;
-$msgClass = $_SESSION["msgClass"];
-$modify = $_SESSION["modify"];
-$made = $_SESSION['cleared'];
-$roomAvailable = $_SESSION['roomAvailable'];
-$passedDate = $_SESSION['selectedDate']; //Temporary fix for datepicker
-
-$roomReserveID = $_SESSION['roomReserveID'];
-$roomReserve;
-if($roomReserveID != NULL) $roomReserve = new RoomMapper($roomReserveID, $conn);
-
-if(isset($_SESSION["userMSG"])){
-	unset($_SESSION['roomID']);
-	unset($_SESSION['cleared']);
-	unset($_SESSION["userMSG"]);
-    unset($_SESSION["msgClass"]);
-}
-
-$student = new StudentMapper($email, $conn);
-$reserve = new ReservationMapper();
-$rooms = new RoomList($conn);
-
-$firstName = $student->getFirstName();
-$lastName = $student->getLastName();
-$program = $student->getProgram();
-$sID = $student->getSID();
-$_SESSION["sID"] = $sID;
-$test = $reserve->getREID($sID, $conn);
-$studentReservations = $reserve->getReservations($student->getSID(), $conn);
-
-//If user selects a reservation to modify, this will obtain the reservation details
-$modReserve = array();
-$modDate;
-$modTimeEnd;
-
-if($modify)
-{
-	//echo $_SESSION['reserveDate'];
-	
-	foreach($studentReservations as &$singleReservation)
-	{ 
-		if($_SESSION['reservation'] == $singleReservation['reservationID'])
-		{
-			$modReserve = $singleReservation;
-		}
-	}
-	$modDate = explode(" ", $modReserve['startTimeDate']);
-	$modTimeEnd = explode(" ", $modReserve['endTimeDate']);
-	$roomReserve = new RoomMapper($modReserve['roomID'], $conn);
-	$roomChosen = $roomReserve->getName();
-}
-
-$getStartHoursSelect = false;
-$getEndHoursSelect = false;
-//$non_studentRes = $reserve->getReservationsByDate("2016-11-11");
-//var_dump($non_studentRes);
-
-$today = date("d/m/Y");
-$today = $reserve->getReservationsByDate($today, $conn);
-function getHours($endTime = FALSE){
-	global $getStartHoursSelect, $getEndHoursSelect;
-	global $modDate, $modTimeEnd;
-	if($endTime){
-		$SOL = 1; //Start of list
-	}else
-		$SOL = 0;
-	for($x = 0 + $SOL; $x < 48 + $SOL; $x++){
-		
-		$time = ((int)(($x%48)/2)) . ":";
-		if($x % 2 == 1){
-			$time .= "30";
-		}else{
-			$time .= "00";
-		}
-		$timeMod = $time;
-		if(strlen($timeMod)==4)$timeMod = "0".$time;
-		if($getStartHoursSelect && $timeMod == $modDate[1])
-		{
-			echo "<option selected='selected' value = '".$time."'>".$time."</option>";
-		}
-		elseif($getEndHoursSelect && $timeMod == $modTimeEnd[1])
-		{
-			echo "<option selected='selected' value = '".$time."'>".$time."</option>";
-		}
-		else
-		{
-			echo "<option value = '".$time."'>".$time."</option>";
-		}
-	}
-}
-
-
-
-$db->closeServerConn($conn);
-
-*/
-
-
 $RoomDirectory = new RoomDirectory();
-
-
 ?>
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
 
@@ -165,6 +46,11 @@ $RoomDirectory = new RoomDirectory();
     <script>
         $(function () {
 
+            $('input#rDate').datepicker({
+                dateFormat: 'yy-mm-dd',
+                minDate: 0
+            });
+
 
             $(document).on('click', '#makeReserve', function () {
 
@@ -174,6 +60,11 @@ $RoomDirectory = new RoomDirectory();
                     title: 'Make Reservation'
                 });
 
+
+                var roomid = $('#roomOptions').val();
+                var roomName = $('#roomOptions option[value='+roomid+']').text();
+                $('#roomName').val(roomName);
+                $('#roomID').val(roomid);
 
             });
 
@@ -198,6 +89,8 @@ $RoomDirectory = new RoomDirectory();
 
                 $('#resultsProfile').html("");
 
+                console.log(ser);
+
                 $.ajax({
                     type    : "POST",
                     url     : "UpdateProfile.php", //file name
@@ -205,7 +98,7 @@ $RoomDirectory = new RoomDirectory();
                     success : function (data)
                     {
                         $clicker.text(originalText);
-                        $('#results').html(data);
+                        $('#resultsProfile').html(data);
                     },
                     complete: function ()
                     {
@@ -217,7 +110,10 @@ $RoomDirectory = new RoomDirectory();
                         $clicker.text(originalText);
                     }
                 });
-            })
+            });
+
+
+
         })
     </script>
 </head>
@@ -268,8 +164,7 @@ $RoomDirectory = new RoomDirectory();
                             {
                                 ?>
 
-                                <option
-                                    id="<?php echo $RoomDomain->getRID(); ?>"><?php echo $RoomDomain->getName(); ?></option>
+                                <option value="<?php echo $RoomDomain->getRID(); ?>"><?php echo $RoomDomain->getName(); ?></option>
 
                                 <?php
                             }
@@ -319,26 +214,20 @@ $RoomDirectory = new RoomDirectory();
                             <!-- Time slots should be inserted here-->
                             <div class="form-group">
                                 <label>Date:</label>
-                                <input readonly="readonly" type="text" class="form-control" name="dateDrop"
-                                       id="dateDrop" value="<?php echo $passedDate; ?>"/>
+                                <input type="text" class="form-control" name="rDate" id="rDate" />
                                 <br>
-                                <label>Start Time:</label>
-                                <select id="startTime" name="startTime">
-                                    <?php // getHours()?>
-                                </select>&nbsp &nbsp &nbsp
-                                <label>End Time:</label>
-                                <select id="endTime" name="endTime">
-                                    <?php // getHours( TRUE)?>
-                                </select>&nbsp &nbsp &nbsp
-                                <input readonly="readonly" id="roomOptionsMod" class="roomNum" name="roomName"
-                                       value="<?php //if($roomReserve != NULL) echo $roomReserve->getName(); ?>"/>
-                                <input hidden name="roomID"
-                                       value="<?php // if($roomReserve != NULL) echo $roomReserve->getRID(); ?>">
+                                <label>Start Time: (mm:ss)</label>
+                                <input type="text" class="form-control" id="startTime" name="startTime">
+                                <label>End Time: (mm:ss)</label>
+                                <input type="text" class="form-control" id="endTime" name="endTime">
+                                <label>Room:</label>
+                                <input readonly="readonly"  class="form-control" id="roomName"   name="roomName" />
+                                <input  hidden name="roomID" id="roomID">
                             </div>
                             <div class="form-group">
                                 <label>Repeat Reservation for:</label>
                                 <select id="repeatReservation" name="repeatReservation">
-                                    <option selected="selected">
+                                    <option value="0">
                                         No Repeat
                                     </option>
                                     <option value="1">1 Week</option>
@@ -346,27 +235,6 @@ $RoomDirectory = new RoomDirectory();
                                     <option value="3">3 Weeks</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label>Name</label>
-                                <input readonly="readonly" type="text" class="form-control" name="firstName"
-                                       placeholder="First Name" value="<?php echo $firstName . " " . $lastName; ?>"/>
-                            </div>
-                            <div class="form-group">
-                                <label>Student ID</label>
-                                <input readonly="readonly" type="text" class="form-control" name="studentID"
-                                       value="<?php echo $sID; ?>"/>
-                            </div>
-                            <div class="form-group">
-                                <label>Program</label>
-                                <input readonly="readonly" type="text" class="form-control" name="program"
-                                       value="<?php echo $program; ?>"/>
-                            </div>
-                            <div class="form-group">
-                                <label>Email Address</label>
-                                <input readonly="readonly" type="text" class="form-control" name="email"
-                                       value="<?php echo $email; ?>"/>
-                            </div>
-
                             <button type="submit" class="btn btn-default btn-success btn-block">Submit</button>
 
                         </div>

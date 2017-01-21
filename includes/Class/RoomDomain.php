@@ -1,6 +1,6 @@
 <?php
 
-class RoomDomain
+class RoomDomain implements DomainObject
 {
 	private $name = "";
     private $location = "";

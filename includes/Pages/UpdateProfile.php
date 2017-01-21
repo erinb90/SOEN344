@@ -1,7 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Server
- * Date: 1/21/2017
- * Time: 2:09 PM
- */
+session_start();
+require_once($_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php');
+
+
+echo "...still to do...";

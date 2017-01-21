@@ -20,25 +20,25 @@ abstract class AbstractMapper implements Gateway
     // TDG Communication methods
     /**
      * This method inserts row into database via tdg
-     * @param \stdClass $object
+     * @param \DomainObject $object
      *
      */
-    public abstract function insert(stdClass &$object);
+    public abstract function insert(DomainObject &$object);
 
     /**
      * This method deletes row into database via tdg
-     * @param \stdClass $object
+     * @param \DomainObject $object
      *
      */
-    public abstract function delete(stdClass &$object);
+    public abstract function delete(DomainObject &$object);
 
     /**
      *
      * This method updates row into database via tdg
-     * @param \stdClass $object
+     * @param \DomainObject $object
      *
      */
-    public abstract function update(stdClass &$object);
+    public abstract function update(DomainObject &$object);
 
     // UOW methods
     /**

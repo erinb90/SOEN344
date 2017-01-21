@@ -2,7 +2,7 @@
 
 
 
-class StudentDomain
+class StudentDomain implements DomainObject
 {
 	private $firstName = "";
     private $lastName = "";
