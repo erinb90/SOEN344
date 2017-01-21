@@ -6,146 +6,54 @@
 class ReservationMapper extends AbstractMapper
 {
 
+
 	/**
-	 * @var \ReservationDomain
+	 * @var \TDG
 	 */
-	private $reservationActive;
+	private $_ReservationTDG;
 
-	private $reservationData;
-		
-	public function __construct($reID, $conn) {
-
-		$this->reservationActive = new ReservationDomain();
-		$this->reservationData = new ReservationTDG();
-
-
-		$this->reservationActive->setSID($this->reservationData->getStudentID($reID, $conn));
-		$this->reservationActive->setRID($this->reservationData->getRoomID($reID, $conn));
-		$this->reservationActive->setStartTimeDate($this->reservationData->getStart($reID, $conn));
-		$this->reservationActive->setEndTimeDate($this->reservationData->getEnd($reID, $conn));
-		$this->reservationActive->setTitle($this->reservationData->getTitle($reID, $conn));
-		$this->reservationActive->setDescription($this->reservationData->getDescription($reID, $conn));
-		$this->reservationActive->setREID($reID);
-
+	public function __construct()
+	{
+		$this->_ReservationTDG = new ReservationTDG();
 	}
-	/*
-	public function addReservation($sID, $rID, $start, $end, $title, $desc, $conn, $wait){
-		$this->reservationData->addReservation($sID, $rID, $start, $end, $title, $desc, $conn, $wait);
-    }	
-	*/
-	/* Set methods for the Reservation Domain object
-	*/
-	public function setREID($reID){
-		$this->reservationActive->setREID($reID);
-    }
-    
-    public function setSID($sID) {
-        $this->reservationActive->setSID($sID);
-    }
-    
-    public function setRID($rID) {
-        $this->reservationActive->setRID($rID);
-    }
-	
-	public function setStartTimeDate($start) {
-        $this->reservationActive->setStartTimeDate($start);
-    }	
-	
-	public function setEndTimeDate($end) {
-        $this->reservationActive->setEndTimeDate($end);
-    }
-	
-	public function setTitle($title) {
-        $this->reservationActive->setTitle($title);
-    }
-	
-	public function setDescription($desc) {
-		$this->reservationActive->setDescription($desc);
-    }
-	
-	public function setWait($wait) {
-		$this->reservationActive->setWait($wait);
-    }
-	
-	/* Get methods for the Reservation Domain object
-	*/
-	
-	/*	The REID takes the sID as a parameter so it can find the appropriate information of the student's reservation
-	*	Only get from the database
-	*/
-	public function getReservation($reID, $conn){
-		return $this->reservationData->getReservation($reID, $conn);
-	}
-	
-	public function getREID($sID, $conn){
-		return $this->reservationData->getREID($sID, $conn);
-    }
-    
-	public function getID($sID, $conn){
-		return $this->reservationActive->getID();
-    }
-	
-    public function getSID(){
-        return $this->reservationActive->getSID();
-    }
-    
-    public function getRID(){
-        return $this->reservationActive->getRID();
-    }
-	
-	public function getStartTimeDate(){
-        return $this->reservationActive->getStartTimeDate();
-    }	
-	
-	public function getEndTimeDate(){
-        return $this->reservationActive->getEndTimeDate();
-    }
-	
-	public function getTitle(){
-       return $this->reservationActive->getTitle();
-    }
-	
-	public function getDescription(){
-        return $this->reservationActive->getDescription();
-    }
-	
-	public function getWait(){
-        return $this->reservationActive->getWait();
-    }
+
     
 	public function getReservations($sID, $conn){
-		return $this->reservationData->getReservations($sID, $conn);
+		return $this->_ReservationTDG->getReservations($sID, $conn);
 	}
 
 	public function getReservationsByDate($start, $conn) {
-		return $this->reservationData->getReservationsByDate($start, $conn);
+		return $this->_ReservationTDG->getReservationsByDate($start, $conn);
 	}
 
 	public function getReservationsByRoomAndDate($rID, $start, $wait, $conn) {
-		return $this->reservationData->getReservationsByRoomAndDate($rID, $start, $wait, $conn);
+		return $this->_ReservationTDG->getReservationsByRoomAndDate($rID, $start, $wait, $conn);
 	}
 
 	public function getWaitlistIDByStudent($sID, $reID, $conn) {
-		return $this->reservationData->getWaitlistIDByStudent($sID, $reID, $conn);
+		return $this->_ReservationTDG->getWaitlistIDByStudent($sID, $reID, $conn);
 	}
 
 	public function getReservationsBySIDAndDate($sID, $start, $conn) {
-		return $this->reservationData->getReservationsBySIDAndDate($sID, $start, $conn);
+		return $this->_ReservationTDG->getReservationsBySIDAndDate($sID, $start, $conn);
 	}
 
 	/*
 		Unit of Work (TDG Functions for Room)
 	*/	
-	public function deleteReservation($reservationDeletedList, $conn) {
-			$this->reservationData->deleteReservation($reservationDeletedList, $conn);
+	public function deleteReservation($reservationDeletedList, $conn)
+	{
+			$this->_ReservationTDG->deleteReservation($reservationDeletedList, $conn);
+
 	}
 	
-	public function addReservation($reservationNewList, $conn) {
-		$this->reservationData->addReservation($reservationNewList, $conn);
+	public function addReservation($reservationNewList, $conn)
+	{
+		$this->_ReservationTDG->addReservation($reservationNewList, $conn);
 	}
 	
 	public function updateReservation($reservationUpdateList, $conn) {
-		$this->reservationData->updateReservation($reservationUpdateList, $conn);
+		$this->_ReservationTDG->updateReservation($reservationUpdateList, $conn);
 	}
 
 	/**
@@ -153,9 +61,25 @@ class ReservationMapper extends AbstractMapper
 	 *
 	 * @return mixed
 	 */
-	public function getModel(stdClass $data)
+	public function getModel($data)
 	{
-		// TODO: Implement getModel() method.
+		if(!$data)
+		{
+			return null;
+		}
+
+
+		$ReservationDomain = new ReservationDomain();
+
+		$ReservationDomain->setSID($data['studentID']);
+		$ReservationDomain->setRID($data['roomID']);
+		$ReservationDomain->setStartTimeDate($data['startTimeDate']);
+		$ReservationDomain->setEndTimeDate($data['endTimeDate']);
+		$ReservationDomain->setTitle($data['title']);
+		$ReservationDomain->setDescription($data['description']);
+		$ReservationDomain->setREID($data['reservationID']);
+
+		return $ReservationDomain;
 	}
 
 	/**
@@ -165,7 +89,8 @@ class ReservationMapper extends AbstractMapper
 	 */
 	public function insert(stdClass &$object)
 	{
-		// TODO: Implement insert() method.
+		return $this->_ReservationTDG->insert($object);
+
 	}
 
 	/**
@@ -175,7 +100,8 @@ class ReservationMapper extends AbstractMapper
 	 */
 	public function delete(stdClass &$object)
 	{
-		// TODO: Implement delete() method.
+		return $this->_ReservationTDG->delete($object);
+
 	}
 
 	/**
@@ -185,7 +111,12 @@ class ReservationMapper extends AbstractMapper
 	 */
 	public function update(stdClass &$object)
 	{
-		// TODO: Implement update() method.
+		return $this->_ReservationTDG->update($object);
+	}
+
+	public function findByPk($id)
+	{
+		return $this->getModel($this->_ReservationTDG->findByPk($id));
 	}
 }
 ?>

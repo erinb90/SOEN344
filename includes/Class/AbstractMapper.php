@@ -6,15 +6,16 @@
  * Date: 2017-01-20
  * Time: 6:02 PM
  */
-abstract class AbstractMapper
+abstract class AbstractMapper implements Gateway
 {
 
 
+    public abstract function findByPk($id);
     /**
      * @param $data
      * @return stdClass
      */
-    public abstract function getModel(stdClass $data);
+    public abstract function getModel($data);
 
     // TDG Communication methods
     /**
