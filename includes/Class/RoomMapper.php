@@ -1,73 +1,87 @@
 <?php
 
-class RoomMapper
+class RoomMapper extends AbstractMapper
 {
-	private $roomActive;
-	private $roomData;
-		
-	/* 
-		Constructors for the Student Mapper object
-	*/
-        
-	public function __construct($rID, $conn) {
+	/**
+	 * @var TDG $roomData
+	 */
+	private $_RoomTDG;
 
-		if(empty($rID))
-		{
-			$this->roomActive = new RoomDomain();
-			$this->roomData = new RoomTDG();
-		}
-		else
-		{
-			$this->roomActive = new RoomDomain();
-			$this->roomData = new RoomTDG();
-			
-			$this->roomActive->setName($this->roomData->getName($rID, $conn));
-			$this->roomActive->setLocation($this->roomData->getLocation($rID, $conn));
-			$this->roomActive->setDescription($this->roomData->getDescription($rID, $conn));
-			$this->roomActive->setBusy($this->roomData->checkBusy($rID, $conn));
-			$this->roomActive->setRID($rID);
-		}
+
+	public function __construct()
+	{
+		$this->_RoomTDG = new RoomTDG();
 	}
 	
-	/* Get methods for the Student Domain object
-	*/
-	public function getName(){
-		return $this->roomActive->getName();
-    }
-    
-    public function getLocation() {
-        return $this->roomActive->getLocation();
-    }
-    
-    public function getDescription() {
-        return $this->roomActive->getDescription();
-    }
-	 
-	public function getRID(){
-		return $this->roomActive->getRID();
-    }
 
-	public function getBusy(){
-        return $this->roomActive->getBusy();
-    }
-	
-	public function setBusy($status){
-        return $this->roomActive->setBusy($status);
-    }
-
-	/*
-		TDG Functions
-	*/
+	/**
 	public function checkBusy($rID, $conn){
         return $this->roomData->checkBusy($rID, $conn);
     }
-	
-	/*
-		Unit of Work (TDG Functions for Room)
-	*/
-	public function updateRoom($roomUpdateList, $conn){
-        $this->roomData->updateRoom($roomUpdateList, $conn);
-    }
-	
+	 * /
+	 *
+
+
+	/**
+	 * @param \stdClass $data
+	 *
+	 * @return mixed
+	 */
+	public function getModel($data)
+	{
+		// TODO: Implement getModel() method.
+
+		if(!$data)
+		{
+			return null;
+		}
+
+		$RoomDomain = new RoomDomain();
+
+
+		$RoomDomain->setName($data['name']);
+		$RoomDomain->setLocation($data['location']);
+		$RoomDomain->setDescription($data['description']);
+		$RoomDomain->setRID($data['roomID']);
+
+		return $RoomDomain;
+
+
+	}
+
+	/**
+	 * @param \stdClass $object
+	 *
+	 * @return mixed
+	 */
+	public function insert(stdClass &$object)
+	{
+		$this->_RoomTDG->insert($object);
+	}
+
+	/**
+	 * @param \stdClass $object
+	 *
+	 * @return mixed
+	 */
+	public function delete(stdClass &$object)
+	{
+		$this->_RoomTDG->delete($object);
+	}
+
+	/**
+	 * @param \stdClass $object
+	 *
+	 * @return mixed
+	 */
+	public function update(stdClass &$object)
+	{
+		$this->_RoomTDG->update($object);
+	}
+
+	public function findByPk($id)
+	{
+		return $this->getModel($this->_RoomTDG->findByPk($id));
+	}
 }
 ?>

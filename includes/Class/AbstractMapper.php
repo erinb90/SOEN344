@@ -2,51 +2,52 @@
 
 /**
  * Created by PhpStorm.
- * User: Peter
- * Date: 2016-11-20
+ * User: Dimitri
+ * Date: 2017-01-20
  * Time: 6:02 PM
  */
-abstract class AbstractMapper
+abstract class AbstractMapper implements Gateway
 {
 
 
+    public abstract function findByPk($id);
     /**
      * @param $data
-     * @return IDomainObject
+     * @return stdClass
      */
     public abstract function getModel($data);
 
     // TDG Communication methods
     /**
      * This method inserts row into database via tdg
-     * @param \IDomainObject $object
+     * @param \stdClass $object
      *
      */
-    public abstract function insert(IDomainObject & $object);
+    public abstract function insert(stdClass &$object);
 
     /**
      * This method deletes row into database via tdg
-     * @param \IDomainObject $object
+     * @param \stdClass $object
      *
      */
-    public abstract function delete(IDomainObject & $object);
+    public abstract function delete(stdClass &$object);
 
     /**
      *
      * This method updates row into database via tdg
-     * @param \IDomainObject $object
+     * @param \stdClass $object
      *
      */
-    public abstract function update(IDomainObject & $object);
+    public abstract function update(stdClass &$object);
 
     // UOW methods
     /**
      * This method registers new object in unit of work
-     * @param \IDomainObject $object
+     * @param \stdClass $object
      *
      * @return AbstractMapper
      */
-    public final function uowInsert(IDomainObject & $object)
+    public final function uowInsert(&$object)
     {
         UnitOfWork::registerNew($object, $this);
         return $this;
@@ -54,11 +55,11 @@ abstract class AbstractMapper
 
     /**
      * This method registers deletion object in unit of work
-     * @param \IDomainObject $object
+     * @param \stdClass $object
      *
      * @return AbstractMapper
      */
-    public final function uowDelete(IDomainObject & $object)
+    public final function uowDelete(&$object)
     {
         UnitOfWork::registerDeleted($object, $this);
         return $this;
@@ -66,11 +67,11 @@ abstract class AbstractMapper
 
     /**
      * This method registers updated object in unit of work
-     * @param \IDomainObject $object
+     * @param \stdClass $object
      *
      * @return AbstractMapper
      */
-    public final function uowUpdate(IDomainObject & $object)
+    public final function uowUpdate(&$object)
     {
         UnitOfWork::registerDirty($object, $this);
         return $this;

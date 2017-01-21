@@ -2,8 +2,6 @@
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php';
 
-
-print_r(Registry::getConnection());
 ?>
 
 <!DOCTYPE html>
@@ -65,7 +63,7 @@ print_r(Registry::getConnection());
 </div>
 
   <!-- Modal -->
-  <form action="PHP/Pages/Validation.php" method="post">
+  <form action="includes/Pages/Validation.php" method="post">
   <div class="modal fade" id="myModal" role="dialog">
     <div class="modal-dialog">
 <!-- Modal content-->
