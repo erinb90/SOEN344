@@ -1,6 +1,6 @@
 <?php
 
-class RoomMapper
+class RoomMapper extends AbstractMapper
 {
 	private $roomActive;
 	private $roomData;
@@ -68,6 +68,45 @@ class RoomMapper
 	public function updateRoom($roomUpdateList, $conn){
         $this->roomData->updateRoom($roomUpdateList, $conn);
     }
-	
+
+	/**
+	 * @param \stdClass $data
+	 *
+	 * @return mixed
+	 */
+	public function getModel(stdClass $data)
+	{
+		// TODO: Implement getModel() method.
+	}
+
+	/**
+	 * @param \stdClass $object
+	 *
+	 * @return mixed
+	 */
+	public function insert(stdClass &$object)
+	{
+		// TODO: Implement insert() method.
+	}
+
+	/**
+	 * @param \stdClass $object
+	 *
+	 * @return mixed
+	 */
+	public function delete(stdClass &$object)
+	{
+		// TODO: Implement delete() method.
+	}
+
+	/**
+	 * @param \stdClass $object
+	 *
+	 * @return mixed
+	 */
+	public function update(stdClass &$object)
+	{
+		// TODO: Implement update() method.
+	}
 }
 ?>

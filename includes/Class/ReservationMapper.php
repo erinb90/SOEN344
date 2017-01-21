@@ -1,30 +1,32 @@
 <?php
 
-class ReservationMapper
+/**
+ * Class ReservationMapper
+ */
+class ReservationMapper extends AbstractMapper
 {
+
+	/**
+	 * @var \ReservationDomain
+	 */
 	private $reservationActive;
+
 	private $reservationData;
 		
 	public function __construct($reID, $conn) {
 
-		if(empty($reID))
-		{
-			$this->reservationActive = new ReservationDomain();
-			$this->reservationData = new ReservationTDG();
-		}
-		else
-		{
-			$this->reservationActive = new ReservationDomain();
-			$this->reservationData = new ReservationTDG();
-			
-			$this->reservationActive->setSID($this->reservationData->getStudentID($reID, $conn));
-			$this->reservationActive->setRID($this->reservationData->getRoomID($reID, $conn));
-			$this->reservationActive->setStartTimeDate($this->reservationData->getStart($reID, $conn));
-			$this->reservationActive->setEndTimeDate($this->reservationData->getEnd($reID, $conn));
-			$this->reservationActive->setTitle($this->reservationData->getTitle($reID, $conn));
-			$this->reservationActive->setDescription($this->reservationData->getDescription($reID, $conn));
-			$this->reservationActive->setREID($reID);
-		}
+		$this->reservationActive = new ReservationDomain();
+		$this->reservationData = new ReservationTDG();
+
+
+		$this->reservationActive->setSID($this->reservationData->getStudentID($reID, $conn));
+		$this->reservationActive->setRID($this->reservationData->getRoomID($reID, $conn));
+		$this->reservationActive->setStartTimeDate($this->reservationData->getStart($reID, $conn));
+		$this->reservationActive->setEndTimeDate($this->reservationData->getEnd($reID, $conn));
+		$this->reservationActive->setTitle($this->reservationData->getTitle($reID, $conn));
+		$this->reservationActive->setDescription($this->reservationData->getDescription($reID, $conn));
+		$this->reservationActive->setREID($reID);
+
 	}
 	/*
 	public function addReservation($sID, $rID, $start, $end, $title, $desc, $conn, $wait){
@@ -144,6 +146,46 @@ class ReservationMapper
 	
 	public function updateReservation($reservationUpdateList, $conn) {
 		$this->reservationData->updateReservation($reservationUpdateList, $conn);
+	}
+
+	/**
+	 * @param \stdClass $data
+	 *
+	 * @return mixed
+	 */
+	public function getModel(stdClass $data)
+	{
+		// TODO: Implement getModel() method.
+	}
+
+	/**
+	 * @param \stdClass $object
+	 *
+	 * @return mixed
+	 */
+	public function insert(stdClass &$object)
+	{
+		// TODO: Implement insert() method.
+	}
+
+	/**
+	 * @param \stdClass $object
+	 *
+	 * @return mixed
+	 */
+	public function delete(stdClass &$object)
+	{
+		// TODO: Implement delete() method.
+	}
+
+	/**
+	 * @param \stdClass $object
+	 *
+	 * @return mixed
+	 */
+	public function update(stdClass &$object)
+	{
+		// TODO: Implement update() method.
 	}
 }
 ?>

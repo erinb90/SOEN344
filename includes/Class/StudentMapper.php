@@ -4,7 +4,7 @@
 session_start();
 
 
-class StudentMapper
+class StudentMapper extends AbstractMapper
 {
 	private $studentActive;
 	private $studentData;
@@ -129,5 +129,45 @@ class StudentMapper
 	public function updateStudent($studentUpdateList, $conn){
         $this->studentData->updateStudent($studentUpdateList, $conn);
     }
+
+	/**
+	 * @param \stdClass $data
+	 *
+	 * @return mixed
+	 */
+	public function getModel(stdClass $data)
+	{
+		// TODO: Implement getModel() method.
+	}
+
+	/**
+	 * @param \stdClass $object
+	 *
+	 * @return mixed
+	 */
+	public function insert(stdClass &$object)
+	{
+		// TODO: Implement insert() method.
+	}
+
+	/**
+	 * @param \stdClass $object
+	 *
+	 * @return mixed
+	 */
+	public function delete(stdClass &$object)
+	{
+		// TODO: Implement delete() method.
+	}
+
+	/**
+	 * @param \stdClass $object
+	 *
+	 * @return mixed
+	 */
+	public function update(stdClass &$object)
+	{
+		// TODO: Implement update() method.
+	}
 }
 ?>
