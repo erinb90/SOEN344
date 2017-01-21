@@ -33,7 +33,7 @@ class UnitOfWork
      * @param \stdClass $object
      * @param \AbstractMapper $mapper
      */
-    public static function registerNew(stdClass &$object, AbstractMapper & $mapper)
+    public static function registerNew(stdClass &$object, AbstractMapper &$mapper)
     {
         self::$new[] = array
         (
@@ -47,7 +47,7 @@ class UnitOfWork
      * @param \stdClass $object
      * @param \AbstractMapper $mapper
      */
-    public static function registerDirty(stdClass &$object, AbstractMapper & $mapper)
+    public static function registerDirty(stdClass &$object, AbstractMapper &$mapper)
     {
         self::$dirty[] = array
         (
@@ -61,7 +61,7 @@ class UnitOfWork
      * @param \stdClass $object
      * @param \AbstractMapper $mapper
      */
-    public static function registerDeleted(stdClass &$object, AbstractMapper & $mapper)
+    public static function registerDeleted(stdClass &$object, AbstractMapper &$mapper)
     {
         self::$deleted[] = array
         (

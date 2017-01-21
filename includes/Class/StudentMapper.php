@@ -6,8 +6,11 @@ session_start();
 
 class StudentMapper extends AbstractMapper
 {
-	private $studentActive;
-	private $studentData;
+
+	/**
+	 * @var \TDG
+	 */
+	private $_StudentTDG;
 		
 	/* 
 	*	Constructors for the Student Mapper object
@@ -15,37 +18,24 @@ class StudentMapper extends AbstractMapper
 	*	In which case they simply need access to the checkUserAndPass or checkUserExist methods
 	*	No variables need to be instantiated until they actually log in
 	*/
-	public function __construct($email, $conn) {
-
-		if(empty($email))
-		{
-			$this->studentActive = new StudentDomain();
-			$this->studentData = new StudentTDG();
-		}
-		else
-		{
-			$this->studentActive = new StudentDomain();
-			$this->studentData = new StudentTDG();
-		
-			$this->setFirstName($this->studentData->getFirstName($email, $conn));
-			$this->setLastName($this->studentData->getLastName($email, $conn));
-			$this->setEmailAddress($email);
-			$this->setProgram($this->studentData->getProgram($email, $conn));
-			$this->setSID($this->studentData->getSID($email, $conn));			
-		}
+	public function __construct()
+	{
+		$this->_StudentTDG = new StudentTDG();
 	}
 
-	public function checkUserAndPass($email, $pass, $conn){
-		return $this->studentData->checkUserAndPass($email, $pass, $conn); 
+	public function checkUserAndPass($email, $pass, $conn)
+	{
+		return $this->_StudentTDG->checkUserAndPass($email, $pass, $conn);
 	}
 	
 	public function checkUserExist($email, $conn){
-		return $this->studentData->checkUserExist($email, $conn);
+		return $this->_StudentTDG->checkUserExist($email, $conn);
 	}
 	
 	/* Set methods for the Student Domain object
 	*/
-	public function setFirstName($first){
+	public function setFirstName($first)
+	{
 		$this->studentActive->setFirstName($first);
     }
     
@@ -53,65 +43,80 @@ class StudentMapper extends AbstractMapper
 		$this->studentActive->setLastName($last);
     }
     
-    public function setEmailAddress($new) {
+    public function setEmailAddress($new)
+	{
         $this->studentActive->setEmailAddress($new);
     }
     
-    public function setProgram($program) {
+    public function setProgram($program)
+	{
         $this->studentActive->setProgram($program);
     }
 	
-	public function setSID($sID) {
+	public function setSID($sID)
+	{
         $this->studentActive->setSID($sID);
     }
 	
-	public function setNewPassword($oldPass,$newPass, $conn){
+	public function setNewPassword($oldPass,$newPass, $conn)
+	{
 		
-		$hashOld = $this->studentData->hashPassword($oldPass, $conn);
-		$hashNew = $this->studentData->hashPassword($newPass, $conn);
+		$hashOld = $this->_StudentTDG->hashPassword($oldPass, $conn);
+		$hashNew = $this->_StudentTDG->hashPassword($newPass, $conn);
 		
 		$this->studentActive->setOldPassword($hashOld);
 		$this->studentActive->setNewPassword($hashNew);
 	}
 	
-	public function setNewEmail($newEmail) {
+	public function setNewEmail($newEmail)
+	{
         $this->studentActive->setNewEmail($newEmail);
     }
 	
 	/* Get methods for the Student Domain object
 	*/
-	public function getFirstName(){
+	public function getFirstName()
+	{
 		return $this->studentActive->getFirstName();
     }
     
-    public function getLastName(){
+    public function getLastName()
+	{
 		return $this->studentActive->getLastName();
     }
     
-    public function getEmailAddress() {
+    public function getEmailAddress()
+	{
         return $this->studentActive->getEmailAddress();
     }
-    public function getEmailAddressFromDB($email, $conn) {
-    	return $this->studentData->getEmailAddress($email, $conn);
+    public function getEmailAddressFromDB($email, $conn)
+	{
+    	return $this->_StudentTDG->getEmailAddress($email, $conn);
     }
     
-    public function getProgram() {
+    public function getProgram()
+	{
         return $this->studentActive->getProgram();
     }
-	
-	public function getSID() {
+
+
+	public function getSID()
+	{
         return $this->studentActive->getSID();
     }
 	
-	public function getNewPass() {
+	public function getNewPass()
+	{
         return $this->studentActive->getNewPass();
     }
 	
-	public function getOldPass() {
+	public function getOldPass()
+	{
         return $this->studentActive->getOldPass();
     }
 	
-	public function getNewEmail() {
+	public function getNewEmail()
+	{
         return $this->studentActive->getNewEmail();
     }
 		
@@ -126,8 +131,9 @@ class StudentMapper extends AbstractMapper
 	/*
 		Unit of Work (TDG Functions for Student)
 	*/
-	public function updateStudent($studentUpdateList, $conn){
-        $this->studentData->updateStudent($studentUpdateList, $conn);
+	public function updateStudent($studentUpdateList, $conn)
+	{
+        $this->_StudentTDG->updateStudent($studentUpdateList, $conn);
     }
 
 	/**
@@ -135,9 +141,20 @@ class StudentMapper extends AbstractMapper
 	 *
 	 * @return mixed
 	 */
-	public function getModel(stdClass $data)
+	public function getModel($data)
 	{
-		// TODO: Implement getModel() method.
+		if(!$data)
+			return  null;
+
+		$StudentDomain = new StudentDomain();
+		$StudentDomain->setEmailAddress($data['email']);
+		$StudentDomain->setPassword($data['password']);
+		$StudentDomain->setFirstName($data['firstName']);
+		$StudentDomain->setLastName($data['lastName']);
+		$StudentDomain->setSID($data['studentID']);
+		$StudentDomain->setProgram($data['program']);
+
+		return $StudentDomain;
 	}
 
 	/**
@@ -147,7 +164,8 @@ class StudentMapper extends AbstractMapper
 	 */
 	public function insert(stdClass &$object)
 	{
-		// TODO: Implement insert() method.
+		return $this->_StudentTDG->insert($object);
+
 	}
 
 	/**
@@ -157,7 +175,7 @@ class StudentMapper extends AbstractMapper
 	 */
 	public function delete(stdClass &$object)
 	{
-		// TODO: Implement delete() method.
+		return $this->_StudentTDG->delete($object);
 	}
 
 	/**
@@ -167,7 +185,17 @@ class StudentMapper extends AbstractMapper
 	 */
 	public function update(stdClass &$object)
 	{
-		// TODO: Implement update() method.
+		return $this->_StudentTDG->update($object);
+	}
+
+	/**
+	 * @param $id
+	 *
+	 * @return mixed
+	 */
+	public function findByPk($id)
+	{
+		return $this->getModel($this->_StudentTDG->findByPk($id));
 	}
 }
 ?>
