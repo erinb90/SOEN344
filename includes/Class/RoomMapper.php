@@ -62,32 +62,34 @@ class RoomMapper extends AbstractMapper
 
 	}
 
+
+
 	/**
-	 * @param \stdClass $object
+	 * @param \DomainObject|RoomDomain $object
 	 *
 	 * @return mixed
 	 */
-	public function insert(stdClass &$object)
+	public function insert(DomainObject &$object)
 	{
 		$this->_RoomTDG->insert($object);
 	}
 
 	/**
-	 * @param \stdClass $object
+	 * @param \DomainObject|RoomDomain $object
 	 *
 	 * @return mixed
 	 */
-	public function delete(stdClass &$object)
+	public function delete(DomainObject &$object)
 	{
 		$this->_RoomTDG->delete($object);
 	}
 
 	/**
-	 * @param \stdClass $object
+	 * @param \DomainObject|RoomDomain $object
 	 *
 	 * @return mixed
 	 */
-	public function update(stdClass &$object)
+	public function update(DomainObject &$object)
 	{
 		$this->_RoomTDG->update($object);
 	}

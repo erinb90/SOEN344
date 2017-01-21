@@ -176,32 +176,32 @@ class StudentMapper extends AbstractMapper
 	}
 
 	/**
-	 * @param \stdClass $object
+	 * @param \DomainObject $object
 	 *
 	 * @return mixed
 	 */
-	public function insert(stdClass &$object)
+	public function insert(DomainObject &$object)
 	{
 		return $this->_StudentTDG->insert($object);
 
 	}
 
 	/**
-	 * @param \stdClass $object
+	 * @param \DomainObject $object
 	 *
 	 * @return mixed
 	 */
-	public function delete(stdClass &$object)
+	public function delete(DomainObject &$object)
 	{
 		return $this->_StudentTDG->delete($object);
 	}
 
 	/**
-	 * @param \stdClass $object
+	 * @param \DomainObject $object
 	 *
 	 * @return mixed
 	 */
-	public function update(stdClass &$object)
+	public function update(DomainObject &$object)
 	{
 		return $this->_StudentTDG->update($object);
 	}

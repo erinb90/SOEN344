@@ -30,10 +30,10 @@ class UnitOfWork
 
 
     /**
-     * @param \stdClass $object
+     * @param \DomainObject $object
      * @param \AbstractMapper $mapper
      */
-    public static function registerNew(stdClass &$object, AbstractMapper &$mapper)
+    public static function registerNew(DomainObject &$object, AbstractMapper &$mapper)
     {
         self::$new[] = array
         (
@@ -44,10 +44,10 @@ class UnitOfWork
     }
 
     /**
-     * @param \stdClass $object
+     * @param \DomainObject $object
      * @param \AbstractMapper $mapper
      */
-    public static function registerDirty(stdClass &$object, AbstractMapper &$mapper)
+    public static function registerDirty(DomainObject &$object, AbstractMapper &$mapper)
     {
         self::$dirty[] = array
         (
@@ -58,10 +58,10 @@ class UnitOfWork
     }
 
     /**
-     * @param \stdClass $object
+     * @param \DomainObject $object
      * @param \AbstractMapper $mapper
      */
-    public static function registerDeleted(stdClass &$object, AbstractMapper &$mapper)
+    public static function registerDeleted(DomainObject &$object, AbstractMapper &$mapper)
     {
         self::$deleted[] = array
         (
@@ -80,7 +80,7 @@ class UnitOfWork
         foreach (self::$new as $objectMapper)
         {
             /**
-             * @var $object stdClass
+             * @var $object DomainObject
              * @var $mapper AbstractMapper
              */
             $object = $objectMapper ["object"];

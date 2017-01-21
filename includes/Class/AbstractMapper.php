@@ -43,11 +43,11 @@ abstract class AbstractMapper implements Gateway
     // UOW methods
     /**
      * This method registers new object in unit of work
-     * @param \stdClass $object
+     * @param \DomainObject $object
      *
      * @return AbstractMapper
      */
-    public final function uowInsert(&$object)
+    public final function uowInsert(DomainObject &$object)
     {
         UnitOfWork::registerNew($object, $this);
         return $this;
@@ -55,11 +55,11 @@ abstract class AbstractMapper implements Gateway
 
     /**
      * This method registers deletion object in unit of work
-     * @param \stdClass $object
+     * @param \DomainObject $object
      *
      * @return AbstractMapper
      */
-    public final function uowDelete(&$object)
+    public final function uowDelete(DomainObject &$object)
     {
         UnitOfWork::registerDeleted($object, $this);
         return $this;
@@ -67,11 +67,11 @@ abstract class AbstractMapper implements Gateway
 
     /**
      * This method registers updated object in unit of work
-     * @param \stdClass $object
+     * @param \DomainObject $object
      *
      * @return AbstractMapper
      */
-    public final function uowUpdate(&$object)
+    public final function uowUpdate(DomainObject &$object)
     {
         UnitOfWork::registerDirty($object, $this);
         return $this;

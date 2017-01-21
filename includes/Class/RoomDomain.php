@@ -7,6 +7,8 @@ class RoomDomain implements DomainObject
     private $description = "";
 	private $rID = "";
 	private $busy = "";
+
+
 	
 	/*
 		No Default Constructor is Necessary for this class
@@ -25,6 +27,8 @@ class RoomDomain implements DomainObject
     public function getDescription() {
         return $this->description;
     }
+
+
 	
 	public function getRID() {
         return $this->rID;

@@ -113,6 +113,41 @@ $RoomDirectory = new RoomDirectory();
             });
 
 
+            $(document).on('click','#makeReservation', function(){
+                $form = $('#reservationForm');
+
+                $clicker = $(this);
+                var originalText = $clicker.text();
+                $clicker.text('Submitting...');
+                $clicker.addClass('disabled');
+                var ser = $form.serialize();
+
+                $('#resultsReservation').html("");
+
+                console.log(ser);
+
+                $.ajax({
+                    type    : "POST",
+                    url     : "Reserve.php", //file name
+                    data    : ser,
+                    success : function (data)
+                    {
+                        $clicker.text(originalText);
+                        $('#resultsReservation').html(data);
+                    },
+                    complete: function ()
+                    {
+                        $clicker.text(originalText);
+                        $clicker.removeClass('disabled');
+                    },
+                    error   : function ()
+                    {
+                        $clicker.text(originalText);
+                    }
+                });
+
+            })
+
 
         })
     </script>
@@ -194,6 +229,7 @@ $RoomDirectory = new RoomDirectory();
                     <!-- Modal content-->
                     <div>
 
+                        <form id="reservationForm">
                         <div class="modal-body">
 
 
@@ -235,9 +271,10 @@ $RoomDirectory = new RoomDirectory();
                                     <option value="3">3 Weeks</option>
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-default btn-success btn-block">Submit</button>
+                            <button type="button" id="createReservation" class="btn btn-default btn-success btn-block">Submit</button>
 
                         </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -443,6 +480,23 @@ $RoomDirectory = new RoomDirectory();
     <!-- class containter -->
 </div>
 <!-- class="intro-header" -->
+
+
+<!-- Conflict Resolution Message -->
+
+<div id="conflictResolutionMessage" style="display: none;" title="Conflict Resolution">
+
+</div>
+
+
+<!-- Reservation Creation Container -->
+<div id="reservationContainerMessage" style="display: none;" title="Create Reservation">
+
+</div>
+
+
+
+
 </body>
 
 </html>

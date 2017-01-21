@@ -86,5 +86,10 @@ class ReservationDomain implements  DomainObject
 	public function setWait($wait) {
 		$this->wait = $wait;
     }
+
+    public function getReID()
+    {
+        return $this->reID;
+    }
 }
 ?>

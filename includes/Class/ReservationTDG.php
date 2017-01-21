@@ -274,17 +274,17 @@ class ReservationTDG extends TDG
         return "reservations";
     }
 
-    public function insert(stdClass &$object)
+    public function insert(DomainObject &$object)
     {
         // TODO: Implement insert() method.
     }
 
-    public function delete(stdClass &$object)
+    public function delete(DomainObject &$object)
     {
         // TODO: Implement delete() method.
     }
 
-    public function update(stdClass &$object)
+    public function update(DomainObject &$object)
     {
         // TODO: Implement update() method.
     }

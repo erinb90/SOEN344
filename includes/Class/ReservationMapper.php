@@ -17,6 +17,29 @@ class ReservationMapper extends AbstractMapper
 		$this->_ReservationTDG = new ReservationTDG();
 	}
 
+
+	public function numberOfReservationsMadeWeekUser($start, $studentid)
+	{
+
+		//todo:
+	}
+
+	public function findAllStudentReservations($studentid)
+	{
+		//todo:
+	}
+
+	public function getAllReservations()
+	{
+
+		$data = $this->_ReservationTDG->findAll();
+		$models = array();
+		foreach ($data as $row)
+		{
+			$models[] = $this->getModel($row);
+		}
+		return $models;
+	}
     
 	public function getReservations($sID, $conn){
 		return $this->_ReservationTDG->getReservations($sID, $conn);
@@ -83,33 +106,56 @@ class ReservationMapper extends AbstractMapper
 	}
 
 	/**
-	 * @param \stdClass $object
+	 * @param $studentid
+	 * @param $roomid
+	 * @param $starttime
+	 * @param $endtime
+	 * @param $title
+	 * @param $description
+	 * @return ReservationDomain
+	 */
+	public function createReservation($studentid, $roomid, $starttime, $endtime, $title, $description)
+	{
+
+		$ReservationDomain = new ReservationDomain();
+		$ReservationDomain->setDescription($description);
+		$ReservationDomain->setEndTimeDate($endtime);
+		$ReservationDomain->setRID($roomid);
+		$ReservationDomain->setSID($studentid);
+		$ReservationDomain->setStartTimeDate($starttime);
+		$ReservationDomain->setTitle($title);
+
+		return $ReservationDomain;
+	}
+
+	/**
+	 * @param \DomainObject $object
 	 *
 	 * @return mixed
 	 */
-	public function insert(stdClass &$object)
+	public function insert(DomainObject &$object)
 	{
 		return $this->_ReservationTDG->insert($object);
 
 	}
 
 	/**
-	 * @param \stdClass $object
+	 * @param \DomainObject $object
 	 *
 	 * @return mixed
 	 */
-	public function delete(stdClass &$object)
+	public function delete(DomainObject &$object)
 	{
 		return $this->_ReservationTDG->delete($object);
 
 	}
 
 	/**
-	 * @param \stdClass $object
+	 * @param \DomainObject $object
 	 *
 	 * @return mixed
 	 */
-	public function update(stdClass &$object)
+	public function update(DomainObject &$object)
 	{
 		return $this->_ReservationTDG->update($object);
 	}
