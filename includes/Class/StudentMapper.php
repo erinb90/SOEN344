@@ -1,7 +1,5 @@
 <?php
 
-// Start the session
-session_start();
 
 
 class StudentMapper extends AbstractMapper
@@ -93,6 +91,11 @@ class StudentMapper extends AbstractMapper
 	{
     	return $this->_StudentTDG->getEmailAddress($email, $conn);
     }
+
+    public function findByEmail($username)
+	{
+		return $this->getModel($this->_StudentTDG->findByEmail($username));
+	}
     
     public function getProgram()
 	{
@@ -114,7 +117,21 @@ class StudentMapper extends AbstractMapper
 	{
         return $this->studentActive->getOldPass();
     }
-	
+
+    /**
+     * @return array an array of student objects
+     */
+    public function getAllStudents()
+    {
+        $data = $this->_StudentTDG->findAll();
+        $models = array();
+        foreach ($data as $row)
+        {
+            $models[] = $this->getModel($row);
+        }
+        return $models;
+    }
+
 	public function getNewEmail()
 	{
         return $this->studentActive->getNewEmail();
@@ -153,6 +170,7 @@ class StudentMapper extends AbstractMapper
 		$StudentDomain->setLastName($data['lastName']);
 		$StudentDomain->setSID($data['studentID']);
 		$StudentDomain->setProgram($data['program']);
+
 
 		return $StudentDomain;
 	}
