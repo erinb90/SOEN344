@@ -53,11 +53,11 @@ else if(count($ReservationCreator->getConflicts()) > 0)
     ?>
     <script>
         $(function(){
-            $('#reservationContainerMessage').dialog("close");
             $('#conflictResolutionContainer').dialog({
                 width: 800,
                 height: 550,
                 title: "Conflict Resolution",
+                modal : true,
                 buttons:
                 {
                     "Save" : function()
@@ -97,7 +97,7 @@ else if(count($ReservationCreator->getConflicts()) > 0)
         })
     </script>
 
-    <div id="conflictResolutionContainer">
+    <div id="conflictResolutionContainer" style="display: none;">
         <p class="text-center text-danger">Conflicts Found!</p>
         If you wish to put yourself on a waiting list for the reservations below, click on the appropriate reservation and click on "Save".
         <div>

@@ -51,6 +51,8 @@ class CreateReservation
 
 
     private $_repeats = 0 ;
+
+
     public function __construct($user, $roomid, $title, $description, $date, $startTime, $endTime, $repeats=  0)
     {
         $this->_student = $user;
@@ -102,9 +104,8 @@ class CreateReservation
         foreach($this->_repeatDates as $date)
         {
             $ReservationMapper = new ReservationMapper();
-            $weekReservationsMade = $ReservationMapper->numberOfReservationsMadeWeekUser($date, $this->_student->getSID()) + 4;
+            $weekReservationsMade = $ReservationMapper->numberOfReservationsMadeWeekUser($date, $this->_student->getSID());
 
-            echo $weekReservationsMade;
             if($weekReservationsMade >= CoreConfig::settings()['reservations']['max_per_week'])
             {
                 $this->setError("Cannot exceed a max quota of " . CoreConfig::settings()['reservations']['max_per_week'] ."  reservations for the week of " . $date);

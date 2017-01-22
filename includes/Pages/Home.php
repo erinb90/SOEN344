@@ -43,6 +43,28 @@ $RoomDirectory = new RoomDirectory();
     <!-- Google Web Font Format for title -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Abel" rel="stylesheet">
+
+
+    <!-- DataTables CSS -->
+    <link href="../../plugins/datatables/media/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <!-- DataTables Buttons Extension -->
+    <link href="../../plugins/datatables/extensions/Buttons/css/buttons.dataTables.min.css" rel="stylesheet">
+    <link href="../../plugins/datatables/extensions/Buttons/css/buttons.bootstrap.min.css" rel="stylesheet">
+
+    <!-- DataTable Select Extension -->
+    <link href="../../plugins/datatables/extensions/Select/css/select.dataTables.min.css" rel="stylesheet">
+
+
+
+    <!-- DataTables JavaScript -->
+    <script src="../../plugins/datatables/media/js/jquery.dataTables.min.js"></script>
+    <script src="../../plugins/datatables/media/js/dataTables.bootstrap.min.js"></script>
+    <!-- DataTable extensions -->
+    <script src="../../plugins/datatables/extensions/Buttons/js/dataTables.buttons.js"></script>
+    <script src="../../plugins/datatables/extensions/Buttons/js/buttons.bootstrap.min.js"></script>
+    <script src="../../plugins/datatables/extensions/Select/js/dataTables.select.min.js"></script>
+    <script src="../../plugins/datatables/extensions/Buttons/js/buttons.flash.js"></script>
+
     <script>
         $(function () {
 
@@ -146,7 +168,60 @@ $RoomDirectory = new RoomDirectory();
                     }
                 });
 
-            })
+            });
+
+            $(document).on('click', '#third-r', function () {
+
+                $('#myReservationsModal').dialog({
+                    width: 800,
+                    modal: true,
+                    title: 'My Reservations'
+                });
+            });
+
+
+
+
+
+            userReservations = $('#reservationsTable').DataTable({
+                "processing"   : true,
+                "destroy"      : true,
+                "serverSide"   : false,
+                "displayLength": 25,
+                "ajax"         : {
+                    "url" : 'StudentReservations.php',
+                    "type": "POST",
+                },
+                "columns"      : [
+                    {"data": "reid"},
+                    {"data": "title"},
+                    {"data": "rid"},
+                    {"data": "roomName"},
+                    {"data": "Date"},
+                    {"data": "StartTime"},
+                    {"data": "EndTime"},
+                    {
+                        'render' : function (data, type, row)
+                        {
+                            if(row.modifiable)
+                            {
+                                return '<button id="modifyReservation" name="modifyReservation" type="button" class="btn btn-outline btn-primary btn-square btn-sm">Modify</button>' +
+                                    ' <button id="cancelReservation" name="cancelReservation" type="button" class="btn btn-outline btn-danger btn-square btn-sm">Cancel</button>';
+                            }
+                            else
+                            {
+                                return "-";
+                            }
+                        },
+                        className: "dt-center"
+                    }
+                ],
+                'order'        : [[0, "asc"]],
+                columnDefs     : [{
+                    orderable: false,
+                    targets  : [5]
+                }],
+            });
 
 
         })
@@ -495,6 +570,27 @@ $RoomDirectory = new RoomDirectory();
 
 </div>
 
+
+<!-- My Reservations Modal -->
+<div id="myReservationsModal" style="display: none;">
+    <table class="table" id="reservationsTable" width="100%">
+        <thead>
+        <tr>
+            <th>Reservation ID</th>
+            <th>Name</th>
+            <th>Room ID</th>
+            <th>Room Name</th>
+            <th>Date</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Action</th>
+
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
 
 
 
