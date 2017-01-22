@@ -113,7 +113,7 @@ $RoomDirectory = new RoomDirectory();
             });
 
 
-            $(document).on('click','#makeReservation', function(){
+            $(document).on('click','#createReservation', function(){
                 $form = $('#reservationForm');
 
                 $clicker = $(this);
@@ -275,6 +275,7 @@ $RoomDirectory = new RoomDirectory();
 
                         </div>
                         </form>
+                        <div id="resultsReservation"></div>
                     </div>
                 </div>
             </div>

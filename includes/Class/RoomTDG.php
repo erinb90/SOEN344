@@ -111,6 +111,13 @@ class RoomTDG extends TDG
 
     public function findByPk($id)
     {
-        // TODO: Implement findByPk() method.
+        $query = Registry::getConnection()->createQueryBuilder();
+        $query->select("*");
+        $query->from($this->getTable(), $this->getTable());
+        $query->where($this->getTable() . '.' . $this->getPk() . "='" . $id . "'");
+        $sth = $query->execute();
+        $m = $sth->fetchAll();
+
+        return $m[0];
     }
 }

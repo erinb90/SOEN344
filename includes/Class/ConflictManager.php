@@ -25,6 +25,8 @@ class ConflictManager
         $this->_endTime = $endTime;
         $this->_roomId = $roomId;
         $this->_ignored = $ignoreReservationIds;
+
+
         $this->findConflicts();
     }
 
@@ -49,6 +51,8 @@ class ConflictManager
             $startTime = strtotime($Reservation->getStartTimeDate());
             $endTime = strtotime($Reservation->getEndTimeDate());
             $rid = $Reservation->getRID();
+
+
             if ($rid == $this->_roomId)
             {
                 // was the start time of current reservation between the conflicted start and end time period?
@@ -66,8 +70,10 @@ class ConflictManager
                 {
                     $conflicts[$Reservation->getReID()] = $Reservation;
                 }
+
             }
         }
+
         $this->_conflicts = $conflicts;
     }
 

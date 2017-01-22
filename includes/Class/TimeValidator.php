@@ -10,6 +10,8 @@ class TimeValidator
 {
     private $_startTime;
 
+
+
     private $_endTime;
 
     private $_errors = array();
@@ -48,13 +50,14 @@ class TimeValidator
      */
     private function validate()
     {
+
         // Are the dates even valid?
-        if (!Utility::validateDate($this->_startTime, "Y-m-d H:i:s"))
+        if (!Utilities::validateDate($this->_startTime, "Y-m-d H:i:s"))
         {
 
             $this->setError("Start time not valid");
         }
-        if (!Utility::validateDate($this->_endTime))
+        if (!Utilities::validateDate($this->_endTime))
         {
 
             $this->setError("End time not valid");

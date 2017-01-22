@@ -6,7 +6,7 @@
  * Date: 1/21/2017
  * Time: 3:37 PM
  */
-class MakeReservationSession
+class CreateReservationSession
 {
 
     /**
@@ -22,12 +22,12 @@ class MakeReservationSession
     /**
      * @var string
      */
-    private $_startTime;
+    private $_startTimeDate;
 
     /**
      * @var string
      */
-    private $_endTime;
+    private $_endTimeDate;
 
 
     private $_description;
@@ -40,29 +40,18 @@ class MakeReservationSession
     private $_conflicts=array();
 
 
+    private $_date;
     /**
      * MakeReservationSession constructor.
      */
-    public function __construct()
+    public function __construct(StudentDomain $student, $startTimeDate, $endTimeDate)
     {
-        //parent::__construct();
+        $this->_User = $student;
+        $this->_startTimeDate = $startTimeDate;
+        $this->_endTimeDate = $endTimeDate;
     }
 
-    /**
-     * @return string
-     */
-    public function getStartTime()
-    {
-        return $this->_startTime;
-    }
 
-    /**
-     * @return string
-     */
-    public function getEndTime()
-    {
-        return $this->_endTime;
-    }
 
     public function getErrors()
     {
@@ -82,8 +71,14 @@ class MakeReservationSession
     public function validate()
     {
 
+
+        if($this->_date == "")
+        {
+            $this->setError("Date required");
+            return;
+        }
         // validate time slot
-        $TimeSlotValidator = new TimeValidator($this->_startTime, $this->_endTime);
+        $TimeSlotValidator = new TimeValidator($this->_startTimeDate, $this->_endTimeDate);
         $TimeSlotValidatorErrors = $TimeSlotValidator->getErrors();
         if (!empty($TimeSlotValidatorErrors))
         {
@@ -94,7 +89,7 @@ class MakeReservationSession
         }
 
         //find conflicts
-        $ConflictManager = new ConflictManager($this->_startTime, $this->_endTime, $this->_rid, array());
+        $ConflictManager = new ConflictManager($this->_startTimeDate, $this->_endTimeDate, $this->_rid, array());
         $this->_conflicts = $ConflictManager->getConflicts();
 
         // check how many reservations student made and if he's allowed to make any more
@@ -147,25 +142,28 @@ class MakeReservationSession
         }
 
 
+        if($this->_title == "")
+        {
+            $this->setError("Title must be provided");
+        }
 
     }
 
+    /**
+     * @return array
+     */
+    public function getConflicts()
+    {
+        return $this->_conflicts;
+    }
 
 
     /**
      * @return bool returns true if the reservation was successful with no time conflicts
      *
      */
-    public function reserve(StudentDomain $user, $roomid, $start, $end, $title, $description)
+    public function reserve()
     {
-        $this->_User = $user;
-        $this->_rid = $roomid;
-        $this->_endTime = $end;
-        $this->_startTime = ($start);
-
-        $this->_title = $title;
-        $this->_description = $description;
-
 
         $this->validate();
         // if no errors and no conflicts
@@ -179,8 +177,8 @@ class MakeReservationSession
                 $Reservation = $ReservationMapper->createReservation(
                     $this->_User->getSID(),
                     $this->_rid,
-                    $this->_startTime,
-                    $this->_endTime,
+                    $this->_startTimeDate,
+                    $this->_endTimeDate,
                     $this->_title,
                     $this->_description);
                 $ReservationMapper->uowInsert($Reservation);

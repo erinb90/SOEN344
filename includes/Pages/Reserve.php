@@ -3,21 +3,44 @@ session_start();
 require_once($_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php');
 
 
+$date = $_REQUEST['rDate'];
 $startTime = $_REQUEST['startTime'];
 $endTime = $_REQUEST['endTime'];
-$roomid = $_REQUEST['rid'];
-$name = $_REQUEST['name'];
+$roomid = $_REQUEST['roomID'];
+$description = $_REQUEST['description'];
+$title = $_REQUEST['title'];
+$repeats = $_REQUEST['repeatReservation'];
 
-$ReservationCreator = new MakeReservationSession();
+$ReservationCreator = new CreateReservation(
+    WebUser::getUser(),
+    $roomid,
+    $title,
+    $description,
+    $date,
+    $startTime,
+    $endTime,
+    $repeats);
 
 
-if($ReservationCreator->reserve(WebUser::getUser(), $roomid, $startTime, $endTime, $name))
+if($ReservationCreator->reserve())
 {
     ?>
+    <div id="successReservation">
     <div class="alert alert-success">
         You have successfully created your reservation!
     </div>
+    </div>
     <script>
+
+        $(function(){
+
+            $('#myModal').dialog("destroy");
+
+            $('#successReservation').dialog({
+                title : 'Success',
+                width : 400
+            });
+        })
 
     </script>
     <?php
@@ -85,6 +108,7 @@ else if(count($ReservationCreator->getConflicts()) > 0)
                     <th>User</th>
                     <th>Start Time</th>
                     <th>End Time
+                    <th>Room</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -97,13 +121,24 @@ else if(count($ReservationCreator->getConflicts()) > 0)
                 foreach($conflicts as $reid => $Reservation)
                 {
                     $UserMapper = new StudentMapper();
+                    /**
+                     * @var StudentDomain $User
+                     */
                     $User = $UserMapper->findByPk($Reservation->getSID());
+
+                    $RoomMapper = new RoomMapper();
+
+                    /**
+                     * @var RoomDomain $RoomDomain
+                     */
+                    $RoomDomain = $RoomMapper->findByPk($Reservation->getRID());
                     ?>
                     <tr>
-                        <td><?php echo $reid; ?></td>
-                        <td><?php echo $User->getUsername(); ?></td>
+                        <td><?php echo $Reservation->getReID(); ?></td>
+                        <td><?php echo $User->getEmailAddress(); ?></td>
                         <td><?php echo $Reservation->getStartTimeDate(); ?></td>
                         <td><?php echo $Reservation->getEndTimeDate(); ?></td>
+                        <td><?php echo $RoomDomain->getName(); ?> </td>
                         <td><input type="radio" id="conflict" name="conflict" value="<?php echo $reid;?>"></td>
                     </tr>
                     <?php
