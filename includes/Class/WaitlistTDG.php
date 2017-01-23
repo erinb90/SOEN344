@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class WaitlistTDG
+ */
 class WaitlistTDG extends TDG
 {
     /**
@@ -7,37 +10,6 @@ class WaitlistTDG extends TDG
      */
     public function __construct()
     {
-    }
-
-
-    /**
-     * @param $id int primary key
-     *
-     * @return array return wait list row by its primary key
-     */
-    public function findByPk($id)
-    {
-        $query = Registry::getConnection()->createQueryBuilder();
-        $query->select("*");
-        $query->from($this->getTable(), $this->getTable());
-        $query->where($this->getTable() . '.' . $this->getPk() . "=" . $id);
-        $sth = $query->execute();
-        $m = $sth->fetchAll();
-        return $m[0];
-    }
-
-
-    /**
-     * @return array returns all wait list rows
-     */
-    public function findAll()
-    {
-        $query = Registry::getConnection()->createQueryBuilder();
-        $query->select("*");
-        $query->from($this->getTable());
-        $sth = $query->execute();
-        $m = $sth->fetchAll();
-        return $m;
     }
 
 
@@ -125,11 +97,17 @@ class WaitlistTDG extends TDG
         );
     }
 
+    /**
+     * @return string
+     */
     public function getPk()
     {
         return "wid";
     }
 
+    /**
+     * @return string
+     */
     public function getTable()
     {
         return "waitlists";

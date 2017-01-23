@@ -1,24 +1,25 @@
 <?php
 
+/**
+ * Class ReservationTDG
+ */
 class ReservationTDG extends TDG
 {
 
 
+    /**
+     * ReservationTDG constructor.
+     */
 	public function __construct()
     {
 
 	}
 
-	public function findAll()
-    {
-        $query = Registry::getConnection()->createQueryBuilder();
-        $query->select("*");
-        $query->from($this->getTable());
-        $sth = $query->execute();
-        $m = $sth->fetchAll();
-        return $m;
-    }
-
+    /**
+     * @param $studentid
+     *
+     * @return array
+     */
     public function findAllStudentReservations($studentid)
     {
         $query = Registry::getConnection()->createQueryBuilder();
@@ -30,11 +31,17 @@ class ReservationTDG extends TDG
         return $m;
     }
 
+    /**
+     * @return string
+     */
     public function getPk()
     {
         return "reservationID";
     }
 
+    /**
+     * @return string
+     */
     public function getTable()
     {
         return "reservations";
@@ -43,7 +50,7 @@ class ReservationTDG extends TDG
     /**
      * @param \DomainObject|ReservationDomain $object
      *
-     * @return string
+     * @return int
      */
     public function insert(DomainObject &$object)
     {
@@ -69,7 +76,7 @@ class ReservationTDG extends TDG
     {
         return Registry::getConnection()->delete($this->getTable(),
             array(
-                $this->getPk() => $object->getReid()
+                $this->getPk() => $object->getReID()
             )
         );
     }
@@ -96,20 +103,5 @@ class ReservationTDG extends TDG
         );
     }
 
-    /**
-     * @param $id
-     *
-     * @return mixed
-     */
-    public function findByPk($id)
-    {
-        $query = Registry::getConnection()->createQueryBuilder();
-        $query->select("*");
-        $query->from($this->getTable(), $this->getTable());
-        $query->where($this->getTable() . '.' . $this->getPk() . "='" . $id . "'");
-        $sth = $query->execute();
-        $m = $sth->fetchAll();
-        return $m[0];
-    }
 }
 ?>

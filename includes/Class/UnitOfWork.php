@@ -76,33 +76,40 @@ class UnitOfWork
      */
     public static function commit()
     {
-
-        foreach (self::$new as $objectMapper)
+        try
         {
-            /**
-             * @var $object DomainObject
-             * @var $mapper AbstractMapper
-             */
-            $object = $objectMapper ["object"];
-            $mapper = $objectMapper ["mapper"];
 
-            $mapper->insert($object);
+            foreach (self::$new as $objectMapper)
+            {
+                /**
+                 * @var $object DomainObject
+                 * @var $mapper AbstractMapper
+                 */
+                $object = $objectMapper ["object"];
+                $mapper = $objectMapper ["mapper"];
+
+                $mapper->insert($object);
+            }
+
+            foreach (self::$dirty as $objectMapper)
+            {
+                $object = $objectMapper ["object"];
+                $mapper = $objectMapper ["mapper"];
+
+                $mapper->update($object);
+            }
+
+            foreach (self::$deleted as $objectMapper)
+            {
+                $object = $objectMapper ["object"];
+                $mapper = $objectMapper ["mapper"];
+
+                $mapper->delete($object);
+            }
         }
-
-        foreach (self::$dirty as $objectMapper)
+        catch(Exception $e)
         {
-            $object = $objectMapper ["object"];
-            $mapper = $objectMapper ["mapper"];
-
-            $mapper->update($object);
-        }
-
-        foreach (self::$deleted as $objectMapper)
-        {
-            $object = $objectMapper ["object"];
-            $mapper = $objectMapper ["mapper"];
-
-            $mapper->delete($object);
+            return false;
         }
 
         self::$deleted = array();

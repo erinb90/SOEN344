@@ -174,6 +174,7 @@ class CreateReservationSession
             {
 
                 $ReservationMapper = new ReservationMapper();
+                //todo: instead of having the mapper create the ReservationDomain object, create the object in this class and pass it to UOW
                 $Reservation = $ReservationMapper->createReservation(
                     $this->_User->getSID(),
                     $this->_rid,

@@ -6,16 +6,16 @@
 class ReservationMapper extends AbstractMapper
 {
 
+	protected $tdg;
 
 	/**
-	 * @var \TDG
+	 * ReservationMapper constructor.
 	 */
-	private $_ReservationTDG;
-
 	public function __construct()
 	{
-		$this->_ReservationTDG = new ReservationTDG();
+		$this->tdg = new ReservationTDG();
 	}
+
 
 
 	public function numberOfReservationsMadeWeekUser($start, $studentid)
@@ -44,7 +44,7 @@ class ReservationMapper extends AbstractMapper
 
 	public function findAllStudentReservations($studentid)
 	{
-		$data = $this->_ReservationTDG->findAllStudentReservations($studentid);
+		$data = $this->getTdg()->findAllStudentReservations($studentid);
 		$models = array();
 		foreach ($data as $row)
 		{
@@ -56,7 +56,7 @@ class ReservationMapper extends AbstractMapper
 	public function getAllReservations()
 	{
 
-		$data = $this->_ReservationTDG->findAll();
+		$data = $this->getTdg()->findAll();
 		$models = array();
 		foreach ($data as $row)
 		{
@@ -117,40 +117,11 @@ class ReservationMapper extends AbstractMapper
 	}
 
 	/**
-	 * @param \DomainObject $object
-	 *
-	 * @return mixed
+	 * @return ReservationTDG
 	 */
-	public function insert(DomainObject &$object)
+	public function getTdg()
 	{
-		return $this->_ReservationTDG->insert($object);
-
-	}
-
-	/**
-	 * @param \DomainObject $object
-	 *
-	 * @return mixed
-	 */
-	public function delete(DomainObject &$object)
-	{
-		return $this->_ReservationTDG->delete($object);
-
-	}
-
-	/**
-	 * @param \DomainObject $object
-	 *
-	 * @return mixed
-	 */
-	public function update(DomainObject &$object)
-	{
-		return $this->_ReservationTDG->update($object);
-	}
-
-	public function findByPk($id)
-	{
-		return $this->getModel($this->_ReservationTDG->findByPk($id));
+		return $this->tdg;
 	}
 }
 ?>

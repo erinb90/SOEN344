@@ -66,31 +66,127 @@ $RoomDirectory = new RoomDirectory();
     <script src="../../plugins/datatables/extensions/Buttons/js/buttons.flash.js"></script>
 
     <script>
+
+        //todo: needs some refactoring
+
+        var CCOUNT = 3;
+
+        var t, count;
+
+        function cddisplay() {
+            // displays time in span
+            console.log(count);
+            $('#timer').html(count);
+        };
+
+        function countdown() {
+            // starts countdown
+            cddisplay();
+            if (count == 0) {
+                $('#myModal').dialog("close");
+            } else {
+                count--;
+                t = setTimeout("countdown()", 1000);
+            }
+        };
+
+        function cdpause() {
+            // pauses countdown
+            clearTimeout(t);
+        };
+
+        function cdreset() {
+            // resets countdown
+            cdpause();
+            count = CCOUNT;
+            cddisplay();
+        };
+
+
+
+
         $(function () {
 
+
+
+            // add the date picker
             $('input#rDate').datepicker({
                 dateFormat: 'yy-mm-dd',
                 minDate: 0
             });
 
 
+
+            //what happens when you click on the make reserve button
             $(document).on('click', '#makeReserve', function () {
-
-                $('#myModal').dialog({
-                    width: 800,
-                    modal: true,
-                    title: 'Make Reservation'
-                });
-
+                //reset timer
+                cdreset();
 
                 var roomid = $('#roomOptions').val();
                 var roomName = $('#roomOptions option[value='+roomid+']').text();
                 $('#roomName').val(roomName);
                 $('#roomID').val(roomid);
 
+                // lock room
+                $.ajax({
+                    type    : "POST",
+                    url     : "Lock.php", //file name
+                    data    :
+                    {
+                        action : "lock",
+                        roomID :  roomid
+                    },
+                    success : function (data)
+                    {
+                        // start countdown
+                        countdown();
+                    },
+                    complete: function ()
+                    {
+                    },
+                    error   : function ()
+                    {
+                        alert("Cannot lock room. Network error.");
+                        return;
+                    }
+                });
+
+                // open modal
+                $('#myModal').dialog({
+                    width: 800,
+                    modal: true,
+                    show : 'fade',
+                    title: 'Make Reservation',
+                    beforeClose : function(event, ui)
+                    {
+                        //unlock room
+                        $.ajax({
+                            type    : "POST",
+                            url     : "Lock.php", //file name
+                            data    :
+                            {
+                                action : "unlock",
+                                roomID :  roomid
+                            },
+                            success : function (data)
+                            {
+                                // stop timer
+                                cdpause();
+                            },
+                            complete: function ()
+                            {
+                            },
+                            error   : function ()
+                            {
+                            }
+                        });
+                        $(this).dialog("destroy");
+                    }
+                });
             });
 
 
+            // when clicking on profile link
             $(document).on('click', '#second-r', function () {
 
                 $('#profilemyModal').dialog({
@@ -100,7 +196,7 @@ $RoomDirectory = new RoomDirectory();
                 });
             });
 
-
+            // when saving profile information
             $(document).on('click', '#submitProfile', function(){
 
                 $clicker = $(this);
@@ -310,7 +406,7 @@ $RoomDirectory = new RoomDirectory();
 
                             <div class="form-group">
                                 <div class="timer" style="color:red;text-align: center;">Reservation closes in <span
-                                        id="timer"></span> seconds!
+                                        id="timer">-</span> seconds!
                                 </div>
                                 <label>Title of Reservation</label>
                                 <input required type="text" class="form-control" placeholder="Enter a Title"

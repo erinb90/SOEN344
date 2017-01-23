@@ -8,12 +8,34 @@
  */
 abstract class AbstractMapper implements Gateway
 {
+    /**
+     * AbstractMapper constructor.
+     *
+     */
+    public function __construct()
+    {
+
+    }
+
+    /**
+     * @return \TDG
+     */
+    public abstract function getTdg();
+
+    /**.
+     * @param $id
+     *
+     * @return mixed
+     */
+    public function findByPk($id)
+    {
+        return $this->getModel($this->getTdg()->findByPk($id));
+    }
 
 
-    public abstract function findByPk($id);
     /**
      * @param $data
-     * @return stdClass
+     * @return DomainObject
      */
     public abstract function getModel($data);
 
@@ -21,24 +43,35 @@ abstract class AbstractMapper implements Gateway
     /**
      * This method inserts row into database via tdg
      * @param \DomainObject $object
-     *
+     * @return int
      */
-    public abstract function insert(DomainObject &$object);
+    public function insert(DomainObject &$object)
+    {
+        return $this->getTdg()->insert($object);
+    }
 
     /**
      * This method deletes row into database via tdg
      * @param \DomainObject $object
+     * @return bool
      *
      */
-    public abstract function delete(DomainObject &$object);
+    public function delete(DomainObject &$object)
+    {
+        return $this->getTdg()->delete($object);
+    }
 
     /**
      *
      * This method updates row into database via tdg
      * @param \DomainObject $object
+     * @return bool
      *
      */
-    public abstract function update(DomainObject &$object);
+    public function update(DomainObject &$object)
+    {
+        return $this->getTdg()->update($object);
+    }
 
     // UOW methods
     /**
@@ -85,4 +118,7 @@ abstract class AbstractMapper implements Gateway
     {
         return UnitOfWork::commit();
     }
+
+
+
 }

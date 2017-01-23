@@ -156,4 +156,11 @@ class WaitlistMapper extends AbstractMapper
         return $WaitlistDomain;
     }
 
+    /**
+     * @return WaitlistTDG
+     */
+    public function getTdg()
+    {
+        return $this->tdg;
+    }
 }
