@@ -9,11 +9,63 @@
 abstract class TDG implements Gateway
 {
 
+    /**
+     * @return mixed
+     */
     public abstract function getPk();
+
+    /**
+     * @return string
+     */
     public abstract function getTable();
-    public abstract function insert(stdClass &$object);
-    public abstract function delete(stdClass &$object);
-    public abstract function update(stdClass &$object);
-    public abstract function findByPk($id);
+
+    /**
+     * @param \DomainObject $object
+     *
+     * @return int
+     */
+    public abstract function insert(DomainObject &$object);
+
+    /**
+     * @param \DomainObject $object
+     *
+     * @return mixed
+     */
+    public abstract function delete(DomainObject &$object);
+
+    /**
+     * @param \DomainObject $object
+     *
+     * @return mixed
+     */
+    public abstract function update(DomainObject &$object);
+    /**
+     * @param $id
+     *
+     * @return mixed
+     */
+    public function findByPk($id)
+    {
+        $query = Registry::getConnection()->createQueryBuilder();
+        $query->select("*");
+        $query->from($this->getTable(), $this->getTable());
+        $query->where($this->getTable() . '.' . $this->getPk() . "='" . $id . "'");
+        $sth = $query->execute();
+        $m = $sth->fetchAll();
+        return $m[0];
+    }
+
+    /**
+     * @return array
+     */
+    public function findAll()
+    {
+        $query = Registry::getConnection()->createQueryBuilder();
+        $query->select("*");
+        $query->from($this->getTable());
+        $sth = $query->execute();
+        $m = $sth->fetchAll();
+        return $m;
+    }
 
 }

@@ -15,7 +15,7 @@ $(document).ready(function() {
 						+ currentDate.getUTCFullYear();
 
 	loadTable(currentDate.getUTCFullYear() + "/" + (currentDate.getMonth()+1) + "/" + currentDate.getDate());
-	document.getElementById("datetoday").innerHTML = todayDate;
+	///document.getElementById("datetoday").innerHTML = todayDate;
 	document.getElementById("dateDrop").value = todayDate;
 	/** end of the function, resued in "onSelect" feature of datepicker */
 
@@ -161,8 +161,8 @@ function loadTable(date) {
 	   document.getElementById("reservation-table").innerHTML = this.responseText;
 	  }
 	};
-	xhttp.open("GET", "reservationTable.php?Date=" + date + "", false);
-	xhttp.send();
+	//xhttp.open("GET", "reservationTable.php?Date=" + date + "", false);
+	//xhttp.send();
 } 
 
 function myNav() {

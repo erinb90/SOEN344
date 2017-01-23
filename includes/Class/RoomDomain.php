@@ -1,12 +1,14 @@
 <?php
 
-class RoomDomain
+class RoomDomain implements DomainObject
 {
 	private $name = "";
     private $location = "";
     private $description = "";
 	private $rID = "";
 	private $busy = "";
+
+
 	
 	/*
 		No Default Constructor is Necessary for this class
@@ -25,6 +27,8 @@ class RoomDomain
     public function getDescription() {
         return $this->description;
     }
+
+
 	
 	public function getRID() {
         return $this->rID;

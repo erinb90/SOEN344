@@ -6,60 +6,71 @@
 class ReservationMapper extends AbstractMapper
 {
 
+	protected $tdg;
 
 	/**
-	 * @var \TDG
+	 * ReservationMapper constructor.
 	 */
-	private $_ReservationTDG;
-
 	public function __construct()
 	{
-		$this->_ReservationTDG = new ReservationTDG();
+		$this->tdg = new ReservationTDG();
 	}
 
+
+
+	public function numberOfReservationsMadeWeekUser($start, $studentid)
+	{
+		$reservations = $this->getAllReservations();
+		$weekDates = Utilities::getWeek($start); // get week dates based on today's date
+		$startDateWeek = $weekDates[0];
+		$endDateWeek = $weekDates[1];
+		$numberOfReservations = 0;
+		/**
+		 * @var $Reservation ReservationDomain
+		 */
+		foreach ($reservations as $Reservation)
+		{
+			// find this user's reservations
+			if ($Reservation->getSID() == $studentid)
+			{
+				if (strtotime($Reservation->getStartTimeDate()) >= strtotime($startDateWeek) && strtotime($Reservation->getEndTimeDate()) <= strtotime($endDateWeek))
+				{
+					$numberOfReservations++;
+				}
+			}
+		}
+		return $numberOfReservations;
+	}
+
+	public function findAllStudentReservations($studentid)
+	{
+		$data = $this->getTdg()->findAllStudentReservations($studentid);
+		$models = array();
+		foreach ($data as $row)
+		{
+			$models[] = $this->getModel($row);
+		}
+		return $models;
+	}
+
+	public function getAllReservations()
+	{
+
+		$data = $this->getTdg()->findAll();
+		$models = array();
+		foreach ($data as $row)
+		{
+			$models[] = $this->getModel($row);
+		}
+		return $models;
+	}
     
-	public function getReservations($sID, $conn){
-		return $this->_ReservationTDG->getReservations($sID, $conn);
-	}
 
-	public function getReservationsByDate($start, $conn) {
-		return $this->_ReservationTDG->getReservationsByDate($start, $conn);
-	}
-
-	public function getReservationsByRoomAndDate($rID, $start, $wait, $conn) {
-		return $this->_ReservationTDG->getReservationsByRoomAndDate($rID, $start, $wait, $conn);
-	}
-
-	public function getWaitlistIDByStudent($sID, $reID, $conn) {
-		return $this->_ReservationTDG->getWaitlistIDByStudent($sID, $reID, $conn);
-	}
-
-	public function getReservationsBySIDAndDate($sID, $start, $conn) {
-		return $this->_ReservationTDG->getReservationsBySIDAndDate($sID, $start, $conn);
-	}
-
-	/*
-		Unit of Work (TDG Functions for Room)
-	*/	
-	public function deleteReservation($reservationDeletedList, $conn)
-	{
-			$this->_ReservationTDG->deleteReservation($reservationDeletedList, $conn);
-
-	}
-	
-	public function addReservation($reservationNewList, $conn)
-	{
-		$this->_ReservationTDG->addReservation($reservationNewList, $conn);
-	}
-	
-	public function updateReservation($reservationUpdateList, $conn) {
-		$this->_ReservationTDG->updateReservation($reservationUpdateList, $conn);
-	}
 
 	/**
-	 * @param \stdClass $data
+	 * @param \array $data
 	 *
-	 * @return mixed
+	 * @return ReservationDomain
 	 */
 	public function getModel($data)
 	{
@@ -83,40 +94,34 @@ class ReservationMapper extends AbstractMapper
 	}
 
 	/**
-	 * @param \stdClass $object
-	 *
-	 * @return mixed
+	 * @param $studentid
+	 * @param $roomid
+	 * @param $starttime
+	 * @param $endtime
+	 * @param $title
+	 * @param $description
+	 * @return ReservationDomain
 	 */
-	public function insert(stdClass &$object)
+	public function createReservation($studentid, $roomid, $starttime, $endtime, $title, $description)
 	{
-		return $this->_ReservationTDG->insert($object);
 
+		$ReservationDomain = new ReservationDomain();
+		$ReservationDomain->setDescription($description);
+		$ReservationDomain->setEndTimeDate($endtime);
+		$ReservationDomain->setRID($roomid);
+		$ReservationDomain->setSID($studentid);
+		$ReservationDomain->setStartTimeDate($starttime);
+		$ReservationDomain->setTitle($title);
+
+		return $ReservationDomain;
 	}
 
 	/**
-	 * @param \stdClass $object
-	 *
-	 * @return mixed
+	 * @return ReservationTDG
 	 */
-	public function delete(stdClass &$object)
+	public function getTdg()
 	{
-		return $this->_ReservationTDG->delete($object);
-
-	}
-
-	/**
-	 * @param \stdClass $object
-	 *
-	 * @return mixed
-	 */
-	public function update(stdClass &$object)
-	{
-		return $this->_ReservationTDG->update($object);
-	}
-
-	public function findByPk($id)
-	{
-		return $this->getModel($this->_ReservationTDG->findByPk($id));
+		return $this->tdg;
 	}
 }
 ?>

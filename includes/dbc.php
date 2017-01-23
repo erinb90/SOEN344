@@ -33,17 +33,16 @@ $connectionParams = array(
 Registry::setConfig($connectionParams, $config);
 
 
-/*
 // SET USER INFORMATION
-if(!empty($_SESSION) && isset($_SESSION['uid']) )
+if(!empty($_SESSION) && isset($_SESSION['sid']) )
 {
-    $UserMapper = new UserMapper();
+    $StudentMapper = new StudentMapper();
 
-    WebUser::setUser($UserMapper->findByPk($_SESSION['uid']));
+    WebUser::setUser($StudentMapper->findByPk($_SESSION['sid']));
 }
-*/
+
 
 // SET TIMEZONE
-//date_default_timezone_set(CoreConfig::settings()['timezone']); // register timezone
+date_default_timezone_set(CoreConfig::settings()['timezone']); // register timezone
 
 ?>
