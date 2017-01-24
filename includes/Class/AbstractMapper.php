@@ -14,7 +14,6 @@ abstract class AbstractMapper implements Gateway
      */
     public function __construct()
     {
-
     }
 
     /**
@@ -32,14 +31,11 @@ abstract class AbstractMapper implements Gateway
         return $this->getModel($this->getTdg()->findByPk($id));
     }
 
-
     /**
-     * @param $data
-     * @return DomainObject
+     * @param $data array data retrieve from the tdg
+     * @return DomainObject returns a fully-dressed object
      */
     public abstract function getModel($data);
-
-    // TDG Communication methods
     /**
      * This method inserts row into database via tdg
      * @param \DomainObject $object

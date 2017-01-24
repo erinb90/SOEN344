@@ -9,17 +9,22 @@
 class UnitOfWork
 {
 
-
-    private static $dirty = array();
-
-
-    private static $deleted = array();
-
-
-    private static $new = array();
+    /**
+     * @var array objects that have been updated
+     */
+    private static $dirty = [];
 
 
-    // Prevent instantiation of unit of work
+    /**
+     * @var array objects that are to be deleted
+     */
+    private static $deleted = [];
+
+    /**
+     * @var array objects that need to be created/inserted into the database
+     */
+    private static $new = [];
+
     /**
      * UnitOfWork constructor.
      */
@@ -28,18 +33,18 @@ class UnitOfWork
 
     }
 
-
     /**
      * @param \DomainObject $object
      * @param \AbstractMapper $mapper
      */
     public static function registerNew(DomainObject &$object, AbstractMapper &$mapper)
     {
-        self::$new[] = array
-        (
+        self::$new[] = [
+
             "mapper" => $mapper,
             "object" => $object
-        );
+        ];
+
         return;
     }
 
@@ -49,11 +54,12 @@ class UnitOfWork
      */
     public static function registerDirty(DomainObject &$object, AbstractMapper &$mapper)
     {
-        self::$dirty[] = array
-        (
+        self::$dirty[] = [
+
             "mapper" => $mapper,
             "object" => $object
-        );
+        ];
+
         return;
     }
 
@@ -63,11 +69,12 @@ class UnitOfWork
      */
     public static function registerDeleted(DomainObject &$object, AbstractMapper &$mapper)
     {
-        self::$deleted[] = array
-        (
+        self::$deleted[] = [
+
             "mapper" => $mapper,
             "object" => $object
-        );
+        ];
+
         return;
     }
 
@@ -107,15 +114,15 @@ class UnitOfWork
                 $mapper->delete($object);
             }
         }
-        catch(Exception $e)
+        catch (Exception $e)
         {
             return false;
         }
 
-        self::$deleted = array();
-        self::$new = array();
-        self::$dirty = array();
+        self::$deleted = [];
+        self::$new = [];
+        self::$dirty = [];
 
-        return true;
+        return TRUE;
     }
 }
