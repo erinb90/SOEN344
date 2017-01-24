@@ -34,6 +34,16 @@ class Registry
         self::$params = $connectionParams;
     }
 
+
+    /**
+     * @return Configuration
+     */
+    public static function getConfig()
+    {
+        return self::$config;
+    }
+
+
     /**
      * @return \Doctrine\DBAL\Connection
      */

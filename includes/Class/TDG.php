@@ -42,7 +42,7 @@ abstract class TDG implements Gateway
     /**
      * @param $id
      *
-     * @return mixed
+     * @return array
      */
     public function findByPk($id)
     {

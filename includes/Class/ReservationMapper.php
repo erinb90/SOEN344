@@ -6,6 +6,9 @@
 class ReservationMapper extends AbstractMapper
 {
 
+    /**
+     * @var \ReservationTDG
+     */
 	protected $tdg;
 
 	/**
@@ -17,7 +20,12 @@ class ReservationMapper extends AbstractMapper
 	}
 
 
-
+    /**
+     * @param $start
+     * @param $studentid
+     *
+     * @return int
+     */
 	public function numberOfReservationsMadeWeekUser($start, $studentid)
 	{
 		$reservations = $this->getAllReservations();
@@ -42,10 +50,15 @@ class ReservationMapper extends AbstractMapper
 		return $numberOfReservations;
 	}
 
+    /**
+     * @param $studentid
+     *
+     * @return array
+     */
 	public function findAllStudentReservations($studentid)
 	{
 		$data = $this->getTdg()->findAllStudentReservations($studentid);
-		$models = array();
+		$models = [];
 		foreach ($data as $row)
 		{
 			$models[] = $this->getModel($row);
@@ -53,11 +66,14 @@ class ReservationMapper extends AbstractMapper
 		return $models;
 	}
 
+    /**
+     * @return array
+     */
 	public function getAllReservations()
 	{
 
 		$data = $this->getTdg()->findAll();
-		$models = array();
+		$models = [];
 		foreach ($data as $row)
 		{
 			$models[] = $this->getModel($row);

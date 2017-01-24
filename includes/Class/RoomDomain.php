@@ -1,62 +1,96 @@
 <?php
 
+/**
+ * Class RoomDomain
+ */
 class RoomDomain implements DomainObject
 {
-	private $name = "";
-    private $location = "";
-    private $description = "";
-	private $rID = "";
-	private $busy = "";
+
+    /**
+     * @var string
+     */
+    private $_name;
+
+    /**
+     * @var string
+     */
+    private $_location;
+
+    /**
+     * @var string
+     */
+    private $_description;
+
+    /**
+     * @var int
+     */
+    private $_roomID;
 
 
-	
-	/*
-		No Default Constructor is Necessary for this class
-	*/
-	
-	/* Get methods for the Room Domain object
-	*/
-	public function getName(){
-		return $this->name;
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->_name;
     }
-    
-    public function getLocation() {
-        return $this->location;
+
+    /**
+     * @return string
+     */
+    public function getLocation()
+    {
+        return $this->_location;
     }
-    
-    public function getDescription() {
-        return $this->description;
+
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->_description;
     }
 
 
-	
-	public function getRID() {
-        return $this->rID;
+    /**
+     * @return int
+     */
+    public function getRID()
+    {
+        return $this->_roomID;
     }
-	
-	public function getBusy() {
-        return $this->busy;
+
+    /**
+     * @param $name string
+     */
+    public function setName($name)
+    {
+        $this->_name = $name;
     }
-	
-	/* Set methods for the Room Domain object
-	*/
-	public function setName($name){
-		$this->name = $name;
+
+    /**
+     * @param $location string
+     */
+    public function setLocation($location)
+    {
+        $this->_location = $location;
     }
-    
-    public function setLocation($location){
-		$this->location = $location;
+
+    /**
+     * @param $desc
+     */
+    public function setDescription($desc)
+    {
+        $this->_description = $desc;
     }
-    
-    public function setDescription($desc) {
-        $this->description = $desc;
+
+    /**
+     * @param $roomid int room id
+     */
+    public function setRID($roomid)
+    {
+        $this->_roomID = $roomid;
     }
-      
-	public function setRID($rID) {
-        $this->rID = $rID;
-    }
-	
-	public function setBusy($busy) {
-        $this->busy = $busy;
-    }
+
+
 }
