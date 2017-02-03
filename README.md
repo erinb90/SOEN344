@@ -1,3 +1,8 @@
+# SOEN344
+
+* Push documentation to the Documentation344 branch.
+* For coding, pull the Dev branch to PhpStorm, then create your own branch to do your work. Push changes to your own branch, then create a pull request to merge with Dev.
+
 # SOEN343
 
 This is the GitHub repository for the SOEN 343 Project:
