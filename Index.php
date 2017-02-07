@@ -14,7 +14,7 @@ $Test->test();
 
 <!DOCTYPE html>
 <html lang="en">
-
+<img style="position:absolute; max-width: 300px" id="watchIntro" src="img/watch-intro.png">
 <head>
 
     <meta charset="utf-8">
@@ -34,6 +34,9 @@ $Test->test();
     <!-- jQuery -->
     <script src="Javascript/jquery.js"></script>
 
+    <!-- jQuery Cookie-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+
     <!-- Bootstrap Core JavaScript -->
     <script src="Javascript/bootstrap.min.js"></script>
 
@@ -52,7 +55,7 @@ $Test->test();
         <div class="row">
             <div class="col-lg-12">
                 <div class="intro-message">
-                    <h1><span class="title" style="font-size: 150%">The Force Awakens</span></h1>
+                    <h1><span class="title" style="font-size: 150%">The Architecture Strikes Back</span></h1>
                     <h3><span class="subtitle" style="font-size: 130%">Concordia University Room Reserver</span></h3>
                     <hr class="intro-divider">
                     <ul class="list-inline intro-social-buttons">
@@ -104,6 +107,18 @@ $Test->test();
 <script>
     $(document).ready(function ()
     {
+        var COOKIE_NAME = 'intro-page-cookie';
+        $go = $.cookie(COOKIE_NAME);
+        if ($go == null) {
+            $.cookie(COOKIE_NAME, 'starwars', { path: '/', expires: 2 });
+            window.location = "/starwars.html"
+        }
+
+        $("#watchIntro").click(function ()
+        {
+            window.location = "/starwars.html"
+        });
+
         $("#myBtn").click(function ()
         {
             $("#myModal").modal();
