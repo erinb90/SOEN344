@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once($_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php');
+
 /**
  * Created by PhpStorm.
  * User: dimitri
@@ -8,7 +9,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php');
  * Time: 1:53 PM
  */
 
-$Login = new Login($_POST);
+$Login = new Stark\Login($_POST);
 
 if ($Login->login())
 {

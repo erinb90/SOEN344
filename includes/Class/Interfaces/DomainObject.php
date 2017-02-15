@@ -1,5 +1,5 @@
 <?php
-
+namespace Stark\Interfaces;
 /**
  * Created by PhpStorm.
  * User: Server

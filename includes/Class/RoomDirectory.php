@@ -1,16 +1,12 @@
 <?php
+namespace Stark;
+use Stark\Mappers\RoomMapper;
 
-/**
- * Created by PhpStorm.
- * User: Server
- * Date: 1/21/2017
- * Time: 1:02 PM
- */
 class RoomDirectory
 {
 
     /**
-     * @var \RoomMapper
+     * @var RoomMapper
      */
     private $_RoomMapper;
 

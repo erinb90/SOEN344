@@ -1,11 +1,9 @@
 <?php
+namespace Stark;
 
-/**
- * Created by PhpStorm.
- * User: Dimitri
- * Date: 2017-01-20
- * Time: 5:19 PM
- */
+use Stark\Interfaces\AbstractMapper;
+use Stark\Interfaces\DomainObject;
+
 class UnitOfWork
 {
 
@@ -34,8 +32,8 @@ class UnitOfWork
     }
 
     /**
-     * @param \DomainObject $object
-     * @param \AbstractMapper $mapper
+     * @param \Stark\Interfaces\DomainObject $object
+     * @param \Stark\Interfaces\AbstractMapper $mapper
      */
     public static function registerNew(DomainObject &$object, AbstractMapper &$mapper)
     {
@@ -49,8 +47,8 @@ class UnitOfWork
     }
 
     /**
-     * @param \DomainObject $object
-     * @param \AbstractMapper $mapper
+     * @param \Stark\Interfaces\DomainObject $object
+     * @param \Stark\Interfaces\AbstractMapper $mapper
      */
     public static function registerDirty(DomainObject &$object, AbstractMapper &$mapper)
     {
@@ -64,8 +62,8 @@ class UnitOfWork
     }
 
     /**
-     * @param \DomainObject $object
-     * @param \AbstractMapper $mapper
+     * @param \Stark\Interfaces\DomainObject $object
+     * @param \Stark\Interfaces\AbstractMapper $mapper
      */
     public static function registerDeleted(DomainObject &$object, AbstractMapper &$mapper)
     {
@@ -114,7 +112,7 @@ class UnitOfWork
                 $mapper->delete($object);
             }
         }
-        catch (Exception $e)
+        catch (\Exception $e)
         {
             return false;
         }

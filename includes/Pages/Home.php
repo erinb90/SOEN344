@@ -1,7 +1,13 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php';
+
+use Stark\RoomDirectory;
+use Stark\WebUser;
+
 $RoomDirectory = new RoomDirectory();
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -378,7 +384,7 @@ $RoomDirectory = new RoomDirectory();
                         </select>
                         <!-- Hidden input for temporary datepicker fix-->
                         <input type="hidden" readonly="readonly" type="text" class="form-control" name="dateDrop"
-                               id="dateDrop" placeholder="Nothing"/>
+                            id="dateDrop" placeholder="Nothing"/>
                         <button type="button" class="btn btn-default btn-lg" id="makeReserve"><span
                                 class="network-name">Make a Reservation</span></button>
 
@@ -401,50 +407,50 @@ $RoomDirectory = new RoomDirectory();
                     <div>
 
                         <form id="reservationForm">
-                        <div class="modal-body">
+                            <div class="modal-body">
 
 
-                            <div class="form-group">
-                                <div class="timer" style="color:red;text-align: center;">Reservation closes in <span
-                                        id="timer">-</span> seconds!
+                                <div class="form-group">
+                                    <div class="timer" style="color:red;text-align: center;">Reservation closes in <span
+                                            id="timer">-</span> seconds!
+                                    </div>
+                                    <label>Title of Reservation</label>
+                                    <input required type="text" class="form-control" placeholder="Enter a Title"
+                                        name="title">
                                 </div>
-                                <label>Title of Reservation</label>
-                                <input required type="text" class="form-control" placeholder="Enter a Title"
-                                       name="title">
-                            </div>
-                            <div class="form-group">
-                                <label>Description of Reservation</label>
-                                <textarea style="resize:none;" rows="3" cols="50"
-                                          placeholder="Describe the Reservation here..." class="form-control"
-                                          name="description"></textarea>
-                            </div>
-                            <!-- Time slots should be inserted here-->
-                            <div class="form-group">
-                                <label>Date:</label>
-                                <input type="text" class="form-control" name="rDate" id="rDate" />
-                                <br>
-                                <label>Start Time: (mm:ss)</label>
-                                <input type="text" class="form-control" id="startTime" name="startTime">
-                                <label>End Time: (mm:ss)</label>
-                                <input type="text" class="form-control" id="endTime" name="endTime">
-                                <label>Room:</label>
-                                <input readonly="readonly"  class="form-control" id="roomName"   name="roomName" />
-                                <input  hidden name="roomID" id="roomID">
-                            </div>
-                            <div class="form-group">
-                                <label>Repeat Reservation for:</label>
-                                <select id="repeatReservation" name="repeatReservation">
-                                    <option value="0">
-                                        No Repeat
-                                    </option>
-                                    <option value="1">1 Week</option>
-                                    <option value="2">2 Weeks</option>
-                                    <option value="3">3 Weeks</option>
-                                </select>
-                            </div>
-                            <button type="button" id="createReservation" class="btn btn-default btn-success btn-block">Submit</button>
+                                <div class="form-group">
+                                    <label>Description of Reservation</label>
+                                    <textarea style="resize:none;" rows="3" cols="50"
+                                        placeholder="Describe the Reservation here..." class="form-control"
+                                        name="description"></textarea>
+                                </div>
+                                <!-- Time slots should be inserted here-->
+                                <div class="form-group">
+                                    <label>Date:</label>
+                                    <input type="text" class="form-control" name="rDate" id="rDate" />
+                                    <br>
+                                    <label>Start Time: (mm:ss)</label>
+                                    <input type="text" class="form-control" id="startTime" name="startTime">
+                                    <label>End Time: (mm:ss)</label>
+                                    <input type="text" class="form-control" id="endTime" name="endTime">
+                                    <label>Room:</label>
+                                    <input readonly="readonly"  class="form-control" id="roomName"   name="roomName" />
+                                    <input  hidden name="roomID" id="roomID">
+                                </div>
+                                <div class="form-group">
+                                    <label>Repeat Reservation for:</label>
+                                    <select id="repeatReservation" name="repeatReservation">
+                                        <option value="0">
+                                            No Repeat
+                                        </option>
+                                        <option value="1">1 Week</option>
+                                        <option value="2">2 Weeks</option>
+                                        <option value="3">3 Weeks</option>
+                                    </select>
+                                </div>
+                                <button type="button" id="createReservation" class="btn btn-default btn-success btn-block">Submit</button>
 
-                        </div>
+                            </div>
                         </form>
                         <div id="resultsReservation"></div>
                     </div>
@@ -466,30 +472,30 @@ $RoomDirectory = new RoomDirectory();
                         <div class="modal-body">
                             <form id="formEdit" action="Reserve.php" method="post">
                                 <input readonly="readonly" type="hidden" class="form-control" name="reservationID"
-                                       id="reservationID" value="<?php echo $modReserve['reservationID']; ?>"/>
+                                    id="reservationID" value="<?php echo $modReserve['reservationID']; ?>"/>
                                 <input readonly="readonly" type="hidden" class="form-control" name="roomID"
-                                       id="reservationID" value="<?php echo $modReserve['roomID']; ?>"/>
+                                    id="reservationID" value="<?php echo $modReserve['roomID']; ?>"/>
                                 <div class="form-group">
                                     <label>Room Name</label>
                                     <input readonly="readonly" type="text" class="form-control" name="roomID"
-                                           id="reservationID" value="<?php echo $roomChosen; ?>"/>
+                                        id="reservationID" value="<?php echo $roomChosen; ?>"/>
                                 </div>
                                 <div class="form-group">
                                     <label>Title of Reservation</label>
                                     <input type="text" class="form-control" placeholder="Enter a Title" name="title"
-                                           value="<?php echo $modReserve['title']; ?>">
+                                        value="<?php echo $modReserve['title']; ?>">
                                 </div>
                                 <div class="form-group">
                                     <label>Description of Reservation</label>
                                     <textarea rows="3" cols="50" placeholder="Describe the Reservation here..."
-                                              class="form-control"
-                                              name="description"><?php echo $modReserve['description']; ?></textarea>
+                                        class="form-control"
+                                        name="description"><?php echo $modReserve['description']; ?></textarea>
                                 </div>
                                 <!-- Time slots should be inserted here-->
                                 <div class="form-group">
                                     <label>Date:</label>
                                     <input readonly="readonly" type="text" class="form-control" name="dateDrop"
-                                           id="dateDrop" value="<?php echo $modDate[0]; ?>"/>
+                                        id="dateDrop" value="<?php echo $modDate[0]; ?>"/>
                                     <br>
                                     <label>Start Time:</label>
                                     <select name="startTime">
@@ -505,12 +511,12 @@ $RoomDirectory = new RoomDirectory();
                                     </select>&nbsp &nbsp &nbsp
 
                                     <input readonly="readonly" id="roomOptionsMod" class="roomNum" name="roomName"
-                                           value="<?php //if($roomReserve != NULL) echo $roomReserve->getName(); ?>"/>
+                                        value="<?php //if($roomReserve != NULL) echo $roomReserve->getName(); ?>"/>
                                     <input hidden name="roomID"
-                                           value="<?php //if($roomReserve != NULL) echo $roomReserve->getRID(); ?>">
+                                        value="<?php //if($roomReserve != NULL) echo $roomReserve->getRID(); ?>">
                                 </div>
                                 <button type="submit" name="action" value="modifying"
-                                        class="btn btn-default btn-success btn-block">Submit
+                                    class="btn btn-default btn-success btn-block">Submit
                                 </button>
                             </form>
                         </div>
@@ -528,39 +534,39 @@ $RoomDirectory = new RoomDirectory();
                                 <div class="form-group">
                                     <label>First name</label>
                                     <input readonly="readonly" type="text" class="form-control" name="firstName" id="firstName"
-                                           placeholder="First Name"
-                                           value="<?php echo WebUser::getUser()->getFirstName(); ?>"/>
+                                        placeholder="First Name"
+                                        value="<?php echo WebUser::getUser()->getFirstName(); ?>"/>
                                 </div>
                                 <div class="form-group">
                                     <label>Last name</label>
                                     <input readonly="readonly" type="text" class="form-control" name="lastName" id="lastName"
-                                           placeholder="Last Name"
-                                           value="<?php echo WebUser::getUser()->getLastName(); ?>"/>
+                                        placeholder="Last Name"
+                                        value="<?php echo WebUser::getUser()->getLastName(); ?>"/>
                                 </div>
                                 <div class="form-group">
                                     <label>Student ID</label>
                                     <input readonly="readonly" type="text" class="form-control" name="studentID"
-                                           placeholder="Student ID" value="<?php echo WebUser::getUser()->getSID(); ?>"/>
+                                        placeholder="Student ID" value="<?php echo WebUser::getUser()->getSID(); ?>"/>
                                 </div>
                                 <div class="form-group">
                                     <label>Program</label>
                                     <input readonly="readonly" type="text" class="form-control" name="program"
-                                           placeholder="Program" value="<?php echo WebUser::getUser()->getProgram(); ?>"/>
+                                        placeholder="Program" value="<?php echo WebUser::getUser()->getProgram(); ?>"/>
                                 </div>
                                 <div class="form-group">
                                     <label>Old Password</label>
                                     <input type="password" class="form-control" name="oldPass"
-                                           placeholder="Old Password"/>
+                                        placeholder="Old Password"/>
                                 </div>
                                 <div class="form-group">
                                     <label>New Password</label>
                                     <input type="password" class="form-control" name="newPass"
-                                           placeholder="New Password"/>
+                                        placeholder="New Password"/>
                                 </div>
                                 <div class="form-group">
                                     <label>Email Address</label>
                                     <input type="text" class="form-control" name="uEmail" id="uEmail"
-                                           placeholder="Email Address" value="<?php echo WebUser::getUser()->getEmailAddress(); ?>"/>
+                                        placeholder="Email Address" value="<?php echo WebUser::getUser()->getEmailAddress(); ?>"/>
                                 </div>
 
 
@@ -693,3 +699,4 @@ $RoomDirectory = new RoomDirectory();
 </body>
 
 </html>
+

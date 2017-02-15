@@ -1,4 +1,6 @@
 <?php
+namespace Stark;
+use Utilities;
 
 /**
  * Created by PhpStorm.

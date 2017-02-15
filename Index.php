@@ -2,6 +2,14 @@
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php';
 
+/*
+
+TO TEST ASPECT!
+
+$Test = new Stark\Test();
+$Test->test();
+*/
+
 ?>
 
 <!DOCTYPE html>

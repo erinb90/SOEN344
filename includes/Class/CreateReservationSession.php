@@ -1,16 +1,13 @@
 <?php
+namespace Stark;
+use Stark\Models\StudentDomain;
+use Stark\Mappers\ReservationMapper;
 
-/**
- * Created by PhpStorm.
- * User: Server
- * Date: 1/21/2017
- * Time: 3:37 PM
- */
 class CreateReservationSession
 {
 
     /**
-     * @var \StudentDomain
+     * @var StudentDomain
      */
     private $_User;
 
@@ -187,7 +184,7 @@ class CreateReservationSession
                 return true;
 
             }
-            catch (Exception $e)
+            catch (\Exception $e)
             {
                 $this->setError($e->getMessage());
             }

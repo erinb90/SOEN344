@@ -1,4 +1,9 @@
 <?php
+namespace Stark\TDG;
+use Stark\Interfaces\DomainObject;
+use Stark\Interfaces\TDG;
+use Stark\Registry;
+
 /**
  * Class StudentTDG
  */

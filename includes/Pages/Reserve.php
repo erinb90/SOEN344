@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once($_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php');
-
+use Stark\CreateReservationSession;
 
 $date = $_REQUEST['rDate'];
 $startTime = $_REQUEST['startTime'];
@@ -11,8 +11,10 @@ $description = $_REQUEST['description'];
 $title = $_REQUEST['title'];
 $repeats = $_REQUEST['repeatReservation'];
 
-$ReservationCreator = new CreateReservation(
-    WebUser::getUser(),
+
+
+$ReservationCreator = new CreateReservationSession(
+    \Stark\WebUser::getUser(),
     $roomid,
     $title,
     $description,

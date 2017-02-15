@@ -1,4 +1,6 @@
 <?php
+namespace Stark;
+use Stark\Mappers\ReservationMapper;
 
 /**
  * Created by PhpStorm.
@@ -39,7 +41,7 @@ class ConflictManager
 
         $conflicts = array();
         /**
-         * @var $Reservation ReservationDomain
+         * @var $Reservation \Stark\Models\ReservationDomain
          */
         foreach ($reservations as $Reservation)
         {
