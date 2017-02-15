@@ -1,5 +1,5 @@
 <?php
-
+namespace Stark;
 /**
  * Class Login
  */
@@ -45,7 +45,7 @@ class Login
     /**
      * @return bool returns true if user credentials match db credentials
      */
-    private function checkUser()
+    public function checkUser()
     {
         $UserMapper = new StudentMapper();
 

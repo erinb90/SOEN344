@@ -11,7 +11,7 @@ $description = $_REQUEST['description'];
 $title = $_REQUEST['title'];
 $repeats = $_REQUEST['repeatReservation'];
 
-$ReservationCreator = new CreateReservation(
+$ReservationCreator = new CreateReservationSession(
     WebUser::getUser(),
     $roomid,
     $title,

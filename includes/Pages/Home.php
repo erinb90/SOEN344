@@ -69,7 +69,7 @@ $RoomDirectory = new RoomDirectory();
 
         //todo: needs some refactoring
 
-        var CCOUNT = 3;
+        var CCOUNT = 60;
 
         var t, count;
 
