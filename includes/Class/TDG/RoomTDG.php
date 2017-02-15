@@ -29,7 +29,7 @@ class RoomTDG extends TDG
      */
     public function getTable()
     {
-        return "room";
+        return "rooms";
     }
 
     public function insert(DomainObject &$object)
