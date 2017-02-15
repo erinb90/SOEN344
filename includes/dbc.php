@@ -1,6 +1,8 @@
 <?php
 error_reporting(E_ALL ^ E_NOTICE);
 
+/*
+ * recursive autoloader
 function autoload( $class, $dir = null ) {
 
     if ( is_null( $dir ) )
@@ -15,25 +17,32 @@ function autoload( $class, $dir = null ) {
         // php file?
         if ( substr( $file, 0, 2 ) !== '._' && preg_match( "/.php$/i" , $file ) ) {
 
+           // echo $class;
             // filename matches class?
-            if ( str_replace( '.php', '', $file ) == $class || str_replace( '.class.php', '', $file ) == $class ) {
+            if ( str_replace( '.php', '', $file ) == $class
+                || str_replace('\\', '/', $file) . '.php' == $class
+                || str_replace( '.class.php', '', $file ) == $class )
+            {
 
                 include $dir . $file;
             }
         }
     }
 }
+*/
 
-
+require $_SERVER['DOCUMENT_ROOT'].'/vendor/autoload.php';
 
 // ACTIVATE AUTOLOADER
-spl_autoload_register('autoload');
+//spl_autoload_register('autoload');
 
 use Stark\CoreConfig;
 use Stark\Registry;
 use Stark\Mappers\StudentMapper;
 use Stark\WebUser;
 
+// SET DOCTRINE LIBRARY SETTINGS FOR QUERYBUILDER
+use Doctrine\Common\ClassLoader;
 
 
 // APPLY GLOBAL SETTINGS FROM SETTINGS FILE
@@ -42,9 +51,7 @@ CoreConfig::applySettings(require_once('settings.php'));
 
 
 
-// SET DOCTRINE LIBRARY SETTINGS FOR QUERYBUILDER
-use Doctrine\Common\ClassLoader;
-require $_SERVER['DOCUMENT_ROOT'].'/vendor/autoload.php';
+
 
 $classLoader = new ClassLoader('Doctrine', $_SERVER['DOCUMENT_ROOT'].'/vendor/doctrine/');
 $classLoader->register();

@@ -1,6 +1,7 @@
 <?php
 namespace Stark\TDG;
 use Stark\Interfaces\DomainObject;
+use Stark\Interfaces\TDG;
 
 /**
  * Class RoomTDG

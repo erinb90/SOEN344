@@ -1,4 +1,9 @@
 <?php
+namespace Stark\Mappers;
+use Stark\Interfaces\AbstractMapper;
+use Stark\TDG\RoomTDG;
+use Stark\Models\RoomDomain;
+use Stark\Interfaces\DomainObject;
 
 /**
  * Class RoomMapper
@@ -7,7 +12,7 @@ class RoomMapper extends AbstractMapper
 {
 
 	/**
-	 * @var \RoomTDG
+	 * @var RoomTDG
 	 */
 	protected $tdg;
 
@@ -20,7 +25,7 @@ class RoomMapper extends AbstractMapper
 	}
 
 	/**
-	 * @return \RoomTDG
+	 * @return RoomTDG
 	 */
 	public function getTdg()
 	{
@@ -42,7 +47,7 @@ class RoomMapper extends AbstractMapper
 	}
 
 	/**
-	 * @param \DomainObject|RoomDomain $data
+	 * @param DomainObject|RoomDomain $data
 	 *
 	 * @return RoomDomain
 	 */

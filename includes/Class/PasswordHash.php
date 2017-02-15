@@ -1,4 +1,5 @@
 <?php
+namespace Stark;
 #
 # Portable PHP password hashing framework.
 #

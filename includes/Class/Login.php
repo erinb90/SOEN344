@@ -1,6 +1,6 @@
 <?php
 namespace Stark;
-use PasswordHash;
+use Stark\PasswordHash;
 use Stark\Mappers\StudentMapper;
 
 
