@@ -1,11 +1,8 @@
 <?php
+namespace Stark\Interfaces;
+use Stark\UnitOfWork;
+use Stark\Interfaces\TDG;
 
-/**
- * Created by PhpStorm.
- * User: Dimitri
- * Date: 2017-01-20
- * Time: 6:02 PM
- */
 abstract class AbstractMapper implements Gateway
 {
     /**
@@ -17,7 +14,7 @@ abstract class AbstractMapper implements Gateway
     }
 
     /**
-     * @return \TDG
+     * @return TDG
      */
     public abstract function getTdg();
 
@@ -38,7 +35,7 @@ abstract class AbstractMapper implements Gateway
     public abstract function getModel($data);
     /**
      * This method inserts row into database via tdg
-     * @param \DomainObject $object
+     * @param DomainObject $object
      * @return int
      */
     public function insert(DomainObject &$object)
@@ -48,7 +45,7 @@ abstract class AbstractMapper implements Gateway
 
     /**
      * This method deletes row into database via tdg
-     * @param \DomainObject $object
+     * @param  DomainObject $object
      * @return bool
      *
      */
@@ -60,7 +57,7 @@ abstract class AbstractMapper implements Gateway
     /**
      *
      * This method updates row into database via tdg
-     * @param \DomainObject $object
+     * @param DomainObject $object
      * @return bool
      *
      */
@@ -72,7 +69,7 @@ abstract class AbstractMapper implements Gateway
     // UOW methods
     /**
      * This method registers new object in unit of work
-     * @param \DomainObject $object
+     * @param  DomainObject $object
      *
      * @return AbstractMapper
      */
@@ -84,7 +81,7 @@ abstract class AbstractMapper implements Gateway
 
     /**
      * This method registers deletion object in unit of work
-     * @param \DomainObject $object
+     * @param  DomainObject $object
      *
      * @return AbstractMapper
      */
@@ -96,7 +93,7 @@ abstract class AbstractMapper implements Gateway
 
     /**
      * This method registers updated object in unit of work
-     * @param \DomainObject $object
+     * @param  DomainObject $object
      *
      * @return AbstractMapper
      */

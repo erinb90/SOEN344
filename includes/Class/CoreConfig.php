@@ -1,5 +1,5 @@
 <?php
-
+namespace Stark;
 
 /**
  * This class contains applications settings returned by the settings file:  settings.php

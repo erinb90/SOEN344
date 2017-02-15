@@ -1,5 +1,8 @@
 <?php
-
+namespace Stark\Mappers;
+use Stark\Interfaces\AbstractMapper;
+use Stark\Models\ReservationDomain;
+use Stark\TDG\ReservationTDG;
 /**
  * Class ReservationMapper
  */
@@ -7,7 +10,7 @@ class ReservationMapper extends AbstractMapper
 {
 
     /**
-     * @var \ReservationTDG
+     * @var ReservationTDG
      */
 	protected $tdg;
 
@@ -29,12 +32,12 @@ class ReservationMapper extends AbstractMapper
 	public function numberOfReservationsMadeWeekUser($start, $studentid)
 	{
 		$reservations = $this->getAllReservations();
-		$weekDates = Utilities::getWeek($start); // get week dates based on today's date
+		$weekDates = \Utilities::getWeek($start); // get week dates based on today's date
 		$startDateWeek = $weekDates[0];
 		$endDateWeek = $weekDates[1];
 		$numberOfReservations = 0;
 		/**
-		 * @var $Reservation ReservationDomain
+		 * @var $Reservation  ReservationDomain
 		 */
 		foreach ($reservations as $Reservation)
 		{
@@ -86,7 +89,7 @@ class ReservationMapper extends AbstractMapper
 	/**
 	 * @param \array $data
 	 *
-	 * @return ReservationDomain
+	 * @return \Stark\Models\ReservationDomain
 	 */
 	public function getModel($data)
 	{

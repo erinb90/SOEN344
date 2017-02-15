@@ -1,4 +1,6 @@
 <?php
+namespace Stark;
+use RoomMapper;
 
 /**
  * Created by PhpStorm.

@@ -1,4 +1,7 @@
 <?php
+namespace Stark\Interfaces;
+use Stark\Registry;
+
 
 /**
  * Created by PhpStorm.
@@ -20,21 +23,21 @@ abstract class TDG implements Gateway
     public abstract function getTable();
 
     /**
-     * @param \DomainObject $object
+     * @param \Stark\Interfaces\DomainObject $object
      *
      * @return int
      */
     public abstract function insert(DomainObject &$object);
 
     /**
-     * @param \DomainObject $object
+     * @param \Stark\Interfaces\DomainObject $object
      *
      * @return mixed
      */
     public abstract function delete(DomainObject &$object);
 
     /**
-     * @param \DomainObject $object
+     * @param \Stark\Interfaces\DomainObject $object
      *
      * @return mixed
      */

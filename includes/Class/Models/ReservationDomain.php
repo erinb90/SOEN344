@@ -1,4 +1,6 @@
 <?php
+namespace Stark\Models;
+use \Stark\Interfaces\DomainObject;
 
 class ReservationDomain implements  DomainObject
 {

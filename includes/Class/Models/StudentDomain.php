@@ -1,5 +1,6 @@
 <?php
-
+namespace Stark\Models;
+use Stark\Interfaces\DomainObject;
 
 
 class StudentDomain implements DomainObject

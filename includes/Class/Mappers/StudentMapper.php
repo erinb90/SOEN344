@@ -1,4 +1,9 @@
 <?php
+namespace Stark\Mappers;
+use Stark\Interfaces\AbstractMapper;
+use Stark\Models\StudentDomain;
+use Stark\TDG\StudentTDG;
+use Stark\Interfaces\DomainObject;
 
 /**
  * Class StudentMapper
@@ -8,7 +13,7 @@ class StudentMapper extends AbstractMapper
 
 
 	/**
-	 * @var \StudentTDG
+	 * @var StudentTDG
 	 */
 	protected $tdg;
 	/**
@@ -36,7 +41,7 @@ class StudentMapper extends AbstractMapper
 	/**
 	 * @param $email
 	 *
-	 * @return \StudentDomain
+	 * @return StudentDomain
 	 */
     public function findByEmail($email)
 	{
@@ -44,7 +49,7 @@ class StudentMapper extends AbstractMapper
 	}
 
 	/**
-	 * @param \DomainObject|StudentDomain $data
+	 * @param DomainObject|StudentDomain $data
 	 *
 	 * @return StudentDomain
 	 */

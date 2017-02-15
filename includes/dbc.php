@@ -1,15 +1,5 @@
 <?php
 error_reporting(E_ALL ^ E_NOTICE);
-/*
-function my_autoloader($class)
-{
-    $f = $_SERVER['DOCUMENT_ROOT'] . "/includes/Class/" . $class . '.php';
-    if (is_file($f))
-    {
-        include_once($f);
-    }
-}
-*/
 
 function autoload( $class, $dir = null ) {
 
@@ -39,6 +29,10 @@ function autoload( $class, $dir = null ) {
 // ACTIVATE AUTOLOADER
 spl_autoload_register('autoload');
 
+use Stark\CoreConfig;
+use Stark\Registry;
+use Stark\Mappers\StudentMapper;
+use Stark\WebUser;
 
 
 

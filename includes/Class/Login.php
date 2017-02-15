@@ -1,5 +1,9 @@
 <?php
 namespace Stark;
+use PasswordHash;
+use Stark\Mappers\StudentMapper;
+
+
 /**
  * Class Login
  */
@@ -50,7 +54,7 @@ class Login
         $UserMapper = new StudentMapper();
 
         /**
-         * @var StudentDomain $User
+         * @var \Stark\Models\StudentDomain $User
          */
         $User = $UserMapper->findByEmail(trim($this->_credentials["email"]));
 

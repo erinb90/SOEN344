@@ -1,4 +1,5 @@
 <?php
+namespace Stark\Interfaces;
 
 /**
  * Created by PhpStorm.
@@ -10,21 +11,21 @@ interface Gateway
 {
 
     /**
-     * @param \DomainObject $object
+     * @param  DomainObject $object
      *
      * @return mixed
      */
     public  function insert(DomainObject &$object);
 
     /**
-     * @param \DomainObject $object
+     * @param  DomainObject $object
      *
      * @return mixed
      */
     public  function delete(DomainObject &$object);
 
     /**
-     * @param \DomainObject $object
+     * @param  DomainObject $object
      *
      * @return mixed
      */

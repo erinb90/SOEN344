@@ -1,4 +1,6 @@
 <?php
+namespace Stark;
+use Stark\Models\StudentDomain;
 
 /**
  * Class WebUser
@@ -10,7 +12,7 @@ class WebUser
 {
 
     /**
-     * @var StudentDomain
+     * @var \Stark\Models\StudentDomain
      */
     static private $_User;
 
@@ -22,7 +24,7 @@ class WebUser
     }
 
     /**
-     * @param StudentDomain $user
+     * @param \Stark\Models\StudentDomain $user
      */
     public static function setUser(StudentDomain $user)
     {
@@ -31,7 +33,7 @@ class WebUser
 
 
     /**
-     * @return StudentDomain returns the user
+     * @return \Stark\Models\StudentDomain returns the user
      */
     public static function getUser()
     {

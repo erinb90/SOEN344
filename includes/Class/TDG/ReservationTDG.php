@@ -1,4 +1,8 @@
 <?php
+namespace Stark\TDG;
+use Stark\Interfaces\DomainObject;
+use Stark\Interfaces\TDG;
+use Stark\Registry;
 
 /**
  * Class ReservationTDG
@@ -48,7 +52,7 @@ class ReservationTDG extends TDG
     }
 
     /**
-     * @param \DomainObject|ReservationDomain $object
+     * @param \Stark\Interfaces\DomainObject|\Stark\Models\ReservationDomain $object
      *
      * @return int
      */
@@ -68,7 +72,7 @@ class ReservationTDG extends TDG
     }
 
     /**
-     * @param \DomainObject|ReservationDomain $object
+     * @param \Stark\Interfaces\DomainObject|\Stark\Models\ReservationDomain $object
      *
      * @return int
      */
@@ -83,7 +87,7 @@ class ReservationTDG extends TDG
 
 
     /**
-     * @param \DomainObject|ReservationDomain $object
+     * @param \Stark\Interfaces\DomainObject|\Stark\Models\ReservationDomain $object
      *
      * @return int
      */
