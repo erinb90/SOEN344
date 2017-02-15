@@ -21,7 +21,7 @@ class Utilities
         $start_date = date('Y-m-d', $start);
         $end_date = date('Y-m-d', strtotime('next saturday', $start));
 
-        return array($start_date . " 00:00:00", $end_date . " 23:59:59");
+        return [$start_date . " 00:00:00", $end_date . " 23:59:59"];
     }
 
 

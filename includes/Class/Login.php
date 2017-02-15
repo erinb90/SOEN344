@@ -30,10 +30,10 @@ class Login
     {
 
         // initialize credentials
-        $this->_credentials = array(
+        $this->_credentials = [
             'email' => "",
             'password' => ""
-        );
+        ];
 
         if ($credentials)
         {
@@ -53,8 +53,6 @@ class Login
          * @var StudentDomain $User
          */
         $User = $UserMapper->findByEmail(trim($this->_credentials["email"]));
-
-
 
         if ($User)
         {

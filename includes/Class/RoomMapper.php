@@ -27,9 +27,8 @@ class RoomMapper extends AbstractMapper
 		return $this->tdg;
 	}
 
-
 	/**
-	 * @return array an array of room objects
+	 * @return array an array of RoomDomain objects
 	 */
 	public function getAllRooms()
 	{

@@ -11,7 +11,7 @@ class CoreConfig
     /**
      * @var array
      */
-    private static $confArray = array();
+    private static $confArray = [];
 
     /**
      * CoreConfig constructor.

@@ -1,9 +1,15 @@
 <?php
 
+/**
+ * Class StudentMapper
+ */
 class StudentMapper extends AbstractMapper
 {
 
 
+	/**
+	 * @var \StudentTDG
+	 */
 	protected $tdg;
 	/**
 	 * StudentMapper constructor.
@@ -19,13 +25,23 @@ class StudentMapper extends AbstractMapper
     public function getAllStudents()
     {
         $data = $this->getTdg()->findAll();
-        $models = array();
+        $models = [];
         foreach ($data as $row)
         {
             $models[] = $this->getModel($row);
         }
         return $models;
     }
+
+	/**
+	 * @param $email
+	 *
+	 * @return \StudentDomain
+	 */
+    public function findByEmail($email)
+	{
+		return $this->getModel( $this->getTdg()->findByEmail($email) ) ;
+	}
 
 	/**
 	 * @param \DomainObject|StudentDomain $data
