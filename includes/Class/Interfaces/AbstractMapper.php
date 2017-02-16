@@ -14,7 +14,7 @@ abstract class AbstractMapper implements Gateway
     }
 
     /**
-     * @return TDG
+     * @return \Stark\Interfaces\TDG
      */
     public abstract function getTdg();
 
