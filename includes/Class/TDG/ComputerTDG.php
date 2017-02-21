@@ -2,36 +2,42 @@
 /**
  * Created by PhpStorm.
  * User: dimitri
- * Date: 2017-02-16
- * Time: 4:26 PM
+ * Date: 2017-02-17
+ * Time: 9:27 AM
  */
 
 namespace Stark\TDG
 {
+
+
+    use Doctrine\DBAL\Query\QueryBuilder;
     use Stark\Interfaces\DomainObject;
     use Stark\Interfaces\TDG;
+    use Stark\Registry;
 
-    class LoanContractTDG extends TDG
+    class ComputerTDG extends TDG
     {
+
+        public function __construct($table)
+        {
+            parent::__construct($table);
+        }
 
         /**
          * @return mixed
          */
         public function getPk()
         {
-            return "LoanContractId";
+            return "EquipmentId";
         }
 
-        /**
-         * @return string
-         */
-        public function getTable()
-        {
-            return "loan_contract";
-        }
+
+
+
+
 
         /**
-         * @param \Stark\Interfaces\DomainObject|\Stark\Models\LoanContract $object
+         * @param \Stark\Interfaces\DomainObject $object
          *
          * @return int
          */
@@ -41,7 +47,7 @@ namespace Stark\TDG
         }
 
         /**
-         * @param \Stark\Interfaces\DomainObject|\Stark\Models\LoanContract $object
+         * @param \Stark\Interfaces\DomainObject $object
          *
          * @return mixed
          */
@@ -51,7 +57,7 @@ namespace Stark\TDG
         }
 
         /**
-         * @param \Stark\Interfaces\DomainObject|\Stark\Models\LoanContract $object
+         * @param \Stark\Interfaces\DomainObject $object
          *
          * @return mixed
          */

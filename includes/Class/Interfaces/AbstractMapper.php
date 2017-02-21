@@ -32,7 +32,7 @@ abstract class AbstractMapper implements Gateway
      * @param $data array data retrieve from the tdg
      * @return DomainObject returns a fully-dressed object
      */
-    public abstract function getModel($data);
+    public abstract function getModel(array $data);
     /**
      * This method inserts row into database via tdg
      * @param DomainObject $object

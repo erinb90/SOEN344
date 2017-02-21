@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dimitri
- * Date: 2017-02-16
- * Time: 4:36 PM
- */
 
 namespace Stark\Models
 {
@@ -13,9 +7,16 @@ namespace Stark\Models
     class LoanContract implements DomainObject
     {
 
+        /**
+         * @var int
+         */
         private $_LoanContractiD;
 
+        /**
+         * @var int
+         */
         private $_ReservationId;
+
 
         public function __construct()
         {
@@ -23,7 +24,7 @@ namespace Stark\Models
         }
 
         /**
-         * @return mixed
+         * @return int
          */
         public function getLoanContractiD()
         {
@@ -31,15 +32,12 @@ namespace Stark\Models
         }
 
         /**
-         * @param mixed $LoanContractiD
+         * @param int $LoanContractiD
          *
-         * @return LoanContract
          */
         public function setLoanContractiD($LoanContractiD)
         {
             $this->_LoanContractiD = $LoanContractiD;
-
-            return $this;
         }
 
         /**
@@ -53,13 +51,10 @@ namespace Stark\Models
         /**
          * @param mixed $ReservationId
          *
-         * @return LoanContract
          */
         public function setReservationId($ReservationId)
         {
             $this->_ReservationId = $ReservationId;
-
-            return $this;
         }
 
 

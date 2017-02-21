@@ -18,7 +18,7 @@ namespace Stark\Mappers
 
         public function __construct()
         {
-            $this->_tdg = new LoanContractTDG();
+            $this->_tdg = new LoanContractTDG("loan_contract");
         }
 
         /**
@@ -34,7 +34,7 @@ namespace Stark\Mappers
          *
          * @return LoanContract returns a fully-dressed object
          */
-        public function getModel($data)
+        public function getModel(array $data)
         {
             if(!$data)
             {
