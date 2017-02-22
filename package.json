@@ -1,0 +1,32 @@
+{
+  "name": "concordiaRoomReserver",
+  "version": "1.0.0",
+  "description": "SOEN344 Concordia University Room Reserver",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "closure": "^1.0.3",
+    "eslint": "^3.15.0",
+    "eslint-config-jquery": "^1.0.0"
+  },
+  "scripts": {
+    "test": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erinb90/SOEN344.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/erinb90/SOEN344/issues"
+  },
+  "homepage": "https://github.com/erinb90/SOEN344#readme",
+  "eslintConfig": {
+    "extends": "jquery"
+  }
+}
