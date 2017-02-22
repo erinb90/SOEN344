@@ -1,6 +1,8 @@
 # Php storm project files
 .idea/
+
 # Composer packages
 composer.lock
 vendor/
 settings.php
+node_modules/

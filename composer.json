@@ -1,20 +1,24 @@
 {
-    "name": "soen344/theforceawakens",
-    "description": "ENCS room reservation system for Concordia University.",
-    "type": "project",
-    "require": {
-        "doctrine/dbal": "v2.5.4",
-        "lisachenko/go-aop-php": "*"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^5.7",
-        "phpunit/dbunit": "^1.2",
-        "doctrine/annotations": "v1.2.7"
-    },
-    "autoload": {
-        "psr-4": {
-            "Stark\\": "includes/Class"
-        }
-    },
-    "minimum-stability": "stable"
+  "name": "soen344/theforceawakens",
+  "description": "ENCS room reservation system for Concordia University.",
+  "type": "project",
+  "require": {
+    "doctrine/dbal": "v2.5.4",
+    "lisachenko/go-aop-php": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^5.7",
+    "phpunit/dbunit": "^1.2",
+    "doctrine/annotations": "v1.2.7"
+  },
+  "autoload": {
+    "psr-4": {
+      "Stark\\": [
+        "includes/Class"
+      ],
+      "Tests\\": [
+        "Tests"
+      ]
+    }
+  }
 }
