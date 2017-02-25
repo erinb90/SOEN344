@@ -3,13 +3,13 @@
 namespace Stark\Models
 {
 
-    use Stark\Interfaces\DomainObject;
+    use Stark\Interfaces\Equipment;
 
     /**
      * Class Computer
      * @package Stark\Models
      */
-    class Computer extends Equipment implements DomainObject
+    class Computer extends Equipment
     {
 
         /**
@@ -58,8 +58,6 @@ namespace Stark\Models
         {
             $this->_Cpu = $Cpu;
         }
-
-
 
 
     }

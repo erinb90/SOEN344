@@ -27,6 +27,7 @@ namespace Stark;
 #
 class PasswordHash
 {
+
     var $itoa64;
 
     var $iteration_count_log2;
@@ -187,7 +188,8 @@ class PasswordHash
             $c1 |= $c2 >> 6;
             $output .= $itoa64[$c1];
             $output .= $itoa64[$c2 & 0x3f];
-        } while (1);
+        }
+        while (1);
 
         return $output;
     }
@@ -248,7 +250,8 @@ class PasswordHash
                 break;
             }
             $output .= $this->itoa64[($value >> 18) & 0x3f];
-        } while ($i < $count);
+        }
+        while ($i < $count);
 
         return $output;
     }
@@ -300,7 +303,8 @@ class PasswordHash
             do
             {
                 $hash = md5($hash . $password, TRUE);
-            } while (--$count);
+            }
+            while (--$count);
         }
         else
         {
@@ -308,7 +312,8 @@ class PasswordHash
             do
             {
                 $hash = pack('H*', md5($hash . $password));
-            } while (--$count);
+            }
+            while (--$count);
         }
 
         $output = substr($setting, 0, 12);

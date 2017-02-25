@@ -1,45 +1,32 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: dimitri
- * Date: 2017-02-17
- * Time: 9:27 AM
+ * User: Dimitri
+ * Date: 2/25/2017
+ * Time: 1:50 AM
  */
 
 namespace Stark\TDG
 {
 
-
-    use Doctrine\DBAL\Query\QueryBuilder;
     use Stark\Interfaces\DomainObject;
     use Stark\Interfaces\TDG;
     use Stark\Registry;
 
+
     /**
-     * Class ComputerTDG
+     * Class ProjectorTDG
      * @package Stark\TDG
      */
-    class ComputerTDG extends TDG
+    class ProjectorTDG extends TDG
     {
 
         /**
-         * ComputerTDG constructor.
+         * @param \Stark\Interfaces\DomainObject|\Stark\Models\Projector $object
          *
-         * @param $table
-         * @param $pk
+         * @return int returns the last inserted id
          */
-        public function __construct($table, $pk)
-        {
-            parent::__construct($table, $pk);
-        }
-
-        /**
-         * @param \Stark\Models\Computer|\Stark\Interfaces\DomainObject $computer
-         *
-         * @return int
-         * @throws \Exception
-         */
-        public function insert(DomainObject &$computer)
+        public function insert(DomainObject &$object)
         {
             Registry::getConnection()->beginTransaction();
             $lastId = -1;
@@ -48,21 +35,21 @@ namespace Stark\TDG
             {
                 Registry::getConnection()->insert($this->getParentTable(),
                     [
-                        "Manufacturer" => $computer->getManufacturer(),
-                        "ProductLine"  => $computer->getProductLine(),
-                        "Description"  => $computer->getDescription(),
-                        "Quantity"     => $computer->getQuantity()
+                        "Manufacturer" => $object->getManufacturer(),
+                        "ProductLine"  => $object->getProductLine(),
+                        "Description"  => $object->getDescription(),
+                        "Quantity"     => $object->getQuantity()
                     ]
                 );
 
                 $lastId = Registry::getConnection()->lastInsertId();
 
 
-                // computer specific
+                // Projector specific
                 Registry::getConnection()->insert($this->getTable(),
                     [
-                        "Ram"         => $computer->getManufacturer(),
-                        "Cpu"         => $computer->getCpu(),
+                        "Display"     => $object->getManufacturer(),
+                        "Resolution"  => $object->getResolution(),
                         "EquipmentId" => $lastId
                     ]
                 );
@@ -78,12 +65,10 @@ namespace Stark\TDG
             }
 
             return $lastId;
-
-
         }
 
         /**
-         * @param \Stark\Models\Computer|\Stark\Interfaces\DomainObject $object
+         * @param \Stark\Interfaces\DomainObject|\Stark\Models\Projector $object
          *
          * @return mixed
          */
@@ -98,18 +83,17 @@ namespace Stark\TDG
         }
 
         /**
-         * @param \Stark\Models\Computer|\Stark\Interfaces\DomainObject $object
+         * @param \Stark\Interfaces\DomainObject|\Stark\Models\Projector $object
          *
-         * @return mixed
+         * @return bool
          */
         public function update(DomainObject &$object)
         {
-
             Registry::getConnection()->update(
                 $this->getTable(),
                 [
-                    "Ram" => $object->getRam(),
-                    "Cpu" => $object->getCpu()
+                    "Display"    => $object->getDisplay(),
+                    "Resolution" => $object->getResolution()
                 ],
                 [$this->getPk() => $object->getEquipmentId()]
             );

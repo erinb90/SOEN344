@@ -1,5 +1,6 @@
 <?php
 namespace Stark;
+
 use Go\Core\AspectKernel;
 use Go\Core\AspectContainer;
 

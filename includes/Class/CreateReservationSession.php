@@ -1,5 +1,6 @@
 <?php
 namespace Stark;
+
 use Stark\Models\StudentDomain;
 use Stark\Mappers\ReservationMapper;
 
@@ -32,12 +33,13 @@ class CreateReservationSession
     private $_title;
 
 
-    private $_errors =array();
+    private $_errors    = array();
 
-    private $_conflicts=array();
+    private $_conflicts = array();
 
 
     private $_date;
+
     /**
      * MakeReservationSession constructor.
      */
@@ -47,7 +49,6 @@ class CreateReservationSession
         $this->_startTimeDate = $startTimeDate;
         $this->_endTimeDate = $endTimeDate;
     }
-
 
 
     public function getErrors()
@@ -61,7 +62,6 @@ class CreateReservationSession
     }
 
 
-
     /**
      * Performs certain validation according to requirements
      */
@@ -69,9 +69,10 @@ class CreateReservationSession
     {
 
 
-        if($this->_date == "")
+        if ($this->_date == "")
         {
             $this->setError("Date required");
+
             return;
         }
         // validate time slot
@@ -139,7 +140,7 @@ class CreateReservationSession
         }
 
 
-        if($this->_title == "")
+        if ($this->_title == "")
         {
             $this->setError("Title must be provided");
         }
@@ -181,7 +182,8 @@ class CreateReservationSession
                     $this->_description);
                 $ReservationMapper->uowInsert($Reservation);
                 $ReservationMapper->commit();
-                return true;
+
+                return TRUE;
 
             }
             catch (\Exception $e)
@@ -191,7 +193,7 @@ class CreateReservationSession
 
         }
 
-        return false;
+        return FALSE;
 
     }
 

@@ -5,38 +5,81 @@ namespace Stark\Interfaces
     use Doctrine\DBAL\Query\QueryBuilder;
     use Stark\Registry;
 
+    /**
+     * Class TDG
+     * @package Stark\Interfaces
+     */
     abstract class TDG implements Gateway
     {
 
+        /**
+         * @var
+         */
         private $_table;
 
-        private $_inheritance = [];
+        /**
+         * @var
+         */
+        private $_pk;
 
-        public function __construct($table)
+        /**
+         * @var null
+         */
+        private $_parentTable = NULL;
+
+        /**
+         * @var null
+         */
+        private $_parentPk = NULL;
+
+
+        /**
+         * TDG constructor.
+         *
+         * @param $table
+         * @param $pk
+         */
+        public function __construct($table, $pk)
         {
             $this->_table = $table;
-        }
-
-        public final function setInheritance($table, $pk)
-        {
-            $this->_inheritance = [
-                $table => $pk
-            ];
-            return $this;
+            $this->_pk = $pk;
         }
 
         /**
-         * @return array
+         * @param $table
+         * @param $pk
          */
-        public final function getInheritance()
+        public final function setParentTable($table, $pk)
         {
-            return $this->_inheritance;
+            $this->_parentPk = $pk;
+            $this->_parentTable = $table;
+
         }
+
+        /**
+         * @return null
+         */
+        public function getParentPk()
+        {
+            return $this->_parentPk;
+        }
+
+        /**
+         * @return null
+         */
+        public function getParentTable()
+        {
+            return $this->_parentTable;
+        }
+
 
         /**
          * @return mixed
          */
-        public abstract function getPk();
+        public function getPk()
+        {
+            return $this->_pk;
+        }
 
         /**
          * @return string
@@ -49,7 +92,7 @@ namespace Stark\Interfaces
         /**
          * @param \Stark\Interfaces\DomainObject $object
          *
-         * @return int
+         * @return int returns the last inserted id
          */
         public abstract function insert(DomainObject &$object);
 
@@ -63,21 +106,9 @@ namespace Stark\Interfaces
         /**
          * @param \Stark\Interfaces\DomainObject $object
          *
-         * @return mixed
+         * @return bool
          */
         public abstract function update(DomainObject &$object);
-
-
-        private function joinInheritance(QueryBuilder &$query)
-        {
-            foreach($this->getInheritance() as $table => $pk)
-            {
-                $query->leftJoin($this->getTable(),
-                    $table,
-                    $table,
-                    $this->getTable() .  $this->getPk() . '=' . $table  . $pk);
-            }
-        }
 
         /**
          * @param $id
@@ -86,31 +117,59 @@ namespace Stark\Interfaces
          */
         public function findByPk($id)
         {
-            $query = Registry::getConnection()->createQueryBuilder();
-            $query->select("*");
-            $query->from($this->getTable(), $this->getTable());
-            $this->joinInheritance($query);
-            $query->where($this->getTable() . '.' . $this->getPk() . "='" . $id . "'");
-            $sth = $query->execute();
-            $m = $sth->fetchAll();
-            return $m[0];
+            return $this->query('*', [$this->getPk() => $id])[0];
         }
-
-
 
         /**
          * @return array
          */
         public function findAll()
         {
-            $query = Registry::getConnection()->createQueryBuilder();
-            $query->select("*");
-            $query->from($this->getTable());
-            $this->joinInheritance($query);
-            $sth = $query->execute();
+            return $this->query('*');
+        }
+
+        /**
+         * @param $select
+         * @param array $where [column => value]
+         *
+         * @return array
+         */
+        public function query($select, array $where = [])
+        {
+
+            /**
+             * @var $parentQuery QueryBuilder
+             */
+            $parentQuery = Registry::getConnection()->createQueryBuilder();
+
+            $parentQuery->select($select);
+            $parentQuery->from($this->getTable());
+
+
+            foreach ($where as $column => $value)
+            {
+                $parentQuery->where($this->getTable() . '.' . $column . '=' . "\"$value\"");
+            }
+
+
+            if ($this->getParentTable() != NULL)
+            {
+                $parentQuery->leftJoin($this->getTable(),
+                    $this->getParentTable(),
+                    $this->getParentTable(),
+                    $this->getTable() . '.' . $this->getPk() . '=' . $this->getParentTable() . '.' . $this->getParentPk());
+            }
+
+ ;
+            $sth = $parentQuery->execute();
+
             $m = $sth->fetchAll();
+
             return $m;
         }
 
+
     }
+
+
 }

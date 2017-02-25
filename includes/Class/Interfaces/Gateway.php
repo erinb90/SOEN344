@@ -15,26 +15,26 @@ interface Gateway
      *
      * @return mixed
      */
-    public  function insert(DomainObject &$object);
+    public function insert(DomainObject &$object);
 
     /**
      * @param  DomainObject $object
      *
      * @return mixed
      */
-    public  function delete(DomainObject &$object);
+    public function delete(DomainObject &$object);
 
     /**
      * @param  DomainObject $object
      *
      * @return mixed
      */
-    public  function update(DomainObject &$object);
+    public function update(DomainObject &$object);
 
     /**
      * @param int $id primary key
      *
      * @return mixed
      */
-    public  function findByPk($id);
+    public function findByPk($id);
 }

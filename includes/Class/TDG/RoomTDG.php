@@ -1,30 +1,30 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: dimitri
- * Date: 2017-02-16
- * Time: 4:26 PM
+ * User: Dimitri
+ * Date: 2/25/2017
+ * Time: 1:19 AM
  */
 
 namespace Stark\TDG
 {
+
 
     use Stark\Interfaces\DomainObject;
     use Stark\Interfaces\TDG;
     use Stark\Registry;
 
     /**
-     * Class LoanContractTDG
+     * Class RoomTDG
      * @package Stark\TDG
      */
-    class LoanContractTDG extends TDG
+    class RoomTDG extends TDG
     {
 
-
         /**
-         * @param \Stark\Interfaces\DomainObject|\Stark\Models\LoanContract $object
+         * @param \Stark\Interfaces\DomainObject|\Stark\Models\Room $object
          *
-         * @return int
+         * @return int returns the last inserted id
          */
         public function insert(DomainObject &$object)
         {
@@ -34,7 +34,8 @@ namespace Stark\TDG
             {
                 Registry::getConnection()->insert($this->getParentTable(),
                     [
-                        "ReservationId" => $object->getReservationId()
+                        "Name"     => $object->getName(),
+                        "Location" => $object->getLocation()
                     ]
                 );
 
@@ -51,7 +52,7 @@ namespace Stark\TDG
         }
 
         /**
-         * @param \Stark\Interfaces\DomainObject|\Stark\Models\LoanContract $object
+         * @param \Stark\Interfaces\DomainObject|\Stark\Models\Room $object
          *
          * @return mixed
          */
@@ -60,27 +61,28 @@ namespace Stark\TDG
 
             return Registry::getConnection()->delete($this->getTable(),
                 [
-                    $this->getPk() => $object->getLoanContractiD()
+                    $this->getPk() => $object->getRoomId()
                 ]
             );
         }
 
         /**
-         * @param \Stark\Interfaces\DomainObject|\Stark\Models\LoanContract $object
+         * @param \Stark\Interfaces\DomainObject|\Stark\Models\Room $object
          *
-         * @return mixed
+         * @return bool
          */
         public function update(DomainObject &$object)
         {
+
             try
             {
                 Registry::getConnection()->update(
                     $this->getTable(),
                     [
-
-                        "ReservationId" => $object->getReservationId()
+                        "Name"     => $object->getName(),
+                        "Location" => $object->getLocation()
                     ],
-                    [$this->getPk() => $object->getLoanContractiD()]
+                    [$this->getPk() => $object->getRoomId()]
                 );
 
                 return TRUE;
@@ -91,6 +93,7 @@ namespace Stark\TDG
             }
 
             return FALSE;
+
         }
     }
 }

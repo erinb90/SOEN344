@@ -21,7 +21,6 @@ if ($Login->login())
     <?php
 
 
-
 }
 else
 {
@@ -30,7 +29,7 @@ else
     <script>
         $(function ()
         {
-           // $('#form')[0].reset();
+            // $('#form')[0].reset();
         });
     </script>
     <br>

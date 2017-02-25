@@ -1,9 +1,9 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: dimitri
- * Date: 2017-02-17
- * Time: 9:26 AM
+ * User: Dimitri
+ * Date: 2/25/2017
+ * Time: 1:50 AM
  */
 
 namespace Stark\Mappers
@@ -12,25 +12,27 @@ namespace Stark\Mappers
 
     use Stark\Interfaces\AbstractMapper;
     use Stark\Interfaces\DomainObject;
-    use Stark\Models\Computer;
-    use Stark\TDG\ComputerTDG;
+    use Stark\Models\Projector;
+    use Stark\TDG\ProjectorTDG;
 
     /**
-     * Class ComputerMapper
+     * Class ProjectorMapper
      * @package Stark\Mappers
      */
-    class ComputerMapper extends AbstractMapper
+    class ProjectorMapper extends AbstractMapper
     {
 
+        /**
+         * @var \Stark\TDG\ProjectorTDG
+         */
         private $_tdg;
 
         /**
-         * ComputerMapper constructor.
+         * ProjectorMapper constructor.
          */
         public function __construct()
         {
-            $this->_tdg = new ComputerTDG("computers", "EquipmentId");
-
+            $this->_tdg = new ProjectorTDG("projectors", "EquipmentId");
             $this->_tdg->setParentTable("equipment", "EquipmentId");
         }
 
@@ -48,15 +50,12 @@ namespace Stark\Mappers
         public function findAll()
         {
             $m = $this->getTdg()->findAll();
-
-            $computers = [];
+            $projectors = [];
             foreach ($m as $row)
             {
-                $computers[] = $this->getModel($row);
+                $projectors[] = $this->getModel($row);
             }
-
-
-            return $computers;
+            return $projectors;
         }
 
         /**
@@ -72,18 +71,19 @@ namespace Stark\Mappers
             }
 
 
-            $Computer = new Computer();
-            $Computer->setEquipmentId($data['EquipmentId']);
-            $Computer->setRam($data['Ram']);
-            $Computer->setCpu($data['Cpu']);
-            $Computer->setDescription($data['Description']);
-            $Computer->setManufacturer($data['Manufacturer']);
-            $Computer->setQuantity($data['Quantity']);
-            $Computer->setProductLine($data['ProductLine']);
+            $Projector = new Projector();
+            $Projector->setEquipmentId($data['EquipmentId']);
+            $Projector->setDisplay($data['Display']);
+            $Projector->setResolution($data['Resolution']);
+            $Projector->setDescription($data['Description']);
+            $Projector->setManufacturer($data['Manufacturer']);
+            $Projector->setQuantity($data['Quantity']);
+            $Projector->setProductLine($data['ProductLine']);
 
-            return $Computer;
-
+            return $Projector;
         }
 
     }
+
+
 }

@@ -2,8 +2,13 @@
 
 namespace Stark\Models
 {
+
     use Stark\Interfaces\DomainObject;
 
+    /**
+     * Class LoanContract
+     * @package Stark\Models
+     */
     class LoanContract implements DomainObject
     {
 
@@ -18,6 +23,9 @@ namespace Stark\Models
         private $_ReservationId;
 
 
+        /**
+         * LoanContract constructor.
+         */
         public function __construct()
         {
 
@@ -56,7 +64,6 @@ namespace Stark\Models
         {
             $this->_ReservationId = $ReservationId;
         }
-
 
 
     }

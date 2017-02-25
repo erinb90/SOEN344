@@ -61,7 +61,6 @@ $RoomDirectory = new RoomDirectory();
     <link href="../../plugins/datatables/extensions/Select/css/select.dataTables.min.css" rel="stylesheet">
 
 
-
     <!-- DataTables JavaScript -->
     <script src="../../plugins/datatables/media/js/jquery.dataTables.min.js"></script>
     <script src="../../plugins/datatables/media/js/dataTables.bootstrap.min.js"></script>
@@ -79,57 +78,67 @@ $RoomDirectory = new RoomDirectory();
 
         var t, count;
 
-        function cddisplay() {
+        function cddisplay()
+        {
             // displays time in span
             console.log(count);
             $('#timer').html(count);
-        };
+        }
+        ;
 
-        function countdown() {
+        function countdown()
+        {
             // starts countdown
             cddisplay();
-            if (count == 0) {
+            if (count == 0)
+            {
                 $('#myModal').dialog("close");
-            } else {
+            }
+            else
+            {
                 count--;
                 t = setTimeout("countdown()", 1000);
             }
-        };
+        }
+        ;
 
-        function cdpause() {
+        function cdpause()
+        {
             // pauses countdown
             clearTimeout(t);
-        };
+        }
+        ;
 
-        function cdreset() {
+        function cdreset()
+        {
             // resets countdown
             cdpause();
             count = CCOUNT;
             cddisplay();
-        };
+        }
+        ;
 
 
-
-
-        $(function () {
+        $(function ()
+        {
 
 
 
             // add the date picker
             $('input#rDate').datepicker({
                 dateFormat: 'yy-mm-dd',
-                minDate: 0
+                minDate   : 0
             });
 
 
-
             //what happens when you click on the make reserve button
-            $(document).on('click', '#makeReserve', function () {
+            $(document).on('click', '#makeReserve', function ()
+            {
                 //reset timer
                 cdreset();
 
                 var roomid = $('#roomOptions').val();
-                var roomName = $('#roomOptions option[value='+roomid+']').text();
+                var roomName = $('#roomOptions option[value=' + roomid + ']').text();
                 $('#roomName').val(roomName);
                 $('#roomID').val(roomid);
 
@@ -137,10 +146,9 @@ $RoomDirectory = new RoomDirectory();
                 $.ajax({
                     type    : "POST",
                     url     : "Lock.php", //file name
-                    data    :
-                    {
-                        action : "lock",
-                        roomID :  roomid
+                    data    : {
+                        action: "lock",
+                        roomID: roomid
                     },
                     success : function (data)
                     {
@@ -159,20 +167,19 @@ $RoomDirectory = new RoomDirectory();
 
                 // open modal
                 $('#myModal').dialog({
-                    width: 800,
-                    modal: true,
-                    show : 'fade',
-                    title: 'Make Reservation',
-                    beforeClose : function(event, ui)
+                    width      : 800,
+                    modal      : true,
+                    show       : 'fade',
+                    title      : 'Make Reservation',
+                    beforeClose: function (event, ui)
                     {
                         //unlock room
                         $.ajax({
                             type    : "POST",
                             url     : "Lock.php", //file name
-                            data    :
-                            {
-                                action : "unlock",
-                                roomID :  roomid
+                            data    : {
+                                action: "unlock",
+                                roomID: roomid
                             },
                             success : function (data)
                             {
@@ -193,7 +200,8 @@ $RoomDirectory = new RoomDirectory();
 
 
             // when clicking on profile link
-            $(document).on('click', '#second-r', function () {
+            $(document).on('click', '#second-r', function ()
+            {
 
                 $('#profilemyModal').dialog({
                     width: 800,
@@ -203,7 +211,8 @@ $RoomDirectory = new RoomDirectory();
             });
 
             // when saving profile information
-            $(document).on('click', '#submitProfile', function(){
+            $(document).on('click', '#submitProfile', function ()
+            {
 
                 $clicker = $(this);
                 var originalText = $clicker.text();
@@ -237,7 +246,8 @@ $RoomDirectory = new RoomDirectory();
             });
 
 
-            $(document).on('click','#createReservation', function(){
+            $(document).on('click', '#createReservation', function ()
+            {
                 $form = $('#reservationForm');
 
                 $clicker = $(this);
@@ -272,7 +282,8 @@ $RoomDirectory = new RoomDirectory();
 
             });
 
-            $(document).on('click', '#third-r', function () {
+            $(document).on('click', '#third-r', function ()
+            {
 
                 $('#myReservationsModal').dialog({
                     width: 800,
@@ -280,9 +291,6 @@ $RoomDirectory = new RoomDirectory();
                     title: 'My Reservations'
                 });
             });
-
-
-
 
 
             userReservations = $('#reservationsTable').DataTable({
@@ -305,7 +313,7 @@ $RoomDirectory = new RoomDirectory();
                     {
                         'render' : function (data, type, row)
                         {
-                            if(row.modifiable)
+                            if (row.modifiable)
                             {
                                 return '<button id="modifyReservation" name="modifyReservation" type="button" class="btn btn-outline btn-primary btn-square btn-sm">Modify</button>' +
                                     ' <button id="cancelReservation" name="cancelReservation" type="button" class="btn btn-outline btn-danger btn-square btn-sm">Cancel</button>';
@@ -370,13 +378,13 @@ $RoomDirectory = new RoomDirectory();
                             <?php
 
                             /**
-                             * @var RoomDomain $RoomDomain
+                             * @var \Stark\Models\Room $RoomDomain
                              */
                             foreach ($RoomDirectory->getRooms() as $RoomDomain)
                             {
                                 ?>
 
-                                <option value="<?php echo $RoomDomain->getRID(); ?>"><?php echo $RoomDomain->getName(); ?></option>
+                                <option value="<?php echo $RoomDomain->getRoomId(); ?>"><?php echo $RoomDomain->getName(); ?></option>
 
                                 <?php
                             }
@@ -384,9 +392,9 @@ $RoomDirectory = new RoomDirectory();
                         </select>
                         <!-- Hidden input for temporary datepicker fix-->
                         <input type="hidden" readonly="readonly" type="text" class="form-control" name="dateDrop"
-                            id="dateDrop" placeholder="Nothing"/>
+                                id="dateDrop" placeholder="Nothing" />
                         <button type="button" class="btn btn-default btn-lg" id="makeReserve"><span
-                                class="network-name">Make a Reservation</span></button>
+                                    class="network-name">Make a Reservation</span></button>
 
                     </div>
                     <br>
@@ -412,30 +420,29 @@ $RoomDirectory = new RoomDirectory();
 
                                 <div class="form-group">
                                     <div class="timer" style="color:red;text-align: center;">Reservation closes in <span
-                                            id="timer">-</span> seconds!
+                                                id="timer">-</span> seconds!
                                     </div>
                                     <label>Title of Reservation</label>
                                     <input required type="text" class="form-control" placeholder="Enter a Title"
-                                        name="title">
+                                            name="title">
                                 </div>
                                 <div class="form-group">
                                     <label>Description of Reservation</label>
                                     <textarea style="resize:none;" rows="3" cols="50"
-                                        placeholder="Describe the Reservation here..." class="form-control"
-                                        name="description"></textarea>
+                                            placeholder="Describe the Reservation here..." class="form-control"
+                                            name="description"></textarea>
                                 </div>
                                 <!-- Time slots should be inserted here-->
                                 <div class="form-group">
                                     <label>Date:</label>
-                                    <input type="text" class="form-control" name="rDate" id="rDate" />
-                                    <br>
+                                    <input type="text" class="form-control" name="rDate" id="rDate" /> <br>
                                     <label>Start Time: (mm:ss)</label>
                                     <input type="text" class="form-control" id="startTime" name="startTime">
                                     <label>End Time: (mm:ss)</label>
                                     <input type="text" class="form-control" id="endTime" name="endTime">
                                     <label>Room:</label>
-                                    <input readonly="readonly"  class="form-control" id="roomName"   name="roomName" />
-                                    <input  hidden name="roomID" id="roomID">
+                                    <input readonly="readonly" class="form-control" id="roomName" name="roomName" />
+                                    <input hidden name="roomID" id="roomID">
                                 </div>
                                 <div class="form-group">
                                     <label>Repeat Reservation for:</label>
@@ -466,57 +473,53 @@ $RoomDirectory = new RoomDirectory();
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                             <h4>Please edit the specifications of your reservation</h4>
                             <div class="timer2" style="color:red;text-align: center;">Reservation closes in <span
-                                    id="timer2"></span> seconds!
+                                        id="timer2"></span> seconds!
                             </div>
                         </div>
                         <div class="modal-body">
                             <form id="formEdit" action="Reserve.php" method="post">
                                 <input readonly="readonly" type="hidden" class="form-control" name="reservationID"
-                                    id="reservationID" value="<?php echo $modReserve['reservationID']; ?>"/>
+                                        id="reservationID" value="<?php echo $modReserve['reservationID']; ?>" />
                                 <input readonly="readonly" type="hidden" class="form-control" name="roomID"
-                                    id="reservationID" value="<?php echo $modReserve['roomID']; ?>"/>
+                                        id="reservationID" value="<?php echo $modReserve['roomID']; ?>" />
                                 <div class="form-group">
                                     <label>Room Name</label>
                                     <input readonly="readonly" type="text" class="form-control" name="roomID"
-                                        id="reservationID" value="<?php echo $roomChosen; ?>"/>
+                                            id="reservationID" value="<?php echo $roomChosen; ?>" />
                                 </div>
                                 <div class="form-group">
                                     <label>Title of Reservation</label>
                                     <input type="text" class="form-control" placeholder="Enter a Title" name="title"
-                                        value="<?php echo $modReserve['title']; ?>">
+                                            value="<?php echo $modReserve['title']; ?>">
                                 </div>
                                 <div class="form-group">
                                     <label>Description of Reservation</label>
                                     <textarea rows="3" cols="50" placeholder="Describe the Reservation here..."
-                                        class="form-control"
-                                        name="description"><?php echo $modReserve['description']; ?></textarea>
+                                            class="form-control"
+                                            name="description"><?php echo $modReserve['description']; ?></textarea>
                                 </div>
                                 <!-- Time slots should be inserted here-->
                                 <div class="form-group">
                                     <label>Date:</label>
                                     <input readonly="readonly" type="text" class="form-control" name="dateDrop"
-                                        id="dateDrop" value="<?php echo $modDate[0]; ?>"/>
-                                    <br>
-                                    <label>Start Time:</label>
-                                    <select name="startTime">
+                                            id="dateDrop" value="<?php echo $modDate[0]; ?>" /> <br>
+                                    <label>Start Time:</label> <select name="startTime">
                                         <?php
 
                                         ?>
-                                    </select>&nbsp &nbsp &nbsp
-                                    <label>End Time:</label>
-                                    <select name="endTime">
+                                    </select>&nbsp &nbsp &nbsp <label>End Time:</label> <select name="endTime">
                                         <?php
 
                                         ?>
                                     </select>&nbsp &nbsp &nbsp
 
                                     <input readonly="readonly" id="roomOptionsMod" class="roomNum" name="roomName"
-                                        value="<?php //if($roomReserve != NULL) echo $roomReserve->getName(); ?>"/>
+                                            value="<?php //if($roomReserve != NULL) echo $roomReserve->getName(); ?>" />
                                     <input hidden name="roomID"
-                                        value="<?php //if($roomReserve != NULL) echo $roomReserve->getRID(); ?>">
+                                            value="<?php //if($roomReserve != NULL) echo $roomReserve->getRID(); ?>">
                                 </div>
                                 <button type="submit" name="action" value="modifying"
-                                    class="btn btn-default btn-success btn-block">Submit
+                                        class="btn btn-default btn-success btn-block">Submit
                                 </button>
                             </form>
                         </div>
@@ -534,39 +537,35 @@ $RoomDirectory = new RoomDirectory();
                                 <div class="form-group">
                                     <label>First name</label>
                                     <input readonly="readonly" type="text" class="form-control" name="firstName" id="firstName"
-                                        placeholder="First Name"
-                                        value="<?php echo WebUser::getUser()->getFirstName(); ?>"/>
+                                            placeholder="First Name"
+                                            value="<?php echo WebUser::getUser()->getFirstName(); ?>" />
                                 </div>
                                 <div class="form-group">
                                     <label>Last name</label>
                                     <input readonly="readonly" type="text" class="form-control" name="lastName" id="lastName"
-                                        placeholder="Last Name"
-                                        value="<?php echo WebUser::getUser()->getLastName(); ?>"/>
+                                            placeholder="Last Name"
+                                            value="<?php echo WebUser::getUser()->getLastName(); ?>" />
                                 </div>
                                 <div class="form-group">
                                     <label>Student ID</label>
                                     <input readonly="readonly" type="text" class="form-control" name="studentID"
-                                        placeholder="Student ID" value="<?php echo WebUser::getUser()->getSID(); ?>"/>
+                                            placeholder="Student ID" value="<?php echo WebUser::getUser()->getUserId(); ?>" />
                                 </div>
-                                <div class="form-group">
-                                    <label>Program</label>
-                                    <input readonly="readonly" type="text" class="form-control" name="program"
-                                        placeholder="Program" value="<?php echo WebUser::getUser()->getProgram(); ?>"/>
-                                </div>
+
                                 <div class="form-group">
                                     <label>Old Password</label>
                                     <input type="password" class="form-control" name="oldPass"
-                                        placeholder="Old Password"/>
+                                            placeholder="Old Password" />
                                 </div>
                                 <div class="form-group">
                                     <label>New Password</label>
                                     <input type="password" class="form-control" name="newPass"
-                                        placeholder="New Password"/>
+                                            placeholder="New Password" />
                                 </div>
                                 <div class="form-group">
                                     <label>Email Address</label>
                                     <input type="text" class="form-control" name="uEmail" id="uEmail"
-                                        placeholder="Email Address" value="<?php echo WebUser::getUser()->getEmailAddress(); ?>"/>
+                                            placeholder="Email Address" value="<?php echo WebUser::getUser()->getUserName(); ?>" />
                                 </div>
 
 
@@ -693,7 +692,6 @@ $RoomDirectory = new RoomDirectory();
         </tbody>
     </table>
 </div>
-
 
 
 </body>

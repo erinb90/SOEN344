@@ -1,5 +1,6 @@
 <?php
 namespace Stark;
+
 use Stark\Mappers\RoomMapper;
 
 class RoomDirectory
@@ -23,7 +24,7 @@ class RoomDirectory
      */
     public function getRooms()
     {
-        return $this->_RoomMapper->getAllRooms();
+        return $this->_RoomMapper->findAll();
 
     }
 }

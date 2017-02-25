@@ -1,5 +1,6 @@
 <?php
 namespace Stark;
+
 use Stark\Mappers\ReservationMapper;
 
 /**
@@ -17,11 +18,11 @@ class ConflictManager
 
     private $_roomId;
 
-    private $_ignored = array();
+    private $_ignored   = array();
 
-    private $_conflicts= array();
+    private $_conflicts = array();
 
-    public function __construct($startTime, $endTime, $roomId, array $ignoreReservationIds )
+    public function __construct($startTime, $endTime, $roomId, array $ignoreReservationIds)
     {
         $this->_startTime = $startTime;
         $this->_endTime = $endTime;

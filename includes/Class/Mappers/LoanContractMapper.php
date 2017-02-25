@@ -7,6 +7,10 @@ namespace Stark\Mappers
     use Stark\Models\LoanContract;
     use Stark\TDG\LoanContractTDG;
 
+    /**
+     * Class LoanContractMapper
+     * @package Stark\Mappers
+     */
     class LoanContractMapper extends AbstractMapper
     {
 
@@ -18,7 +22,7 @@ namespace Stark\Mappers
 
         public function __construct()
         {
-            $this->_tdg = new LoanContractTDG("loan_contract");
+            $this->_tdg = new LoanContractTDG("loan_contract", "LoanContractId");
         }
 
         /**
@@ -36,9 +40,9 @@ namespace Stark\Mappers
          */
         public function getModel(array $data)
         {
-            if(!$data)
+            if (!$data)
             {
-                return null;
+                return NULL;
             }
 
             $LoanContract = new LoanContract();

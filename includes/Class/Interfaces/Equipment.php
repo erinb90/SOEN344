@@ -1,9 +1,12 @@
 <?php
 
-namespace Stark\Models
+namespace Stark\Interfaces
 {
-    use Stark\Interfaces\DomainObject;
 
+    /**
+     * Class Equipment
+     * @package Stark\Interfaces
+     */
     abstract class Equipment implements DomainObject
     {
 

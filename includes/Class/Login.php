@@ -1,104 +1,111 @@
 <?php
-namespace Stark;
-use Stark\PasswordHash;
-use Stark\Mappers\StudentMapper;
-
-
-/**
- * Class Login
- */
-class Login
+namespace Stark
 {
 
-    /**
-     * @var array credentials
-     */
-    protected $_credentials;
+    use Stark\Mappers\UserMapper;
 
     /**
-     * @var array error messages
+     * Class Login
      */
-    protected $_error_messages;
-
-    /**
-     * @var int user id
-     */
-    private $_studentID;
-
-    /**
-     * Login constructor.
-     *
-     * @param array $credentials
-     */
-    public function __construct(array $credentials)
+    class Login
     {
-
-        // initialize credentials
-        $this->_credentials = [
-            'email' => "",
-            'password' => ""
-        ];
-
-        if ($credentials)
-        {
-            /* union of $credentials + $this->_credentials */
-            $this->_credentials = $credentials + $this->_credentials;
-        }
-    }
-
-    /**
-     * @return bool returns true if user credentials match db credentials
-     */
-    public function checkUser()
-    {
-        $UserMapper = new StudentMapper();
 
         /**
-         * @var \Stark\Models\StudentDomain $User
+         * @var array credentials
          */
-        $User = $UserMapper->findByEmail(trim($this->_credentials["email"]));
+        protected $_credentials;
 
-        if ($User)
+        /**
+         * @var array error messages
+         */
+        protected $_error_messages;
+
+        /**
+         * @var int user id
+         */
+        private $_studentID;
+
+        /**
+         * Login constructor.
+         *
+         * @param array $credentials
+         */
+        public function __construct(array $credentials)
         {
-            $PasswordHash = new PasswordHash(8, FALSE); // hash the password
-            $stored = $User->getPassword();
-            $this->_studentID = $User->getSID();
-            // compare given password with stored password
-            if (!$PasswordHash->CheckPassword($this->_credentials['password'], $stored))
+
+            // initialize credentials
+            $this->_credentials = [
+                'email'    => "",
+                'password' => ""
+            ];
+
+            if ($credentials)
+            {
+                /* union of $credentials + $this->_credentials */
+                $this->_credentials = $credentials + $this->_credentials;
+            }
+        }
+
+        /**
+         * @return bool returns true if user credentials match db credentials
+         */
+        public function checkUser()
+        {
+            $UserMapper = new UserMapper();
+
+            /**
+             * @var \Stark\Models\User $User
+             */
+            $User = $UserMapper->findByEmail(trim($this->_credentials["email"]));
+
+            if ($User)
+            {
+                $PasswordHash = new PasswordHash(8, FALSE); // hash the password
+
+
+                $stored = $User->getPassword();
+
+
+                $this->_studentID = $User->getUserId();
+                // compare given password with stored password
+                if (!$PasswordHash->CheckPassword($this->_credentials['password'], $stored))
+                {
+                    $this->_error_messages[] = "Username or password incorrect.";
+                }
+            }
+            else
             {
                 $this->_error_messages[] = "Username or password incorrect.";
             }
         }
-        else
+
+        /**
+         * @return mixed
+         */
+        public function getErrors()
         {
-            $this->_error_messages[] = "Username or password incorrect.";
+            return $this->_error_messages;
         }
-    }
 
-    /**
-     * @return mixed
-     */
-    public function getErrors()
-    {
-        return $this->_error_messages;
-    }
-
-    /**
-     * @return bool returns true if successful login
-     */
-    public function login()
-    {
-        $this->checkUser();
-        if (empty($this->_error_messages))
+        /**
+         * @return bool returns true if successful login
+         */
+        public function login()
         {
-            session_start();
-            @session_regenerate_id(true);
-            $_SESSION['email'] = $this->_credentials['email'];
-            $_SESSION['sid'] = $this->_studentID;
-            return true;
-        }
-        return false;
+            $this->checkUser();
+            if (empty($this->_error_messages))
+            {
+                session_start();
+                @session_regenerate_id(TRUE);
+                $_SESSION['email'] = $this->_credentials['email'];
+                $_SESSION['sid'] = $this->_studentID;
 
+                return TRUE;
+            }
+
+            return FALSE;
+
+        }
     }
 }
 

@@ -1,11 +1,12 @@
 <?php
 namespace Stark\Models;
+
 use Stark\Interfaces\DomainObject;
 
 /**
  * Class RoomDomain
  */
-class RoomDomain implements DomainObject
+class Room implements DomainObject
 {
 
     /**
@@ -17,11 +18,6 @@ class RoomDomain implements DomainObject
      * @var string
      */
     private $_location;
-
-    /**
-     * @var string
-     */
-    private $_description;
 
     /**
      * @var int
@@ -46,18 +42,9 @@ class RoomDomain implements DomainObject
     }
 
     /**
-     * @return string
-     */
-    public function getDescription()
-    {
-        return $this->_description;
-    }
-
-
-    /**
      * @return int
      */
-    public function getRID()
+    public function getRoomId()
     {
         return $this->_roomID;
     }
@@ -78,20 +65,13 @@ class RoomDomain implements DomainObject
         $this->_location = $location;
     }
 
-    /**
-     * @param $desc
-     */
-    public function setDescription($desc)
-    {
-        $this->_description = $desc;
-    }
 
     /**
-     * @param $roomid int room id
+     * @param int $roomID
      */
-    public function setRID($roomid)
+    public function setRoomID($roomID)
     {
-        $this->_roomID = $roomid;
+        $this->_roomID = $roomID;
     }
 
 

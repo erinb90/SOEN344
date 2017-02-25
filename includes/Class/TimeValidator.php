@@ -1,5 +1,6 @@
 <?php
 namespace Stark;
+
 use Utilities;
 
 /**
@@ -10,8 +11,8 @@ use Utilities;
  */
 class TimeValidator
 {
-    private $_startTime;
 
+    private $_startTime;
 
 
     private $_endTime;
@@ -22,7 +23,7 @@ class TimeValidator
      * TimeSlotValidator constructor.
      *
      * @param $start string start time
-     * @param $end string end time
+     * @param $end   string end time
      */
     public function __construct($start, $end)
     {
