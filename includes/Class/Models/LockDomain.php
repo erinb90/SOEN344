@@ -6,17 +6,22 @@
  * Date: 1/23/2017
  * Time: 12:54 AM
  */
-class LockDomain implements  DomainObject
+class LockDomain implements DomainObject
 {
+
     private $_lid;
+
     private $_roomID;
+
     private $_studentID;
+
     private $_Locktime;
 
     public function __construct()
     {
 
     }
+
     /**
      * @return mixed
      */
@@ -80,8 +85,6 @@ class LockDomain implements  DomainObject
     {
         $this->_Locktime = $Locktime;
     }
-
-
 
 
 }

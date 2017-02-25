@@ -1,5 +1,6 @@
 <?php
 namespace Stark\Aspects;
+
 use Go\Aop\Aspect;
 use Go\Aop\Intercept\FieldAccess;
 use Go\Aop\Intercept\MethodInvocation;
@@ -7,7 +8,6 @@ use Go\Lang\Annotation\After;
 use Go\Lang\Annotation\Before;
 use Go\Lang\Annotation\Around;
 use Go\Lang\Annotation\Pointcut;
-
 
 
 /**

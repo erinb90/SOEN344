@@ -1,5 +1,6 @@
 <?php
 namespace Stark\Aspects;
+
 use Go\Aop\Aspect;
 use Go\Aop\Intercept\FieldAccess;
 use Go\Aop\Intercept\MethodInvocation;

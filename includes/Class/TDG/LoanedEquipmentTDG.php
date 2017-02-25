@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: Dimitri
  * Date: 2/25/2017
- * Time: 1:19 AM
+ * Time: 2:07 AM
  */
 
 namespace Stark\TDG
@@ -15,14 +15,15 @@ namespace Stark\TDG
     use Stark\Registry;
 
     /**
-     * Class RoomTDG
+     * Class LoanedEquipmentTDG
      * @package Stark\TDG
      */
-    class RoomTDG extends TDG
+    class LoanedEquipmentTDG extends TDG
+
     {
 
         /**
-         * @param \Stark\Interfaces\DomainObject|\Stark\Models\Room $object
+         * @param \Stark\Interfaces\DomainObject|\Stark\Models\LoanedEquipment $object
          *
          * @return int returns the last inserted id
          */
@@ -34,8 +35,8 @@ namespace Stark\TDG
             {
                 Registry::getConnection()->insert($this->getParentTable(),
                     [
-                        "Name"     => $object->getName(),
-                        "Location" => $object->getLocation()
+                        "EquipmentId" => $object->getEquipmentId(),
+                        "Quantity"    => $object->getQuantity()
                     ]
                 );
 
@@ -52,37 +53,35 @@ namespace Stark\TDG
         }
 
         /**
-         * @param \Stark\Interfaces\DomainObject|\Stark\Models\Room $object
+         * @param \Stark\Interfaces\DomainObject|\Stark\Models\LoanedEquipment $object
          *
          * @return mixed
          */
         public function delete(DomainObject &$object)
         {
-
             return Registry::getConnection()->delete($this->getTable(),
                 [
-                    $this->getPk() => $object->getRoomId()
+                    $this->getPk() => $object->getLoanContractId()
                 ]
             );
         }
 
         /**
-         * @param \Stark\Interfaces\DomainObject|\Stark\Models\Room $object
+         * @param \Stark\Interfaces\DomainObject|\Stark\Models\LoanedEquipment $object
          *
          * @return bool
          */
         public function update(DomainObject &$object)
         {
-
             try
             {
                 Registry::getConnection()->update(
                     $this->getTable(),
                     [
-                        "Name"     => $object->getName(),
-                        "Location" => $object->getLocation()
+                        "EquipmentId" => $object->getEquipmentId(),
+                        "Quantity"    => $object->getQuantity()
                     ],
-                    [$this->getPk() => $object->getRoomId()]
+                    [$this->getPk() => $object->getLoanContractId()]
                 );
 
                 return TRUE;

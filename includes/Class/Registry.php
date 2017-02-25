@@ -1,5 +1,6 @@
 <?php
 namespace Stark;
+
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 
@@ -50,13 +51,13 @@ class Registry
      */
     public static function getConnection()
     {
-        if (self::$connection === null)
+        if (self::$connection === NULL)
         {
-            if (self::$config === null)
+            if (self::$config === NULL)
             {
                 throw new RuntimeException('No config set, cannot create connection');
             }
-            self::$connection = null;
+            self::$connection = NULL;
             try
             {
                 self::$connection = DriverManager::getConnection(self::$params, self::$config);
@@ -66,6 +67,7 @@ class Registry
                 echo $e->getMessage();
             }
         }
+
         return self::$connection;
     }
 }

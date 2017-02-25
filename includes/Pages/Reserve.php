@@ -12,7 +12,6 @@ $title = $_REQUEST['title'];
 $repeats = $_REQUEST['repeatReservation'];
 
 
-
 $ReservationCreator = new CreateReservationSession(
     \Stark\WebUser::getUser(),
     $roomid,
@@ -24,23 +23,24 @@ $ReservationCreator = new CreateReservationSession(
     $repeats);
 
 
-if($ReservationCreator->reserve())
+if ($ReservationCreator->reserve())
 {
     ?>
     <div id="successReservation">
-    <div class="alert alert-success">
-        You have successfully created your reservation!
-    </div>
+        <div class="alert alert-success">
+            You have successfully created your reservation!
+        </div>
     </div>
     <script>
 
-        $(function(){
+        $(function ()
+        {
 
             $('#myModal').dialog("destroy");
 
             $('#successReservation').dialog({
-                title : 'Success',
-                width : 400
+                title: 'Success',
+                width: 400
             });
         })
 
@@ -48,37 +48,37 @@ if($ReservationCreator->reserve())
     <?php
 
 }
-else if(count($ReservationCreator->getConflicts()) > 0)
+else if (count($ReservationCreator->getConflicts()) > 0)
 {
 
-    $conflicts  = $ReservationCreator->getConflicts();
+    $conflicts = $ReservationCreator->getConflicts();
     ?>
     <script>
-        $(function(){
+        $(function ()
+        {
             $('#conflictResolutionContainer').dialog({
-                width: 800,
-                height: 550,
-                title: "Conflict Resolution",
-                modal : true,
-                buttons:
-                {
-                    "Save" : function()
+                width  : 800,
+                height : 550,
+                title  : "Conflict Resolution",
+                modal  : true,
+                buttons: {
+                    "Save": function ()
                     {
 
                         var reid = $("input[name='conflict']:checked").val();
 
-                        if(!reid || reid === undefined)
+                        if (!reid || reid === undefined)
                         {
                             return;
                         }
 
 
                         $.ajax({
-                            url: 'CreateWaitlist.php',
-                            data: {
+                            url    : 'CreateWaitlist.php',
+                            data   : {
                                 reid: reid,
                             },
-                            error: function ()
+                            error  : function ()
                             {
                                 $('#conflictResolutionMessage').html("An unknown error occurred");
                             },
@@ -91,7 +91,7 @@ else if(count($ReservationCreator->getConflicts()) > 0)
 
 
                 },
-                Close : function()
+                Close  : function ()
                 {
                     $('#reservationContainerMessage').dialog('destroy');
                 }
@@ -120,7 +120,7 @@ else if(count($ReservationCreator->getConflicts()) > 0)
                  * @var $Reservation ReservationDomain
                  *
                  */
-                foreach($conflicts as $reid => $Reservation)
+                foreach ($conflicts as $reid => $Reservation)
                 {
                     $UserMapper = new StudentMapper();
                     /**
@@ -141,7 +141,7 @@ else if(count($ReservationCreator->getConflicts()) > 0)
                         <td><?php echo $Reservation->getStartTimeDate(); ?></td>
                         <td><?php echo $Reservation->getEndTimeDate(); ?></td>
                         <td><?php echo $RoomDomain->getName(); ?> </td>
-                        <td><input type="radio" id="conflict" name="conflict" value="<?php echo $reid;?>"></td>
+                        <td><input type="radio" id="conflict" name="conflict" value="<?php echo $reid; ?>"></td>
                     </tr>
                     <?php
                 }

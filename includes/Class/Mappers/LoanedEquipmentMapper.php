@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: Dimitri
  * Date: 2/25/2017
- * Time: 1:18 AM
+ * Time: 2:06 AM
  */
 
 namespace Stark\Mappers
@@ -12,20 +12,27 @@ namespace Stark\Mappers
 
     use Stark\Interfaces\AbstractMapper;
     use Stark\Interfaces\DomainObject;
-    use Stark\Models\Room;
-    use Stark\TDG\RoomTDG;
+    use Stark\Models\LoanedEquipment;
+    use Stark\TDG\LoanedEquipmentTDG;
 
-    class RoomMapper extends AbstractMapper
+    /**
+     * Class LoanedEquipmentMapper
+     * @package Stark\Mappers
+     */
+    class LoanedEquipmentMapper extends AbstractMapper
     {
 
+        /**
+         * @var \Stark\TDG\LoanedEquipmentTDG
+         */
         private $_tdg;
 
         /**
-         * RoomMapper constructor.
+         * LoanedEquipmentMapper constructor.
          */
         public function __construct()
         {
-            $this->_tdg = new RoomTDG("rooms", "RoomId");
+            $this->_tdg = new LoanedEquipmentTDG("loaned_equipment", "LoanContractId");
         }
 
         /**
@@ -48,12 +55,15 @@ namespace Stark\Mappers
                 return NULL;
             }
 
-            $Room = new Room();
-            $Room->setLocation($data['Location']);
-            $Room->setName($data['Name']);
-            $Room->setRoomID($data['RoomId']);
+            $LoanedEquipment = new LoanedEquipment();
+            $LoanedEquipment->setEquipmentId($data['EquipmentId']);
+            $LoanedEquipment->setLoanContractId($data['LoanContractId']);
+            $LoanedEquipment->setQuantity($data['Quantity']);
 
-            return $Room;
+            return $LoanedEquipment;
+
         }
+
+
     }
 }

@@ -1,74 +1,175 @@
 <?php
-namespace Stark\Interfaces;
-use Stark\Registry;
-
-
-/**
- * Created by PhpStorm.
- * User: dimitri
- * Date: 2017-01-18
- * Time: 7:55 PM
- */
-abstract class TDG implements Gateway
+namespace Stark\Interfaces
 {
 
-    /**
-     * @return mixed
-     */
-    public abstract function getPk();
+    use Doctrine\DBAL\Query\QueryBuilder;
+    use Stark\Registry;
 
     /**
-     * @return string
+     * Class TDG
+     * @package Stark\Interfaces
      */
-    public abstract function getTable();
-
-    /**
-     * @param \Stark\Interfaces\DomainObject $object
-     *
-     * @return int
-     */
-    public abstract function insert(DomainObject &$object);
-
-    /**
-     * @param \Stark\Interfaces\DomainObject $object
-     *
-     * @return mixed
-     */
-    public abstract function delete(DomainObject &$object);
-
-    /**
-     * @param \Stark\Interfaces\DomainObject $object
-     *
-     * @return mixed
-     */
-    public abstract function update(DomainObject &$object);
-    /**
-     * @param $id
-     *
-     * @return array
-     */
-    public function findByPk($id)
+    abstract class TDG implements Gateway
     {
-        $query = Registry::getConnection()->createQueryBuilder();
-        $query->select("*");
-        $query->from($this->getTable(), $this->getTable());
-        $query->where($this->getTable() . '.' . $this->getPk() . "='" . $id . "'");
-        $sth = $query->execute();
-        $m = $sth->fetchAll();
-        return $m[0];
+
+        /**
+         * @var
+         */
+        private $_table;
+
+        /**
+         * @var
+         */
+        private $_pk;
+
+        /**
+         * @var null
+         */
+        private $_parentTable = NULL;
+
+        /**
+         * @var null
+         */
+        private $_parentPk = NULL;
+
+
+        /**
+         * TDG constructor.
+         *
+         * @param $table
+         * @param $pk
+         */
+        public function __construct($table, $pk)
+        {
+            $this->_table = $table;
+            $this->_pk = $pk;
+        }
+
+        /**
+         * @param $table
+         * @param $pk
+         */
+        public final function setParentTable($table, $pk)
+        {
+            $this->_parentPk = $pk;
+            $this->_parentTable = $table;
+
+        }
+
+        /**
+         * @return null
+         */
+        public function getParentPk()
+        {
+            return $this->_parentPk;
+        }
+
+        /**
+         * @return null
+         */
+        public function getParentTable()
+        {
+            return $this->_parentTable;
+        }
+
+
+        /**
+         * @return mixed
+         */
+        public function getPk()
+        {
+            return $this->_pk;
+        }
+
+        /**
+         * @return string
+         */
+        public final function getTable()
+        {
+            return $this->_table;
+        }
+
+        /**
+         * @param \Stark\Interfaces\DomainObject $object
+         *
+         * @return int returns the last inserted id
+         */
+        public abstract function insert(DomainObject &$object);
+
+        /**
+         * @param \Stark\Interfaces\DomainObject $object
+         *
+         * @return mixed
+         */
+        public abstract function delete(DomainObject &$object);
+
+        /**
+         * @param \Stark\Interfaces\DomainObject $object
+         *
+         * @return bool
+         */
+        public abstract function update(DomainObject &$object);
+
+        /**
+         * @param $id
+         *
+         * @return array
+         */
+        public function findByPk($id)
+        {
+            return $this->query('*', [$this->getPk() => $id])[0];
+        }
+
+        /**
+         * @return array
+         */
+        public function findAll()
+        {
+            return $this->query('*');
+        }
+
+        /**
+         * @param $select
+         * @param array $where [column => value]
+         *
+         * @return array
+         */
+        public function query($select, array $where = [])
+        {
+
+            /**
+             * @var $parentQuery QueryBuilder
+             */
+            $parentQuery = Registry::getConnection()->createQueryBuilder();
+
+            $parentQuery->select($select);
+            $parentQuery->from($this->getTable());
+
+
+            foreach ($where as $column => $value)
+            {
+                $parentQuery->where($this->getTable() . '.' . $column . '=' . "\"$value\"");
+            }
+
+
+            if ($this->getParentTable() != NULL)
+            {
+                $parentQuery->leftJoin($this->getTable(),
+                    $this->getParentTable(),
+                    $this->getParentTable(),
+                    $this->getTable() . '.' . $this->getPk() . '=' . $this->getParentTable() . '.' . $this->getParentPk());
+            }
+
+ ;
+            $sth = $parentQuery->execute();
+
+            $m = $sth->fetchAll();
+
+            return $m;
+        }
+
+
     }
 
-    /**
-     * @return array
-     */
-    public function findAll()
-    {
-        $query = Registry::getConnection()->createQueryBuilder();
-        $query->select("*");
-        $query->from($this->getTable());
-        $sth = $query->execute();
-        $m = $sth->fetchAll();
-        return $m;
-    }
 
 }
