@@ -1,30 +1,36 @@
 <?php
-namespace Stark;
-
-use Stark\Mappers\RoomMapper;
-
-class RoomDirectory
+namespace Stark
 {
 
-    /**
-     * @var RoomMapper
-     */
-    private $_RoomMapper;
+    use Stark\Mappers\RoomMapper;
 
     /**
-     * RoomDirectory constructor.
+     * Class RoomDirectory
+     * @package Stark
      */
-    public function __construct()
+    class RoomDirectory
     {
-        $this->_RoomMapper = new RoomMapper();
-    }
 
-    /**
-     * @return array returns a list of RoomDomain objects
-     */
-    public function getRooms()
-    {
-        return $this->_RoomMapper->findAll();
+        /**
+         * @var RoomMapper
+         */
+        private $_RoomMapper;
 
+        /**
+         * RoomDirectory constructor.
+         */
+        public function __construct()
+        {
+            $this->_RoomMapper = new RoomMapper();
+        }
+
+        /**
+         * @return array returns a list of RoomDomain objects
+         */
+        public function getRooms()
+        {
+            return $this->_RoomMapper->findAll();
+
+        }
     }
 }

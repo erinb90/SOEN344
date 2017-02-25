@@ -22,6 +22,10 @@ namespace Stark\TDG
     {
 
 
+        public function findAllStudentReservations($userid)
+        {
+            return $this->query('*', [$this->getPk() => $userid]);
+        }
         /**
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\ConfirmedReservation $object
          *

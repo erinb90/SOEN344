@@ -90,6 +90,7 @@ namespace Stark\Mappers
             $User->setPassword($data['Password']);
             $User->setUserName($data['UserName']);
             $User->setUserId($data['UserId']);
+            $User->setStudentId($data['StudentId']);
 
 
 

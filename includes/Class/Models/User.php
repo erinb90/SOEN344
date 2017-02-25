@@ -45,6 +45,11 @@ namespace Stark\Models
         private $_Password;
 
         /**
+         * @var
+         */
+        private $_StudentId;
+
+        /**
          * @var bool
          */
         private $_CapstoneStudent = FALSE;
@@ -97,6 +102,24 @@ namespace Stark\Models
         {
             $this->_LastName = $LastName;
         }
+
+        /**
+         * @return mixed
+         */
+        public function getStudentId()
+        {
+            return $this->_StudentId;
+        }
+
+        /**
+         * @param mixed $StudentId
+         */
+        public function setStudentId($StudentId)
+        {
+            $this->_StudentId = $StudentId;
+        }
+
+
 
         /**
          * @return mixed

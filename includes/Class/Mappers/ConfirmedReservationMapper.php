@@ -13,9 +13,7 @@ namespace Stark\Mappers
     use Stark\Interfaces\AbstractMapper;
     use Stark\Interfaces\DomainObject;
     use Stark\Models\ConfirmedReservation;
-    use Stark\Models\ReservationDomain;
     use Stark\TDG\ConfirmedReservationTDG;
-    use Stark\TDG\ReservationTDG;
 
     /**
      * Class ReservationMapper
@@ -38,6 +36,19 @@ namespace Stark\Mappers
         public function getTdg()
         {
             return $this->_tdg;
+        }
+
+        public function findAllStudentReservations($userid)
+        {
+
+            $m = $this->getTdg()->findAllStudentReservations($userid);
+            $objects = [];
+            foreach ($m as $row)
+            {
+                $objects[] = $this->getModel($row);
+            }
+            return $objects;
+
         }
 
         /**

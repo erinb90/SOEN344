@@ -1,12 +1,12 @@
 <?php
 session_start();
 require_once($_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php');
-$ReservationMapper = new \Stark\Mappers\ReservationMapper();
-$reservations = $ReservationMapper->findAllStudentReservations(Stark\WebUser::getUser()->getSID());
+$ReservationMapper = new \Stark\Mappers\ConfirmedReservationMapper();
+$reservations = $ReservationMapper->findAllStudentReservations(Stark\WebUser::getUser()->getUserId());
 $RoomMapper = new \Stark\Mappers\RoomMapper();
-$userReservation = array("data" => array());
+$userReservation = ["data" => []];
 /**
- * @var $Reservation \Stark\Models\ReservationDomain
+ * @var $Reservation \Stark\Models\ConfirmedReservation
  */
 foreach ($reservations as $Reservation)
 {

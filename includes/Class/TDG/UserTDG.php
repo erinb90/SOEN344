@@ -48,6 +48,7 @@ namespace Stark\TDG
                         "FirstName"       => $object->getFirstName(),
                         "LastName"        => $object->getLastName(),
                         "Password"        => $object->getPassword(),
+                        "StudentId"       => $object->getStudentId(),
                         "CapstoneStudent" => $object->isCapstoneStudent()
                     ]
                 );
@@ -94,6 +95,7 @@ namespace Stark\TDG
                     "FirstName"       => $object->getFirstName(),
                     "LastName"        => $object->getLastName(),
                     "Password"        => $object->getPassword(),
+                    "StudentId"       => $object->getStudentId(),
                     "CapstoneStudent" => $object->isCapstoneStudent()
                 ],
                 [$this->getPk() => $object->getUserId()]

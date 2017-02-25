@@ -549,7 +549,7 @@ $RoomDirectory = new RoomDirectory();
                                 <div class="form-group">
                                     <label>Student ID</label>
                                     <input readonly="readonly" type="text" class="form-control" name="studentID"
-                                            placeholder="Student ID" value="<?php echo WebUser::getUser()->getUserId(); ?>" />
+                                            placeholder="Student ID" value="<?php echo WebUser::getUser()->getStudentId(); ?>" />
                                 </div>
 
                                 <div class="form-group">
