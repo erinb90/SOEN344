@@ -1,4 +1,8 @@
 <?php
+namespace Tests;
+
+use PHPUnit_Framework_TestCase;
+use Stark\Models\StudentDomain;
 
 /**
  * Class StudentDomainTest
@@ -16,14 +20,15 @@ class StudentDomainTest extends PHPUnit_Framework_TestCase
         // Act
 
         // Assert
-        $this->assertInstanceOf('StudentDomain', $studentDomain);
+        //static::assertInstanceOf('StudentDomain', $studentDomain);
+        self::assertEquals($studentDomain, $studentDomain);
         return $studentDomain;
     }
 
     /**
      * @covers \StudentDomain::setFirstName
      * @covers \StudentDomain::getFirstName
-     * @uses \StudentDomain::__construct
+     * @uses   \StudentDomain::__construct
      */
     public function testFirstNameCanBeSet()
     {
@@ -37,7 +42,8 @@ class StudentDomainTest extends PHPUnit_Framework_TestCase
         // Assert
         $expected = "John";
         $actual = $firstName;
-        $this->assertEquals($expected, $actual);
+        static::assertEquals($expected, $actual);
     }
 }
+
 ?>

@@ -1,0 +1,50 @@
+<head> <!-- Place in document head -->
+    <link rel="stylesheet" href="CSS/starwarsintro.css">
+    <embed src="Music/starwars.mp3" autostart="true" loop="true"
+           width="2" height="0">
+    </embed>
+
+    <!-- Place in Body where you'd like intro to appear -->
+    <div class="star-wars-intro">
+        <img id="skip" src="img/skip.png">
+
+        <!-- Blue Intro Text -->
+        <p class="intro-text">
+            A long time ago in a university not so far away...
+        </p>
+
+        <!-- Logo Image or Text goes in here -->
+        <h2 class="main-logo">
+            <img src="img/starwarsintro.png">
+        </h2>
+
+        <!-- All Scrolling Content Goes in here -->
+        <div class="main-content">
+            <div class="title-content">
+                <h1 class="content-header">Episode II<br/>SOEN 344</h1>
+
+                <p class="content-body">
+                    It is a dark time for software engineering. Although programming is supposedly being taught,
+                    the Concordia curriculum has driven students away from best practices and
+                    denied them fundamental programming concepts that they need to find a job.
+                    <br/><br/>
+                    Tasked with the maintenance and improvement of the Concordia University Room Reserver, a group
+                    of students known as Team 14 has proposed a refactor and redesign of epic proportions.
+                    <br/><br/>
+                    Armed with a talented team of developers, Team 14 set out to vanquish the evil forces of High
+                    Coupling and Low Cohesion in the farthest reaches of the source code...
+                </p>
+            </div>
+        </div>
+    </div>
+</head>
+<script type="text/javascript" src="Javascript/jquery.js"></script>
+<script>
+    $(document).ready(function () {
+        function navigateToIndex() {
+            window.location.href = "Index.php";
+        }
+        $("#skip").click(navigateToIndex);
+        setTimeout(navigateToIndex, 42000);
+    });
+</script>

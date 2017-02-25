@@ -14,7 +14,8 @@
     "autoload": {
         "psr-4": {
             "Stark\\": "includes/Class",
-            "Stark\\Mappers\\" : "includes/Class/Mappers"
+            "Stark\\Mappers\\" : "includes/Class/Mappers",
+            "Tests\\" : "Tests"
         }
     },
     "minimum-stability": "stable"
