@@ -63,7 +63,7 @@ namespace Stark\Mappers
         /**
          * @param $email
          *
-         * @return \Stark\Interfaces\DomainObject
+         * @return \Stark\Models\User
          */
         public function findByEmail($email)
         {
@@ -73,7 +73,7 @@ namespace Stark\Mappers
         /**
          * @param $data array data retrieve from the tdg
          *
-         * @return DomainObject returns a fully-dressed object
+         * @return User returns a fully-dressed object
          */
         public function getModel(array $data)
         {

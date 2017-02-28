@@ -11,6 +11,17 @@ namespace Stark\TDG
     class ReservationTDG extends TDG
     {
 
+        public function findAllStudentReservations($studentid)
+        {
+            $query = Registry::getConnection()->createQueryBuilder();
+            $query->select("*");
+            $query->from($this->getTable());
+            $query->where("UserId" . "=" . $studentid);
+            $sth = $query->execute();
+            $m = $sth->fetchAll();
+            return $m;
+        }
+
         /**
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\Reservation $object
          *

@@ -11,15 +11,19 @@ namespace Stark\Mappers
     {
 
 
+        /**
+         * @var \Stark\TDG\ReservationTDG
+         */
         private $_tdg;
 
         public function __construct()
         {
 
+            $this->_tdg = new ReservationTDG("reservations","ReservationId");
         }
 
         /**
-         * @return \Stark\Interfaces\TDG|\Stark\TDG\ConfirmedReservationTDG
+         * @return \Stark\Interfaces\TDG|\Stark\TDG\ReservationTDG
          */
         public function getTdg()
         {
