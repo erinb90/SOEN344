@@ -1,37 +1,21 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Dimitri
- * Date: 2/25/2017
- * Time: 1:04 AM
- */
 
 namespace Stark\Mappers
 {
 
-
     use Stark\Interfaces\AbstractMapper;
-    use Stark\Interfaces\DomainObject;
-    use Stark\Models\WaitlistedRservation;
-    use Stark\TDG\WaitlistedReservationTDG;
+    use Stark\Models\Reservation;
+    use Stark\TDG\ReservationTDG;
 
-
-    /**
-     * Class WaitlistedReservationMapper
-     * @package Stark\Mappers
-     */
-    class WaitlistedReservationMapper extends AbstractMapper
+    class ReservationMapper extends AbstractMapper
     {
+
 
         private $_tdg;
 
-        /**
-         * WaitlistedReservationMapper constructor.
-         */
         public function __construct()
         {
-            $this->_tdg = new WaitlistedReservationTDG("confirmed_reservations", "ReservationId");
-            $this->_tdg->setParentTable("reservations", "ReservationId");
+
         }
 
         /**
@@ -42,10 +26,22 @@ namespace Stark\Mappers
             return $this->_tdg;
         }
 
+        public function findAllStudentReservations($userid)
+        {
+            $m = $this->getTdg()->findAllStudentReservations($userid);
+            $objects = [];
+            foreach ($m as $row)
+            {
+                $objects[] = $this->getModel($row);
+            }
+
+            return $objects;
+        }
+
         /**
          * @param $data array data retrieve from the tdg
          *
-         * @return DomainObject returns a fully-dressed object
+         * @return Reservation returns a fully-dressed object
          */
         public function getModel(array $data)
         {
@@ -53,18 +49,17 @@ namespace Stark\Mappers
             {
                 return NULL;
             }
-
-
-            $Reservation = new WaitlistedRservation();
+            $Reservation = new Reservation();
             $Reservation->setRID($data['RoomId']);
             $Reservation->setStartTimeDate($data["Starttime"]);
             $Reservation->setEndTimeDate($data['Endtime']);
+            $Reservation->setReservationID($data['ReservationId']);
             $Reservation->setCreatedOn($data['CreatedOn']);
             $Reservation->setTitle($data['Title']);
-            $Reservation->setReservationID($data['ReservationId']);
             $Reservation->setUserId($data['UserId']);
 
             return $Reservation;
         }
     }
+
 }

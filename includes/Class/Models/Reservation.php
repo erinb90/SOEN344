@@ -1,20 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Dimitri
- * Date: 2/25/2017
- * Time: 12:56 AM
- */
 
-namespace Stark\Interfaces
+namespace Stark\Models
 {
+
+    use Stark\Interfaces\DomainObject;
 
 
     /**
      * Class Reservation
      * @package Stark\Interfaces
      */
-    abstract class Reservation implements DomainObject
+    class Reservation implements DomainObject
     {
 
         private $_reservationID;
@@ -31,6 +27,7 @@ namespace Stark\Interfaces
 
         private $_createdOn;
 
+        private $_isWaited = false;
 
         /**
          * Reservation constructor.
@@ -158,6 +155,22 @@ namespace Stark\Interfaces
         public function setCreatedOn($createdOn)
         {
             $this->_createdOn = $createdOn;
+        }
+
+        /**
+         * @return bool
+         */
+        public function isIsWaited()
+        {
+            return $this->_isWaited;
+        }
+
+        /**
+         * @param bool $isWaited
+         */
+        public function setIsWaited($isWaited)
+        {
+            $this->_isWaited = $isWaited;
         }
 
     }
