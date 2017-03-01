@@ -63,5 +63,18 @@ namespace Stark\Mappers
         {
             return $this->getModel($this->getTdg()->findByReservationId($reservationid)[0]);
         }
+
+        /**
+         * Creates a loan contract with a reservationId.
+         * @param int $reservationId The reservationId to associate with the loan contract.
+         *
+         * @return \Stark\Models\LoanContract The newly created loan contract.s
+         */
+        public function createLoanContract($reservationId)
+        {
+            $LoanContract = new LoanContract();
+            $LoanContract->setReservationId($reservationId);
+            return $LoanContract;
+        }
     }
 }

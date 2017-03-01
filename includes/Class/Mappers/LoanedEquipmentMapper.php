@@ -76,6 +76,21 @@ namespace Stark\Mappers
 
         }
 
-
+        /**
+         * Creates a loaned equipment entry with a loanContractId.
+         * @param int $loanContractId The loanContractId to associate with the loaned equipment.
+         * @param int $equipmentId The equipmentId to associate with the loaned equipment.
+         *
+         * @return \Stark\Models\LoanedEquipment The newly created loaned equipment entry.
+         */
+        public function createLoanedEquipment($loanContractId, $equipmentId)
+        {
+            $LoanedEquipment = new LoanedEquipment();
+            $LoanedEquipment->setLoanContractId($loanContractId);
+            $LoanedEquipment->setEquipmentId($equipmentId);
+            // TODO : Remove quantity from database tables
+            $LoanedEquipment->setQuantity(1);
+            return $LoanedEquipment;
+        }
     }
 }

@@ -1,37 +1,28 @@
 <?php
-session_start();
 require_once($_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php');
 
+use Stark\CreateReservationSession;
+use Stark\WebUser;
 
-print_r($_REQUEST);
+// Parse incoming request and extract query parameters
+$requestParameters = [];
+parse_str($_REQUEST['formData'], $requestParameters);
+$equipmentIds = $_REQUEST['equipment'];
 
+// TODO : Fix remaining old code to work with new reservation session
 exit;
 
-//THE STUFF BELOW IS FROM OLD PROJECT. NEEDS UPDATING
-use Stark\CreateReservationSession;
+// TODO : getUser() is returning null
+// Create reservation session
+$ReservationSession = new CreateReservationSession(
+    WebUser::getUser(),
+    $requestParameters['roomID'],
+    $requestParameters['startTime'],
+    $requestParameters['endTime'],
+    $requestParameters['title'],
+    $equipmentIds);
 
-$date = $_REQUEST['rDate'];
-$startTime = $_REQUEST['startTime'];
-$endTime = $_REQUEST['endTime'];
-$roomid = $_REQUEST['roomID'];
-$description = $_REQUEST['description'];
-$title = $_REQUEST['title'];
-$repeats = $_REQUEST['repeatReservation'];
-
-
-$ReservationCreator = new CreateReservationSession(
-    \Stark\WebUser::getUser(),
-    $roomid,
-    $title,
-    $description,
-    $date,
-    $startTime,
-    $endTime,
-    $repeats);
-
-
-if ($ReservationCreator->reserve())
-{
+if ($ReservationSession->reserve()) {
     ?>
     <div id="successReservation">
         <div class="alert alert-success">
@@ -40,8 +31,7 @@ if ($ReservationCreator->reserve())
     </div>
     <script>
 
-        $(function ()
-        {
+        $(function () {
 
             $('#myModal').dialog("destroy");
 
@@ -54,43 +44,36 @@ if ($ReservationCreator->reserve())
     </script>
     <?php
 
-}
-else if (count($ReservationCreator->getConflicts()) > 0)
-{
+} else if (count($ReservationSession->getConflicts()) > 0) {
 
-    $conflicts = $ReservationCreator->getConflicts();
+    $conflicts = $ReservationSession->getConflicts();
     ?>
     <script>
-        $(function ()
-        {
+        $(function () {
             $('#conflictResolutionContainer').dialog({
-                width  : 800,
-                height : 550,
-                title  : "Conflict Resolution",
-                modal  : true,
+                width: 800,
+                height: 550,
+                title: "Conflict Resolution",
+                modal: true,
                 buttons: {
-                    "Save": function ()
-                    {
+                    "Save": function () {
 
                         var reid = $("input[name='conflict']:checked").val();
 
-                        if (!reid || reid === undefined)
-                        {
+                        if (!reid || reid === undefined) {
                             return;
                         }
 
 
                         $.ajax({
-                            url    : 'CreateWaitlist.php',
-                            data   : {
+                            url: 'CreateWaitlist.php',
+                            data: {
                                 reid: reid,
                             },
-                            error  : function ()
-                            {
+                            error: function () {
                                 $('#conflictResolutionMessage').html("An unknown error occurred");
                             },
-                            success: function (data)
-                            {
+                            success: function (data) {
                                 $('#conflictResolutionMessage').html(data);
                             }
                         });
@@ -98,8 +81,7 @@ else if (count($ReservationCreator->getConflicts()) > 0)
 
 
                 },
-                Close  : function ()
-                {
+                Close: function () {
                     $('#reservationContainerMessage').dialog('destroy');
                 }
             })
@@ -108,7 +90,8 @@ else if (count($ReservationCreator->getConflicts()) > 0)
 
     <div id="conflictResolutionContainer" style="display: none;">
         <p class="text-center text-danger">Conflicts Found!</p>
-        If you wish to put yourself on a waiting list for the reservations below, click on the appropriate reservation and click on "Save".
+        If you wish to put yourself on a waiting list for the reservations below, click on the appropriate reservation
+        and click on "Save".
         <div>
             <table class="table">
                 <thead>
@@ -127,8 +110,7 @@ else if (count($ReservationCreator->getConflicts()) > 0)
                  * @var $Reservation ReservationDomain
                  *
                  */
-                foreach ($conflicts as $reid => $Reservation)
-                {
+                foreach ($conflicts as $reid => $Reservation) {
                     $UserMapper = new StudentMapper();
                     /**
                      * @var StudentDomain $User
@@ -160,16 +142,13 @@ else if (count($ReservationCreator->getConflicts()) > 0)
     <?php
 
 
-}
-else
-{
-    $errors = $ReservationCreator->getErrors();
+} else {
+    $errors = $ReservationSession->getErrors();
     ?>
     <div class="alert alert-danger">
         <?php
         $msg .= "<ul>";
-        foreach ($errors as $error)
-        {
+        foreach ($errors as $error) {
             $msg .= '<li>' . $error . '</li>';
         }
         $msg .= "</ul>";
