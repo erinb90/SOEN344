@@ -1,4 +1,6 @@
 <?php
+namespace Stark;
+use DateTime;
 
 /**
  * Created by PhpStorm.
@@ -36,5 +38,33 @@ class Utilities
         $d = DateTime::createFromFormat($format, $date);
 
         return $d && $d->format($format) == $date;
+    }
+
+    /**
+     * @param $startTime string is the date in (Y-m-d H:i:s) format
+     * @param $endTime string is the date in (Y-m-d H:i:s) format
+     * @param int $repeats
+     *
+     * @return array returns an array of dates based on the original date
+     */
+    public static function getDateRepeats($startTime, $endTime, $repeats = 0)
+    {
+
+        $dates[]  = [
+            "start" => $startTime,
+            "end" => $endTime
+        ];
+        for($i = 0; $i <= $repeats -1; $i++)
+        {
+
+            $start = date('Y-m-d H:i:s', strtotime($startTime. ' + ' . $i*7 . ' days'));
+            $end = date('Y-m-d H:i:s', strtotime($endTime. ' + ' . $i*7  . ' days'));
+            $dates[] = [
+              "start" => $start,
+                "end" => $end
+            ];
+        }
+        return $dates;
+
     }
 }

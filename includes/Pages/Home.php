@@ -2,11 +2,21 @@
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php';
 
+use Stark\EquipmentFinder;
 use Stark\RoomDirectory;
+use Stark\Utilities;
 use Stark\WebUser;
 
 $RoomDirectory = new RoomDirectory();
 
+
+// just examples below
+
+$EquipmentFinder = EquipmentFinder::find("2017-02-28 13:00:00", "2017-02-28 19:00:00" );
+
+echo $EquipmentFinder->quantityOfLoanedEquipment(10);
+
+print_r(Utilities::getDateRepeats("2017-02-28 13:00:00", "2017-02-28 13:00:00", 1));
 
 ?>
 <!DOCTYPE html>
@@ -74,7 +84,7 @@ $RoomDirectory = new RoomDirectory();
 
         //todo: needs some refactoring
 
-        var CCOUNT = 3;
+        var CCOUNT = 120;
 
         var t, count;
 

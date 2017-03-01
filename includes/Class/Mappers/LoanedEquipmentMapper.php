@@ -43,6 +43,18 @@ namespace Stark\Mappers
             return $this->_tdg;
         }
 
+
+        public function findEquipmentByContractId($LoanContractId)
+        {
+            $m = $this->getTdg()->findEquipmentByContractId($LoanContractId);
+            $equipment = [];
+            foreach ($m as $row)
+            {
+                $equipment[] = $this->getModel($row);
+            }
+            return $equipment;
+
+        }
         /**
          * @param $data array data retrieve from the tdg
          *

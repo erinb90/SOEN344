@@ -52,5 +52,16 @@ namespace Stark\Mappers
             return $LoanContract;
 
         }
+
+        /**
+         * returns LoanContract based on Reservation
+         * @param $reservationid
+         *
+         * @return \Stark\Models\LoanContract
+         */
+        public function findByReservationId($reservationid)
+        {
+            return $this->getModel($this->getTdg()->findByReservationId($reservationid)[0]);
+        }
     }
 }

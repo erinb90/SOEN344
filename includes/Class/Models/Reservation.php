@@ -15,7 +15,7 @@ namespace Stark\Models
 
         private $_reservationID;
 
-        private $_rID;
+        private $_roomId;
 
         private $_userId;
 
@@ -36,13 +36,6 @@ namespace Stark\Models
         {
         }
 
-        /**
-         * @return mixed
-         */
-        public function getReID()
-        {
-            return $this->_reservationID;
-        }
 
 
         /**
@@ -80,17 +73,17 @@ namespace Stark\Models
         /**
          * @return mixed
          */
-        public function getRID()
+        public function getRoomId()
         {
-            return $this->_rID;
+            return $this->_roomId;
         }
 
         /**
          * @param mixed $rID
          */
-        public function setRID($rID)
+        public function setRoomId($rID)
         {
-            $this->_rID = $rID;
+            $this->_roomId = $rID;
         }
 
         /**

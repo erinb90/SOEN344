@@ -20,6 +20,10 @@ namespace Stark\TDG
     class LoanContractTDG extends TDG
     {
 
+        public function findByReservationId($reservationId)
+        {
+            return $this->query('*',["ReservationId" => $reservationId]);
+        }
 
         /**
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\LoanContract $object

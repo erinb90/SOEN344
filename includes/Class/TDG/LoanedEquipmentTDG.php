@@ -22,6 +22,11 @@ namespace Stark\TDG
 
     {
 
+        public function findEquipmentByContractId($LoanContractId)
+        {
+            return $this->query('*', ['LoanContractId' => $LoanContractId]);
+        }
+
         /**
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\LoanedEquipment $object
          *
