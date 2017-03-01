@@ -1,6 +1,13 @@
 <?php
 session_start();
 require_once($_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php');
+
+
+print_r($_REQUEST);
+
+exit;
+
+//THE STUFF BELOW IS FROM OLD PROJECT. NEEDS UPDATING
 use Stark\CreateReservationSession;
 
 $date = $_REQUEST['rDate'];

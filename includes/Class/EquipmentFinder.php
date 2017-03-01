@@ -57,11 +57,16 @@ namespace Stark
             $start = strtotime($this->_starttime);
             $end = strtotime($this->_endtime);
             $this->_overalappingReservations = [];
+
+
             /**
              * @var $Reservation \Stark\Models\Reservation
              */
             foreach ($reservations as $Reservation)
             {
+
+
+
                 if($Reservation->isIsWaited())
                     continue;
                 $startTime = strtotime($Reservation->getStartTimeDate());
@@ -81,8 +86,14 @@ namespace Stark
                 {
                     $this->_overalappingReservations[$Reservation->getReservationID()]["reservation"] = $Reservation;
                 }
+
+
             }
+
+
+
         }
+
 
         private function mapEquipment()
         {
@@ -154,14 +165,14 @@ namespace Stark
         }
 
         /**
-         * Calculates the quantity that was loaned for a certain equipment id. If the equipment wasn't found, it returns 0 by default.
+         * Returns true if the equipment id was found in this pile of equipment within specified time frame
          * @param $equipmentId
          *
          * @return int|mixed
          */
-        public function quantityOfLoanedEquipment($equipmentId)
+        public function equipmentTaken($equipmentId)
         {
-            $quantity = 0;
+
             /**
              * @var $LoanedEquipment LoanedEquipment
              */
@@ -170,11 +181,11 @@ namespace Stark
                 // if we found the equipment
                 if($equipmentId == $LoanedEquipment->getEquipmentId())
                 {
-                    $quantity += $LoanedEquipment->getQuantity();
+                    return true;
                 }
             }
 
-            return $quantity;
+            return false;
         }
 
 

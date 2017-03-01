@@ -30,10 +30,6 @@ namespace Stark\Interfaces
          */
         private $_Description;
 
-        /**
-         * @var int
-         */
-        private $_Quantity;
 
         /**
          * Equipment constructor.
@@ -106,21 +102,6 @@ namespace Stark\Interfaces
             $this->_Description = $Description;
         }
 
-        /**
-         * @return int
-         */
-        public function getQuantity()
-        {
-            return $this->_Quantity;
-        }
-
-        /**
-         * @param int $Quantity
-         */
-        public function setQuantity($Quantity)
-        {
-            $this->_Quantity = $Quantity;
-        }
 
 
     }
