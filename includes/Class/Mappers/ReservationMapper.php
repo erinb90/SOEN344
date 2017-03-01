@@ -94,7 +94,7 @@ namespace Stark\Mappers
          *
          * @return \Stark\Models\Reservation
          */
-        public function createReservation($userId, $roomId, $startTime, $endTime, $title)
+        public function createReservation($userId, $roomId, $startTime, $endTime, $title, $waiting = false)
         {
             $Reservation = new Reservation();
             $Reservation->setUserId($userId);
@@ -103,6 +103,7 @@ namespace Stark\Mappers
             $Reservation->setRoomId($roomId);
             $Reservation->setCreatedOn(date("Y-m-d H:i:s"));
             $Reservation->setTitle($title);
+            $Reservation->setIsWaited($waiting);
             return $Reservation;
         }
 
@@ -125,6 +126,7 @@ namespace Stark\Mappers
             $Reservation->setCreatedOn($data['CreatedOn']);
             $Reservation->setTitle($data['Title']);
             $Reservation->setUserId($data['UserId']);
+            $Reservation->setIsWaited($data["Waiting"]);
 
             return $Reservation;
         }

@@ -12,11 +12,17 @@ $RoomDirectory = new RoomDirectory();
 
 // just examples below
 
-$EquipmentFinder = EquipmentFinder::find("2017-02-28 13:00:00", "2017-02-28 19:00:00" );
+$EquipmentFinder = EquipmentFinder::find("2017-02-28 13:00:00", "2017-02-28 19:00:00");
 
 echo $EquipmentFinder->quantityOfLoanedEquipment(10);
 
 print_r(Utilities::getDateRepeats("2017-02-28 13:00:00", "2017-02-28 13:00:00", 1));
+
+
+$EquipmentCatalog = new \Stark\EquipmentCatalog();
+
+
+
 
 ?>
 <!DOCTYPE html>
@@ -37,8 +43,6 @@ print_r(Utilities::getDateRepeats("2017-02-28 13:00:00", "2017-02-28 13:00:00", 
     <!-- Custom CSS -->
     <link href="../../CSS/landing-page-Registration.css" rel="stylesheet">
 
-    <!-- Table CSS -->
-    <link href="../../CSS/Table.css" rel="stylesheet">
 
     <!-- jQuery -->
     <script src="../../Javascript/jquery.js"></script>
@@ -62,7 +66,7 @@ print_r(Utilities::getDateRepeats("2017-02-28 13:00:00", "2017-02-28 13:00:00", 
 
 
     <!-- DataTables CSS -->
-    <link href="../../plugins/datatables/media/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="../../plugins/datatables/media/css/dataTables.bootstrap4.min.css" rel="stylesheet">
     <!-- DataTables Buttons Extension -->
     <link href="../../plugins/datatables/extensions/Buttons/css/buttons.dataTables.min.css" rel="stylesheet">
     <link href="../../plugins/datatables/extensions/Buttons/css/buttons.bootstrap.min.css" rel="stylesheet">
@@ -84,7 +88,7 @@ print_r(Utilities::getDateRepeats("2017-02-28 13:00:00", "2017-02-28 13:00:00", 
 
         //todo: needs some refactoring
 
-        var CCOUNT = 120;
+        var CCOUNT = 5000;
 
         var t, count;
 
@@ -134,6 +138,10 @@ print_r(Utilities::getDateRepeats("2017-02-28 13:00:00", "2017-02-28 13:00:00", 
 
 
 
+            // initialize booking tabs
+            $("#tabs").tabs();
+
+
             // add the date picker
             $('input#rDate').datepicker({
                 dateFormat: 'yy-mm-dd',
@@ -177,8 +185,9 @@ print_r(Utilities::getDateRepeats("2017-02-28 13:00:00", "2017-02-28 13:00:00", 
 
                 // open modal
                 $('#myModal').dialog({
-                    width      : 800,
+                    width      : 1200,
                     modal      : true,
+                    height     : 700,
                     show       : 'fade',
                     title      : 'Make Reservation',
                     beforeClose: function (event, ui)
@@ -258,8 +267,25 @@ print_r(Utilities::getDateRepeats("2017-02-28 13:00:00", "2017-02-28 13:00:00", 
 
             $(document).on('click', '#createReservation', function ()
             {
-                $form = $('#reservationForm');
 
+                // capture any equipment selected
+                var equipment  = [];
+
+                computersListTable.rows('.selected').every( function ( rowIdx, tableLoop, rowLoop ) {
+                    var data = this.data();
+                    equipment.push(data.EquipmentId);
+
+                } );
+
+                projectorsListTable.rows('.selected').every( function ( rowIdx, tableLoop, rowLoop ) {
+                    var data = this.data();
+                    equipment.push(data.EquipmentId);
+
+                } );
+
+
+                /// capture form
+                $form = $('#reservationForm');
                 $clicker = $(this);
                 var originalText = $clicker.text();
                 $clicker.text('Submitting...');
@@ -269,11 +295,15 @@ print_r(Utilities::getDateRepeats("2017-02-28 13:00:00", "2017-02-28 13:00:00", 
                 $('#resultsReservation').html("");
 
                 console.log(ser);
+                console.log(equipment);
 
                 $.ajax({
                     type    : "POST",
-                    url     : "Reserve.php", //file name
-                    data    : ser,
+                    url     : "Ajax/Reserve.php", //file name
+                    data    : {
+                      formData : ser,
+                        equipment: JSON.stringify(equipment)
+                    },
                     success : function (data)
                     {
                         $clicker.text(originalText);
@@ -300,6 +330,57 @@ print_r(Utilities::getDateRepeats("2017-02-28 13:00:00", "2017-02-28 13:00:00", 
                     modal: true,
                     title: 'My Reservations'
                 });
+            });
+
+
+            computersListTable = $('#computersListTable').DataTable({
+                "processing"   : true,
+                "destroy"      : true,
+                "serverSide"   : false,
+                "select"       : true,
+                "displayLength": 25,
+                "ajax"         : {
+                    "url" : 'Ajax/computerList.php',
+                    "type": "POST",
+                },
+                "columns"      : [
+                    {"data": "EquipmentId"},
+                    {"data": "Manufacturer"},
+                    {"data": "ProductLine"},
+                    {"data": "Description"},
+                    {"data": "Cpu"},
+                    {"data": "Ram"}
+                ],
+                'order'        : [[0, "asc"]],
+                columnDefs     : [{
+                    orderable: false,
+                    targets  : [5]
+                }],
+            });
+
+            projectorsListTable = $('#projectorsListTable').DataTable({
+                "processing"   : true,
+                "destroy"      : true,
+                "serverSide"   : false,
+                "select"       : true,
+                "displayLength": 25,
+                "ajax"         : {
+                    "url" : 'Ajax/projectorList.php',
+                    "type": "POST",
+                },
+                "columns"      : [
+                    {"data": "EquipmentId"},
+                    {"data": "Manufacturer"},
+                    {"data": "ProductLine"},
+                    {"data": "Description"},
+                    {"data": "Display"},
+                    {"data": "Resolution"}
+                ],
+                'order'        : [[0, "asc"]],
+                columnDefs     : [{
+                    orderable: false,
+                    targets  : [5]
+                }],
             });
 
 
@@ -425,49 +506,97 @@ print_r(Utilities::getDateRepeats("2017-02-28 13:00:00", "2017-02-28 13:00:00", 
                     <div>
 
                         <form id="reservationForm">
+
+                            <div class="timer" style="color:red;text-align: center;">Reservation closes in
+                                <span
+                                        id="timer">-</span> seconds!
+                            </div>
                             <div class="modal-body">
 
 
-                                <div class="form-group">
-                                    <div class="timer" style="color:red;text-align: center;">Reservation closes in <span
-                                                id="timer">-</span> seconds!
+                                <div id="tabs">
+
+                                    <ul>
+                                        <li><a href="#tabs-1">Booking</a></li>
+                                        <li><a href="#tabs-2">Equipment</a></li>
+
+                                    </ul>
+
+                                    <div id="tabs-1" class="form-group">
+
+                                        <label for="roomName">Room:</label>
+
+                                        <input readonly="readonly" class="form-control" id="roomName" name="roomName" />
+                                        <label>Title of Reservation</label>
+                                        <input required type="text" class="form-control" placeholder="Enter a Title"
+                                                name="title">
+
+                                        <label>Description of Reservation</label>
+                                        <textarea style="resize:none;" rows="3" cols="50"
+                                                placeholder="Describe the Reservation here..." class="form-control"
+                                                name="description"></textarea>
+
+                                        <label for="rDate">Date:</label>
+                                        <input type="text" class="form-control" name="rDate" id="rDate" /> <br>
+                                        <label for="startTime">Start Time: (mm:ss)</label>
+                                        <input type="text" class="form-control" id="startTime" name="startTime">
+                                        <label for="endTime">End Time: (mm:ss)</label>
+                                        <input type="text" class="form-control" id="endTime" name="endTime">
+
+                                        <input hidden name="roomID" id="roomID">
+
+                                        <label for="repeatReservation">Repeat Reservation for:</label>
+                                        <select id="repeatReservation" name="repeatReservation">
+                                            <option value="0">
+                                                No Repeat
+                                            </option>
+                                            <option value="1">1 Week</option>
+                                            <option value="2">2 Weeks</option>
+                                            <option value="3">3 Weeks</option>
+                                        </select>
                                     </div>
-                                    <label>Title of Reservation</label>
-                                    <input required type="text" class="form-control" placeholder="Enter a Title"
-                                            name="title">
+
+                                    <div id="tabs-2">
+
+
+                                        <div class="text-center h1">Computers</div>
+                                        <table id="computersListTable" width="100%" class="table table-responsive">
+                                            <thead>
+                                            <tr>
+                                                <th>Equipment ID</th>
+                                                <th>Manufacturer</th>
+                                                <th>Product Line</th>
+                                                <th>Description</th>
+                                                <th>CPU</th>
+                                                <th>RAM</th>
+                                            </tr>
+                                            </thead>
+                                        </table>
+
+                                        <div class="text-center h1">Projectors</div>
+                                        <table id="projectorsListTable" width="100%" class="table table-responsive">
+                                            <thead>
+                                            <tr>
+                                                <th>Equipment ID</th>
+                                                <th>Manufacturer</th>
+                                                <th>Product Line</th>
+                                                <th>Description</th>
+                                                <th>Display</th>
+                                                <th>Resolution</th>
+                                            </tr>
+                                            </thead>
+                                        </table>
+
+                                    </div>
+
                                 </div>
-                                <div class="form-group">
-                                    <label>Description of Reservation</label>
-                                    <textarea style="resize:none;" rows="3" cols="50"
-                                            placeholder="Describe the Reservation here..." class="form-control"
-                                            name="description"></textarea>
-                                </div>
-                                <!-- Time slots should be inserted here-->
-                                <div class="form-group">
-                                    <label>Date:</label>
-                                    <input type="text" class="form-control" name="rDate" id="rDate" /> <br>
-                                    <label>Start Time: (mm:ss)</label>
-                                    <input type="text" class="form-control" id="startTime" name="startTime">
-                                    <label>End Time: (mm:ss)</label>
-                                    <input type="text" class="form-control" id="endTime" name="endTime">
-                                    <label>Room:</label>
-                                    <input readonly="readonly" class="form-control" id="roomName" name="roomName" />
-                                    <input hidden name="roomID" id="roomID">
-                                </div>
-                                <div class="form-group">
-                                    <label>Repeat Reservation for:</label>
-                                    <select id="repeatReservation" name="repeatReservation">
-                                        <option value="0">
-                                            No Repeat
-                                        </option>
-                                        <option value="1">1 Week</option>
-                                        <option value="2">2 Weeks</option>
-                                        <option value="3">3 Weeks</option>
-                                    </select>
-                                </div>
-                                <button type="button" id="createReservation" class="btn btn-default btn-success btn-block">Submit</button>
+
+
+
 
                             </div>
+                            <br>
+                            <button type="button" id="createReservation" class="btn btn-default btn-success btn-block">Submit</button>
                         </form>
                         <div id="resultsReservation"></div>
                     </div>
@@ -475,67 +604,7 @@ print_r(Utilities::getDateRepeats("2017-02-28 13:00:00", "2017-02-28 13:00:00", 
             </div>
 
             <!-- Edit Reservation Modal -->
-            <div class="modal fade" id="editModal" role="dialog">
-                <div class="modal-dialog">
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4>Please edit the specifications of your reservation</h4>
-                            <div class="timer2" style="color:red;text-align: center;">Reservation closes in <span
-                                        id="timer2"></span> seconds!
-                            </div>
-                        </div>
-                        <div class="modal-body">
-                            <form id="formEdit" action="Reserve.php" method="post">
-                                <input readonly="readonly" type="hidden" class="form-control" name="reservationID"
-                                        id="reservationID" value="<?php echo $modReserve['reservationID']; ?>" />
-                                <input readonly="readonly" type="hidden" class="form-control" name="roomID"
-                                        id="reservationID" value="<?php echo $modReserve['roomID']; ?>" />
-                                <div class="form-group">
-                                    <label>Room Name</label>
-                                    <input readonly="readonly" type="text" class="form-control" name="roomID"
-                                            id="reservationID" value="<?php echo $roomChosen; ?>" />
-                                </div>
-                                <div class="form-group">
-                                    <label>Title of Reservation</label>
-                                    <input type="text" class="form-control" placeholder="Enter a Title" name="title"
-                                            value="<?php echo $modReserve['title']; ?>">
-                                </div>
-                                <div class="form-group">
-                                    <label>Description of Reservation</label>
-                                    <textarea rows="3" cols="50" placeholder="Describe the Reservation here..."
-                                            class="form-control"
-                                            name="description"><?php echo $modReserve['description']; ?></textarea>
-                                </div>
-                                <!-- Time slots should be inserted here-->
-                                <div class="form-group">
-                                    <label>Date:</label>
-                                    <input readonly="readonly" type="text" class="form-control" name="dateDrop"
-                                            id="dateDrop" value="<?php echo $modDate[0]; ?>" /> <br>
-                                    <label>Start Time:</label> <select name="startTime">
-                                        <?php
 
-                                        ?>
-                                    </select>&nbsp &nbsp &nbsp <label>End Time:</label> <select name="endTime">
-                                        <?php
-
-                                        ?>
-                                    </select>&nbsp &nbsp &nbsp
-
-                                    <input readonly="readonly" id="roomOptionsMod" class="roomNum" name="roomName"
-                                            value="<?php //if($roomReserve != NULL) echo $roomReserve->getName(); ?>" />
-                                    <input hidden name="roomID"
-                                            value="<?php //if($roomReserve != NULL) echo $roomReserve->getRID(); ?>">
-                                </div>
-                                <button type="submit" name="action" value="modifying"
-                                        class="btn btn-default btn-success btn-block">Submit
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Profile Modal -->
             <div id="profilemyModal" style="display: none;">
@@ -601,60 +670,6 @@ print_r(Utilities::getDateRepeats("2017-02-28 13:00:00", "2017-02-28 13:00:00", 
                         <div class="modal-body">
                             <h5 id="legendC">Confirmed Reservations</h5>
                             <h5 id="legendW">Waitlisted Reservations</h5><br>
-                            <?php
-                            /*
-                            $conn = $db->getServerConn();
-
-                            $count = 1;
-                            foreach($studentReservations as &$singleReservation)
-                            {
-                                $active = new RoomMapper($singleReservation["roomID"], $conn);
-                                $activeRoom = $active->getName();
-                                $deleteButton = '<button type="Submit" name="action" value = "delete" id="deleteButton" class="center btn btn-default"> Delete Reservation '.$count.'</button>';
-                                $modifyButton = '<br><button type="Submit" data-target="myModal" id = "modifyButton" name="action" value = "modify" class="center btn btn-default"> Modify Reservation '.$count.'</button>';
-                                $hidden = '<input type="hidden" name="reID" value="'.$singleReservation["reservationID"].'"></input>';
-                                $hidden2 ='<input type="hidden" name="rID" value="'.$singleReservation['roomID'].'"></input>';
-                                $startDateTime = explode(" ", $singleReservation["startTimeDate"]);
-                                $endDateTime = explode(" ", $singleReservation["endTimeDate"]);
-                                $waitlisted = explode(" ", $singleReservation["waitlisted"]);
-
-                                date_default_timezone_set('US/Eastern');
-                                $timeNow = date("Y-m-d H:i:s");
-
-                                if(strtotime($singleReservation["startTimeDate"]) > strtotime($timeNow)) {
-                                    echo "<form id='myReservationform' action='CheckRoomAvailable.php' method='post'>";
-                                    if ($waitlisted[0] == "1") {
-                                        echo "<section class = 'leftcolumnW'>";
-                                            echo $hidden;
-                                            echo $hidden2;
-                                            echo "Room Name : ".$activeRoom."<br>";
-                                            echo "Title : ".$singleReservation['title']."<br>";
-                                            echo "Date : ".$startDateTime[0]."<br>";
-                                            echo "Start Time : ".$startDateTime[1]."<br>";
-                                            echo "End Time : ".$endDateTime[1];
-                                    } else {
-                                        echo "<section class = 'leftcolumn'>";
-                                            echo $hidden;
-                                            echo $hidden2;
-                                            echo "Room Name : ".$activeRoom."<br>";
-                                            echo "Title : ".$singleReservation['title']."<br>";
-                                            echo "Date : ".$startDateTime[0]."<br>";
-                                            echo "Start Time : ".$startDateTime[1]."<br>";
-                                            echo "End Time : ".$endDateTime[1];
-                                    }
-
-                                        echo "</section>";
-                                        echo "<aside class = 'rightcolumn'>";
-                                            echo $deleteButton."<br>";
-                                            echo $modifyButton."<br><br>";
-                                        echo "</aside>";
-                                    echo "</form>";
-                                    $count = $count + 1;
-                                }
-                            }
-
-                            $db->closeServerConn($conn);*/
-                            ?>
                         </div><!-- End modal-body -->
                     </div><!-- End modal content -->
                 </div><!-- End modal-dialog -->
