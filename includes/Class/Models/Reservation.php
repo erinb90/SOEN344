@@ -155,7 +155,7 @@ namespace Stark\Models
          */
         public function isIsWaited()
         {
-            return $this->_isWaited;
+            return $this->_isWaited == 1;
         }
 
         /**

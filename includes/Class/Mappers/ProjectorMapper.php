@@ -77,7 +77,6 @@ namespace Stark\Mappers
             $Projector->setResolution($data['Resolution']);
             $Projector->setDescription($data['Description']);
             $Projector->setManufacturer($data['Manufacturer']);
-            $Projector->setQuantity($data['Quantity']);
             $Projector->setProductLine($data['ProductLine']);
 
             return $Projector;

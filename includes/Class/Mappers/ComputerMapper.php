@@ -79,7 +79,6 @@ namespace Stark\Mappers
             $Computer->setCpu($data['Cpu']);
             $Computer->setDescription($data['Description']);
             $Computer->setManufacturer($data['Manufacturer']);
-            $Computer->setQuantity($data['Quantity']);
             $Computer->setProductLine($data['ProductLine']);
 
             return $Computer;

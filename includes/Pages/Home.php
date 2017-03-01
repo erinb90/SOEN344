@@ -12,11 +12,13 @@ $RoomDirectory = new RoomDirectory();
 
 // just examples below
 
-$EquipmentFinder = EquipmentFinder::find("2017-02-28 13:00:00", "2017-02-28 19:00:00");
+$EquipmentFinder = EquipmentFinder::find("2017-02-11 00:00:00", "2017-02-11 19:00:00");
 
-echo $EquipmentFinder->quantityOfLoanedEquipment(10);
+var_dump( $EquipmentFinder->equipmentTaken(10) );
 
-print_r(Utilities::getDateRepeats("2017-02-28 13:00:00", "2017-02-28 13:00:00", 1));
+print_r($EquipmentFinder->getLoanedEquipment());
+
+//print_r(Utilities::getDateRepeats("2017-02-28 13:00:00", "2017-02-28 13:00:00", 1));
 
 
 $EquipmentCatalog = new \Stark\EquipmentCatalog();

@@ -6,6 +6,8 @@ namespace Stark\Mappers
     use Stark\Interfaces\AbstractMapper;
     use Stark\Models\Reservation;
     use Stark\TDG\ReservationTDG;
+    use Stark\Utilities;
+
 
     /**
      * Class ReservationMapper
@@ -64,7 +66,7 @@ namespace Stark\Mappers
         public function numberOfReservationsMadeWeekUser($date, $uid)
         {
             $reservations = $this->findAll();
-            $weekDates = \Utilities::getWeek($date); // get week dates based on today's date
+            $weekDates = Utilities::getWeek($date); // get week dates based on today's date
             $startDateWeek = $weekDates[0];
             $endDateWeek = $weekDates[1];
             $numberOfReservations = 0;
@@ -127,6 +129,8 @@ namespace Stark\Mappers
             $Reservation->setTitle($data['Title']);
             $Reservation->setUserId($data['UserId']);
             $Reservation->setIsWaited($data["Waiting"]);
+
+
 
             return $Reservation;
         }
