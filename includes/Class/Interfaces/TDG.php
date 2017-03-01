@@ -160,10 +160,10 @@ namespace Stark\Interfaces
                     $this->getTable() . '.' . $this->getPk() . '=' . $this->getParentTable() . '.' . $this->getParentPk());
             }
 
- ;
             $sth = $parentQuery->execute();
 
             $m = $sth->fetchAll();
+
 
             return $m;
         }

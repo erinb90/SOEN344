@@ -41,7 +41,7 @@ namespace Stark\Mappers
          *
          * @return DomainObject returns a fully-dressed object
          */
-        public function getModel(array $data)
+        public function getModel(array $data = null)
         {
             if (!$data)
             {

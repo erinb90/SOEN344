@@ -10,6 +10,7 @@ namespace Stark\Mappers
 {
 
 
+    use phpDocumentor\Reflection\Types\Null_;
     use Stark\Interfaces\AbstractMapper;
     use Stark\Interfaces\DomainObject;
     use Stark\Models\Computer;
@@ -35,7 +36,7 @@ namespace Stark\Mappers
         }
 
         /**
-         * @return \Stark\Interfaces\TDG
+         * @return \Stark\TDG\ComputerTDG
          */
         public function getTdg()
         {
@@ -62,9 +63,9 @@ namespace Stark\Mappers
         /**
          * @param $data array data retrieve from the tdg
          *
-         * @return DomainObject returns a fully-dressed object
+         * @return Computer returns a fully-dressed object
          */
-        public function getModel(array $data)
+        public function getModel(array $data = null)
         {
             if (!$data)
             {

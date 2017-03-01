@@ -23,7 +23,7 @@ namespace Stark
         /**
          * @var int user id
          */
-        private $_studentID;
+        private $_userId;
 
         /**
          * Login constructor.
@@ -66,7 +66,7 @@ namespace Stark
                 $stored = $User->getPassword();
 
 
-                $this->_studentID = $User->getUserId();
+                $this->_userId = $User->getUserId();
                 // compare given password with stored password
                 if (!$PasswordHash->CheckPassword($this->_credentials['password'], $stored))
                 {
@@ -98,7 +98,7 @@ namespace Stark
                 session_start();
                 @session_regenerate_id(TRUE);
                 $_SESSION['email'] = $this->_credentials['email'];
-                $_SESSION['sid'] = $this->_studentID;
+                $_SESSION['sid'] = $this->_userId;
 
                 return TRUE;
             }

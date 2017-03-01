@@ -36,7 +36,7 @@ namespace Stark\Mappers
          *
          * @return LockDomain
          */
-        public function getModel(array $data)
+        public function getModel(array $data = null)
         {
             $LockDomain = new LockDomain();
             $LockDomain->setRoomID($data['roomID']);

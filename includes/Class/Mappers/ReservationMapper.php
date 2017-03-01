@@ -47,7 +47,7 @@ namespace Stark\Mappers
          *
          * @return Reservation returns a fully-dressed object
          */
-        public function getModel(array $data)
+        public function getModel(array $data = null)
         {
             if (!$data)
             {

@@ -37,6 +37,7 @@ if (!empty($_SESSION) && isset($_SESSION['sid']))
 {
     $StudentMapper = new \Stark\Mappers\UserMapper();
 
+    echo $_SESSION['sid'];
     WebUser::setUser($StudentMapper->findByPk($_SESSION['sid']));
 }
 

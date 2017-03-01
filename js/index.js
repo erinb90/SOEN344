@@ -21,11 +21,10 @@
         $( document ).on( "click", "#login", function() {
 
             var $clicker = $( "#login" );
-            var ser = $( "form#LoginForm" );
+            var ser = $( "form#LoginForm" ).serialize();
             var originalText = $clicker.text();
             $clicker.text( "Logging in..." );
             $clicker.addClass( "disabled" );
-            ser.serialize();
 
             console.log( ser );
             $( "#results" ).html( "" );

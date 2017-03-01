@@ -28,6 +28,7 @@ namespace Stark\TDG
          */
         public function findByEmail($email)
         {
+
             return $this->query("*", ["UserName" => $email]);
         }
 

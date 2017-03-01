@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Dimitri
- * Date: 2/25/2017
- * Time: 1:28 AM
- */
 
 namespace Stark\Mappers
 {
@@ -36,7 +30,7 @@ namespace Stark\Mappers
         }
 
         /**
-         * @return \Stark\Interfaces\TDG
+         * @return \Stark\TDG\UserTDG
          */
         public function getTdg()
         {
@@ -75,8 +69,9 @@ namespace Stark\Mappers
          *
          * @return User returns a fully-dressed object
          */
-        public function getModel(array $data)
+        public function getModel( array  $data = null)
         {
+
             if (!$data)
             {
                 return NULL;

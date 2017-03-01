@@ -53,7 +53,7 @@ namespace Stark\Interfaces
          *
          * @return DomainObject returns a fully-dressed object
          */
-        public abstract function getModel(array $data);
+        public abstract function getModel(array $data = null);
 
         /**
          * This method inserts row into database via tdg
