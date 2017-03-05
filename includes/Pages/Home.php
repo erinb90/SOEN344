@@ -10,21 +10,10 @@ use Stark\WebUser;
 $RoomDirectory = new RoomDirectory();
 
 
-// just examples below
+$Wailist= new \Stark\Waitlist(1, "2017-03-05 15:00:00", "2017-03-05 17:00:00");
+print_r($Wailist->getWaitlistedReservations());
 
-$EquipmentFinder = EquipmentFinder::find("2017-02-11 00:00:00", "2017-02-11 19:00:00");
-
-var_dump( $EquipmentFinder->equipmentTaken(10) );
-
-print_r($EquipmentFinder->getLoanedEquipment());
-
-//print_r(Utilities::getDateRepeats("2017-02-28 13:00:00", "2017-02-28 13:00:00", 1));
-
-
-$EquipmentCatalog = new \Stark\EquipmentCatalog();
-
-
-
+print_r($Wailist->getNextReservationWaiting());
 
 ?>
 <!DOCTYPE html>
@@ -131,14 +120,11 @@ $EquipmentCatalog = new \Stark\EquipmentCatalog();
             cdpause();
             count = CCOUNT;
             cddisplay();
-        }
-        ;
+        };
 
 
         $(function ()
         {
-
-
 
             // initialize booking tabs
             $("#tabs").tabs();
@@ -150,6 +136,11 @@ $EquipmentCatalog = new \Stark\EquipmentCatalog();
                 minDate   : 0
             });
 
+
+            // bind accordion to equipment
+            $( "#accordionEquipment" ).accordion({
+                heightStyle: "content"
+            });
 
             //what happens when you click on the make reserve button
             $(document).on('click', '#makeReserve', function ()
@@ -218,7 +209,123 @@ $EquipmentCatalog = new \Stark\EquipmentCatalog();
                     }
                 });
             });
+            
+            // cancel reservation 
 
+            // cancel reservation
+            $(document).on('click', '#cancelReservation', function ()
+            {
+                var reservation = userReservations.row($(this).closest('tr')).data();
+                $('#cancelReservationModal').dialog({
+                    title  : "Cancel Reservation",
+                    modal  : true,
+                    buttons: {
+                        "Yes": function ()
+                        {
+                            $(this).dialog('close');
+
+                            $('#cancelMessage').html("Canceling reservation...please wait...").dialog({
+
+                                modal: true
+                            });
+
+                            $.ajax({
+                                url    : 'Ajax/delete.php',
+                                data   : {
+                                    reid: reservation.reid
+                                },
+                                error  : function ()
+                                {
+                                    alert('An error occurred');
+                                },
+                                success: function (data)
+                                {
+                                    $('#cancelMessage').html(data);
+                                }
+                            });
+                        },
+                        "No" : function ()
+                        {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            });
+
+            //when clicking on View for a user's equipment if he has for his/her reservation
+
+            $(document).on('click', '#viewEquipment', function(){
+               $row = $(this).closest('tr');
+               var reservation = userReservations.row($row).data();
+               var reservationId = reservation.reid;
+
+               if(!reservationId)
+                   return;
+
+
+               $('#myEquipmentModal').dialog({
+                  width: 1000,
+                   height: 500,
+                   title : 'Loaned Equipment for Reservation #' + reservationId
+               });
+
+
+                myProjectorsListTable = $('#myProjectorsListTable').DataTable({
+                    "processing"   : true,
+                    "destroy"      : true,
+                    "serverSide"   : false,
+                    "displayLength": 5,
+                    "ajax"         : {
+                        "url" : 'Ajax/myProjectorList.php',
+                        "type": "POST",
+                        "data" : {
+                            id: reservationId
+                        }
+                    },
+                    "columns"      : [
+                        {"data": "EquipmentId"},
+                        {"data": "Manufacturer"},
+                        {"data": "ProductLine"},
+                        {"data": "Description"},
+                        {"data": "Display"},
+                        {"data": "Resolution"}
+                    ],
+                    'order'        : [[0, "asc"]],
+                    columnDefs     : [{
+                        orderable: false,
+                        targets  : [5]
+                    }],
+                });
+
+
+                myComputersListTable = $('#myComputersListTable').DataTable({
+                    "processing"   : true,
+                    "destroy"      : true,
+                    "serverSide"   : false,
+                    "displayLength": 5,
+                    "ajax"         : {
+                        "url" : 'Ajax/myComputerList.php',
+                        "type": "POST",
+                        "data" : {
+                            id: reservationId
+                        }
+                    },
+                    "columns"      : [
+                        {"data": "EquipmentId"},
+                        {"data": "Manufacturer"},
+                        {"data": "ProductLine"},
+                        {"data": "Description"},
+                        {"data": "Ram"},
+                        {"data": "Cpu"}
+                    ],
+                    'order'        : [[0, "asc"]],
+                    columnDefs     : [{
+                        orderable: false,
+                        targets  : [5]
+                    }],
+                });
+
+            });
 
             // when clicking on profile link
             $(document).on('click', '#second-r', function ()
@@ -328,13 +435,15 @@ $EquipmentCatalog = new \Stark\EquipmentCatalog();
             {
 
                 $('#myReservationsModal').dialog({
-                    width: 800,
+                    width: 1200,
+                    height: 500,
                     modal: true,
                     title: 'My Reservations'
                 });
+
             });
 
-
+            // list of static computeres
             computersListTable = $('#computersListTable').DataTable({
                 "processing"   : true,
                 "destroy"      : true,
@@ -360,6 +469,7 @@ $EquipmentCatalog = new \Stark\EquipmentCatalog();
                 }],
             });
 
+            // list of static projects
             projectorsListTable = $('#projectorsListTable').DataTable({
                 "processing"   : true,
                 "destroy"      : true,
@@ -386,13 +496,14 @@ $EquipmentCatalog = new \Stark\EquipmentCatalog();
             });
 
 
+            // variable that holds the user's reservations
             userReservations = $('#reservationsTable').DataTable({
                 "processing"   : true,
                 "destroy"      : true,
                 "serverSide"   : false,
                 "displayLength": 25,
                 "ajax"         : {
-                    "url" : 'StudentReservations.php',
+                    "url" : 'Ajax/StudentReservations.php',
                     "type": "POST",
                 },
                 "columns"      : [
@@ -404,9 +515,40 @@ $EquipmentCatalog = new \Stark\EquipmentCatalog();
                     {"data": "StartTime"},
                     {"data": "EndTime"},
                     {
+
                         'render' : function (data, type, row)
                         {
-                            if (row.modifiable)
+                            if (row.Waiting)
+                            {
+                                return 'Waiting';
+                            }
+                            else
+                            {
+                                return "<span class='confirmed'>Confirmed</span>";
+                            }
+                        },
+                        className: "dt-center"
+                    },
+                    {
+                        //hasEquipment
+                        'render' : function (data, type, row)
+                        {
+                            if (row.hasEquipment)
+                            {
+                                return '<button id="viewEquipment" name="viewEquipment" type="button" class="btn btn-outline btn-primary btn-square btn-sm">View</button>';
+                            }
+                            else
+                            {
+                                return "--";
+                            }
+                        },
+                        className: "dt-center"
+
+                    },
+                    {
+                        'render' : function (data, type, row)
+                        {
+                            if (row.canModify)
                             {
                                 return '<button id="modifyReservation" name="modifyReservation" type="button" class="btn btn-outline btn-primary btn-square btn-sm">Modify</button>' +
                                     ' <button id="cancelReservation" name="cancelReservation" type="button" class="btn btn-outline btn-danger btn-square btn-sm">Cancel</button>';
@@ -711,8 +853,9 @@ $EquipmentCatalog = new \Stark\EquipmentCatalog();
             <th>Date</th>
             <th>Start Time</th>
             <th>End Time</th>
+            <th>Status</th>
+            <th>Equipment</th>
             <th>Action</th>
-
         </tr>
         </thead>
         <tbody>
@@ -720,6 +863,57 @@ $EquipmentCatalog = new \Stark\EquipmentCatalog();
     </table>
 </div>
 
+
+<!-- My Reservation Equipment -->
+
+<div id="myEquipmentModal" style="display: none;">
+    <div id="accordionEquipment">
+        <h3>Computers</h3>
+        <div>
+        <table id="myComputersListTable" width="100%" class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Equipment ID</th>
+                <th>Manufacturer</th>
+                <th>Product Line</th>
+                <th>Description</th>
+                <th>CPU</th>
+                <th>RAM</th>
+            </tr>
+            </thead>
+        </table>
+        </div>
+
+        <h3>Projectors</h3>
+        <div>
+        <table id="myProjectorsListTable" width="100%" class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Equipment ID</th>
+                <th>Manufacturer</th>
+                <th>Product Line</th>
+                <th>Description</th>
+                <th>Display</th>
+                <th>Resolution</th>
+            </tr>
+            </thead>
+        </table>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Reservation -->
+<div id="cancelReservationModal" style="display: none;" title="Delete Reservation?">
+    <p>
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>You are about to delete this reservation. Are you sure?
+    </p>
+
+</div>
+
+<!-- Reservation Cancel Message -->
+<div id="cancelMessage" style="display: none;" title="Cancel Reservation">
+
+</div>
 
 </body>
 
