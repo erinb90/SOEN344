@@ -95,10 +95,6 @@ namespace Stark {
             // Create a repeated reservation based on the date repeats
             $reservationMapper = new ReservationMapper();
 
-
-            // TODO : Won't this create completely separate reservations?
-            // TODO : Repeated reservations should still be under the same id.
-            // TODO : This will require a database schema change.
             foreach ($repeatedDates as $i => $date) {
                 try {
                     // Create a pending reservation
@@ -116,13 +112,12 @@ namespace Stark {
                     // Commit the unit of work
                     $reservationMapper->commit();
 
-                    // TODO : Check if equipmentIds are available for reservation
+                    // TODO : Check if equipmentIds are available for reservation and notify user
+                    // Create a loan contract Id and associate request equipment
                     if (!empty($this->_equipmentIds)) {
-                        // TODO : Create new loan contract for the reservation id
-                        // Shouldn't the commit return the pk (id) of the new entry?
-                        // Or is there some other way to fetch the newly created entry.
-                        //$reservationId = ??;
-                        //$this->associateLoanContract($reservationId);
+                        $reservationId = Registry::getConnection()->lastInsertId();
+                        $loanContractId = $this->associateLoanContract($reservationId);
+                        $this->associateLoanedEquipment($loanContractId, $this->_equipmentIds);
                     }
 
                 } catch (\Exception $e) {

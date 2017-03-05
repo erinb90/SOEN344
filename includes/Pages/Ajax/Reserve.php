@@ -10,7 +10,6 @@ parse_str($_REQUEST['formData'], $requestParameters);
 $equipmentIds = $_REQUEST['equipment'];
 
 // TODO : Fix remaining old code to work with new reservation session
-exit;
 
 // TODO : getUser() is returning null
 // Create reservation session
@@ -45,7 +44,8 @@ if ($ReservationSession->reserve()) {
     <?php
 
 } else if (count($ReservationSession->getConflicts()) > 0) {
-
+    // TODO : Refactor
+    exit;
     $conflicts = $ReservationSession->getConflicts();
     ?>
     <script>
