@@ -150,7 +150,9 @@ $EquipmentCatalog = new \Stark\EquipmentCatalog();
 
 
             // bind accordion to equipment
-            $( "#accordionEquipment" ).accordion();
+            $( "#accordionEquipment" ).accordion({
+                heightStyle: "content"
+            });
 
             //what happens when you click on the make reserve button
             $(document).on('click', '#makeReserve', function ()
@@ -227,13 +229,71 @@ $EquipmentCatalog = new \Stark\EquipmentCatalog();
                var reservation = userReservations.row($row).data();
                var reservationId = reservation.reid;
 
+               if(!reservationId)
+                   return;
+
 
                $('#myEquipmentModal').dialog({
                   width: 1000,
                    height: 500,
-                   title : 'Loaned Equipment'
+                   title : 'Loaned Equipment for Reservation #' + reservationId
                });
 
+
+                myProjectorsListTable = $('#myProjectorsListTable').DataTable({
+                    "processing"   : true,
+                    "destroy"      : true,
+                    "serverSide"   : false,
+                    "displayLength": 5,
+                    "ajax"         : {
+                        "url" : 'Ajax/myProjectorList.php',
+                        "type": "POST",
+                        "data" : {
+                            id: reservationId
+                        }
+                    },
+                    "columns"      : [
+                        {"data": "EquipmentId"},
+                        {"data": "Manufacturer"},
+                        {"data": "ProductLine"},
+                        {"data": "Description"},
+                        {"data": "Display"},
+                        {"data": "Resolution"}
+                    ],
+                    'order'        : [[0, "asc"]],
+                    columnDefs     : [{
+                        orderable: false,
+                        targets  : [5]
+                    }],
+                });
+
+
+                myComputersListTable = $('#myComputersListTable').DataTable({
+                    "processing"   : true,
+                    "destroy"      : true,
+                    "serverSide"   : false,
+                    "displayLength": 5,
+                    "ajax"         : {
+                        "url" : 'Ajax/myComputerList.php',
+                        "type": "POST",
+                        "data" : {
+                            id: reservationId
+                        }
+                    },
+                    "columns"      : [
+                        {"data": "EquipmentId"},
+                        {"data": "Manufacturer"},
+                        {"data": "ProductLine"},
+                        {"data": "Description"},
+                        {"data": "Ram"},
+                        {"data": "Cpu"}
+                    ],
+                    'order'        : [[0, "asc"]],
+                    columnDefs     : [{
+                        orderable: false,
+                        targets  : [5]
+                    }],
+                });
 
             });
 
@@ -350,9 +410,10 @@ $EquipmentCatalog = new \Stark\EquipmentCatalog();
                     modal: true,
                     title: 'My Reservations'
                 });
+
             });
 
-
+            // list of static computeres
             computersListTable = $('#computersListTable').DataTable({
                 "processing"   : true,
                 "destroy"      : true,
@@ -378,6 +439,7 @@ $EquipmentCatalog = new \Stark\EquipmentCatalog();
                 }],
             });
 
+            // list of static projects
             projectorsListTable = $('#projectorsListTable').DataTable({
                 "processing"   : true,
                 "destroy"      : true,
@@ -777,7 +839,8 @@ $EquipmentCatalog = new \Stark\EquipmentCatalog();
 <div id="myEquipmentModal" style="display: none;">
     <div id="accordionEquipment">
         <h3>Computers</h3>
-        <table id="myComputersListTable" width="100%" class="table table-responsive">
+        <div>
+        <table id="myComputersListTable" width="100%" class="table table-bordered">
             <thead>
             <tr>
                 <th>Equipment ID</th>
@@ -789,9 +852,11 @@ $EquipmentCatalog = new \Stark\EquipmentCatalog();
             </tr>
             </thead>
         </table>
+        </div>
 
         <h3>Projectors</h3>
-        <table id="myProjectorsListTable" width="100%" class="table table-responsive">
+        <div>
+        <table id="myProjectorsListTable" width="100%" class="table table-bordered">
             <thead>
             <tr>
                 <th>Equipment ID</th>
@@ -803,6 +868,7 @@ $EquipmentCatalog = new \Stark\EquipmentCatalog();
             </tr>
             </thead>
         </table>
+        </div>
     </div>
 </div>
 
