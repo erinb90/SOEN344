@@ -110,7 +110,8 @@ namespace Stark\TDG
                         "RoomId" => $object->getRoomId(),
                         "Starttime" =>$object->getStartTimeDate(),
                         "Endtime" => $object->getEndTimeDate(),
-                        "Title" => $object->getTitle()
+                        "Title" => $object->getTitle(),
+                        "Waiting" => $object->isIsWaited()
                     ],
                     [$this->getPk() => $object->getReservationID()]
                 );

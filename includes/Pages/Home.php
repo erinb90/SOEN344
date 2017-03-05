@@ -209,6 +209,48 @@ print_r($Wailist->getNextReservationWaiting());
                     }
                 });
             });
+            
+            // cancel reservation 
+
+            // cancel reservation
+            $(document).on('click', '#cancelReservation', function ()
+            {
+                var reservation = userReservations.row($(this).closest('tr')).data();
+                $('#cancelReservationModal').dialog({
+                    title  : "Cancel Reservation",
+                    modal  : true,
+                    buttons: {
+                        "Yes": function ()
+                        {
+                            $(this).dialog('close');
+
+                            $('#cancelMessage').html("Canceling reservation...please wait...").dialog({
+
+                                modal: true
+                            });
+
+                            $.ajax({
+                                url    : 'Ajax/delete.php',
+                                data   : {
+                                    reid: reservation.reid
+                                },
+                                error  : function ()
+                                {
+                                    alert('An error occurred');
+                                },
+                                success: function (data)
+                                {
+                                    $('#cancelMessage').html(data);
+                                }
+                            });
+                        },
+                        "No" : function ()
+                        {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            });
 
             //when clicking on View for a user's equipment if he has for his/her reservation
 
@@ -860,7 +902,18 @@ print_r($Wailist->getNextReservationWaiting());
     </div>
 </div>
 
+<!-- Cancel Reservation -->
+<div id="cancelReservationModal" style="display: none;" title="Delete Reservation?">
+    <p>
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>You are about to delete this reservation. Are you sure?
+    </p>
 
+</div>
+
+<!-- Reservation Cancel Message -->
+<div id="cancelMessage" style="display: none;" title="Cancel Reservation">
+
+</div>
 
 </body>
 
