@@ -87,12 +87,14 @@ namespace Stark\Mappers
             return $numberOfReservations;
         }
 
+
         /**
          * @param $userId
          * @param $roomId
          * @param $startTime
          * @param $endTime
          * @param $title
+         * @param bool $waiting
          *
          * @return \Stark\Models\Reservation
          */
@@ -107,6 +109,21 @@ namespace Stark\Mappers
             $Reservation->setTitle($title);
             $Reservation->setIsWaited($waiting);
             return $Reservation;
+        }
+
+        /**
+         * @return array
+         */
+        public function findAllWaitlisted()
+        {
+            $m = $this->getTdg()->findAllWaitlisted();
+            $objects = [];
+            foreach ($m as $row)
+            {
+                $objects[] = $this->getModel($row);
+            }
+
+            return $objects;
         }
 
         /**
