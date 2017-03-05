@@ -69,23 +69,28 @@ namespace Stark
             foreach ($reservations as $Reservation)
             {
 
-                $startTime = strtotime($Reservation->getStartTimeDate());
-                $endTime = strtotime($Reservation->getEndTimeDate());
-                // was the start time of current reservation between the conflicted start and end time period?
-                if ($start >= $startTime && $start < $endTime)
+                if($Reservation->getRoomId() == $this->_RoomId)
                 {
-                    $this->_reservations[$Reservation->getReservationID()] = $Reservation;
+                    $startTime = strtotime($Reservation->getStartTimeDate());
+                    $endTime = strtotime($Reservation->getEndTimeDate());
+                    // was the start time of current reservation between the conflicted start and end time period?
+                    if ($start >= $startTime && $start < $endTime)
+                    {
+                        $this->_reservations[$Reservation->getReservationID()] = $Reservation;
+                    }
+                    // was the end time of current reservation between the conflicted start and end time period?
+                    if ($end > $startTime && $end <= $endTime)
+                    {
+                        $this->_reservations[$Reservation->getReservationID()] = $Reservation;
+                    }
+                    // is the current reservation start time less than the one reserved and is the end time of the one reserved less than the current end time
+                    if ($startTime >= $start && $end >= $endTime)
+                    {
+                        $this->_reservations[$Reservation->getReservationID()] = $Reservation;
+                    }
                 }
-                // was the end time of current reservation between the conflicted start and end time period?
-                if ($end > $startTime && $end <= $endTime)
-                {
-                    $this->_reservations[$Reservation->getReservationID()] = $Reservation;
-                }
-                // is the current reservation start time less than the one reserved and is the end time of the one reserved less than the current end time
-                if ($startTime >= $start && $end >= $endTime)
-                {
-                    $this->_reservations[$Reservation->getReservationID()] = $Reservation;
-                }
+
+
             }
 
 
