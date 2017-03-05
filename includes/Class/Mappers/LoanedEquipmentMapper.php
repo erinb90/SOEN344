@@ -35,6 +35,8 @@ namespace Stark\Mappers
             $this->_tdg = new LoanedEquipmentTDG("loaned_equipment", "LoanContractId");
         }
 
+
+
         /**
          * @return \Stark\TDG\LoanedEquipmentTDG
          */
@@ -44,6 +46,11 @@ namespace Stark\Mappers
         }
 
 
+        /**
+         * @param $LoanContractId
+         *
+         * @return array
+         */
         public function findEquipmentByContractId($LoanContractId)
         {
             $m = $this->getTdg()->findEquipmentByContractId($LoanContractId);
