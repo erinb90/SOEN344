@@ -10,22 +10,10 @@ use Stark\WebUser;
 $RoomDirectory = new RoomDirectory();
 
 
-// just examples below
+$Wailist= new \Stark\Waitlist(1, "2017-03-05 15:00:00", "2017-03-05 17:00:00");
+print_r($Wailist->getWaitlistedReservations());
 
-$EquipmentFinder = EquipmentFinder::find("2017-02-11 00:00:00", "2017-02-11 19:00:00");
-
-var_dump( $EquipmentFinder->equipmentTaken(10) );
-
-print_r($EquipmentFinder->getLoanedEquipment());
-
-
-print_r(Utilities::getDateRepeats("2017-02-28 13:00:00", "2017-02-28 13:00:00", 1));
-
-
-$EquipmentCatalog = new \Stark\EquipmentCatalog();
-
-
-
+print_r($Wailist->getNextReservationWaiting());
 
 ?>
 <!DOCTYPE html>
