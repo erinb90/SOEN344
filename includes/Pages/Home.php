@@ -602,7 +602,7 @@ print_r($Wailist->getNextReservationWaiting());
 
             <!-- Div for datepicker -->
             <div id="datepickerContainer" style="width:1200px;">
-                <h1 class="title">THE FORCE AWAKENS</h1>
+                <h1 class="title">BLADE RUNNER 344</h1>
                 <h3 class="subtitle">Room Reserver</h3>
                 <div id="datepickerInline"></div>
                 <br><br>
