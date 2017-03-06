@@ -1,24 +1,43 @@
 <?php
+session_start();
 require_once($_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php');
 
 use Stark\CreateReservationSession;
-use Stark\WebUser;
 
 // Parse incoming request and extract query parameters
 $requestParameters = [];
 parse_str($_REQUEST['formData'], $requestParameters);
-$equipmentIds = $_REQUEST['equipment'];
+$equipmentIds = json_decode($_REQUEST['equipment']);
+
+$userMapper = new \Stark\Mappers\UserMapper();
+$email = $_SESSION['email'];
+$user = $userMapper->findByEmail(trim($email));
+
+// TODO : Perform time sanitizing using regex
+$startTimeDateAsString = $requestParameters['rDate'] . " " . $requestParameters['startTime'] . ":00";
+$startTimeDate = date("Y-m-d H:i:s", strtotime($startTimeDateAsString));
+
+$endTimeDateAsString = $requestParameters['rDate'] . " " . $requestParameters['endTime'] . ":00";
+$endTimeDate = date("Y-m-d H:i:s", strtotime($endTimeDateAsString));
+
+$timeValidationErrors = \Stark\TimeValidator::validate($startTimeDate, $endTimeDate)->getErrors();
+
+if (!empty($timeValidationErrors)) {
+    foreach ($timeValidationErrors as $error) {
+        echo $error;
+    }
+    return;
+}
 
 // TODO : Fix remaining old code to work with new reservation session
-
-// TODO : getUser() is returning null
 // Create reservation session
 $ReservationSession = new CreateReservationSession(
-    WebUser::getUser(),
+    $user,
     $requestParameters['roomID'],
-    $requestParameters['startTime'],
-    $requestParameters['endTime'],
+    $startTimeDate,
+    $endTimeDate,
     $requestParameters['title'],
+    $requestParameters['repeatReservation'],
     $equipmentIds);
 
 if ($ReservationSession->reserve()) {

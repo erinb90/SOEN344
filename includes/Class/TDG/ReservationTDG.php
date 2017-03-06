@@ -56,18 +56,19 @@ namespace Stark\TDG
             $lastId = -1;
             try
             {
-                Registry::getConnection()->insert($this->getParentTable(),
+                Registry::getConnection()->insert($this->getTable(),
                     [
                         "UserId"     => $object->getUserId(),
                         "RoomId" => $object->getRoomId(),
                         "Starttime" => $object->getStartTimeDate(),
                         "Endtime" => $object->getEndTimeDate(),
-                        "CreatedOn" => date("Y-M-D H:i:s"),
+                        "CreatedOn" => date('Y-m-d H:i:s'),
                         "Title" => $object->getTitle()
                     ]
                 );
 
                 $lastId = Registry::getConnection()->lastInsertId();
+                $object->setReservationId($lastId);
                 Registry::getConnection()->commit();
 
             }

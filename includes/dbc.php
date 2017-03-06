@@ -26,18 +26,21 @@ Registry::setConfig($connectionParams, $config);
 
 $applicationAspectKernel = Stark\ApplicationAspectKernel::getInstance();
 $applicationAspectKernel->init(array(
-    'debug'    => TRUE, // use 'false' for production mode
+    'debug' => TRUE, // use 'false' for production mode
     // Cache directory
     'cacheDir' => __DIR__ . '/aop_cache'
 ));
 
 
 // SET USER INFORMATION
-if (!empty($_SESSION) && isset($_SESSION['sid']))
-{
+if (!empty($_SESSION) && isset($_SESSION['sid'])) {
     $StudentMapper = new \Stark\Mappers\UserMapper();
 
-    WebUser::setUser($StudentMapper->findByPk($_SESSION['sid']));
+    // TODO : Cast to User object?
+    $user = $StudentMapper->findByPk($_SESSION['sid']);
+    if($user != null){
+        WebUser::setUser($user);
+    }
 }
 
 

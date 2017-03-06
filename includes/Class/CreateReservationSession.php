@@ -115,8 +115,7 @@ namespace Stark {
                     // TODO : Check if equipmentIds are available for reservation and notify user
                     // Create a loan contract Id and associate request equipment
                     if (!empty($this->_equipmentIds)) {
-                        $reservationId = Registry::getConnection()->lastInsertId();
-                        $loanContractId = $this->associateLoanContract($reservationId);
+                        $loanContractId = $this->associateLoanContract($reservation->getReservationID());
                         $this->associateLoanedEquipment($loanContractId, $this->_equipmentIds);
                     }
 
@@ -167,13 +166,11 @@ namespace Stark {
             // Commit the unit of work
             $loanContractMapper->commit();
 
-            // Get the id of the newly created contract
-            $newLoanContract = $loanContractMapper->findByReservationId($reservationId);
-            if ($newLoanContract == null) {
+            if ($loanContract->getLoanContractiD() == null) {
                 return -1;
             }
 
-            return $newLoanContract->getLoanContractiD();
+            return $loanContract->getLoanContractiD();
         }
 
         /**
@@ -187,7 +184,7 @@ namespace Stark {
         {
             $loanedEquipmentMapper = new LoanedEquipmentMapper();
 
-            foreach ($equipmentIds as $i => $equipmentId) {
+            foreach ($equipmentIds as $equipmentId) {
                 try {
                     $loanedEquipment = $loanedEquipmentMapper->createLoanedEquipment($loanContractId, $equipmentId);
 
