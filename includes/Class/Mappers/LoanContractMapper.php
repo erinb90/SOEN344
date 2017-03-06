@@ -61,7 +61,15 @@ namespace Stark\Mappers
          */
         public function findByReservationId($reservationid)
         {
-            return $this->getModel($this->getTdg()->findByReservationId($reservationid)[0]);
+            $loanContractArray = $this->getTdg()->findByReservationId($reservationid)[0];
+            if(!isset($loanContract)){
+                $loanContract = new LoanContract();
+                $loanContract->setLoanContractiD($loanContractArray['LoanContractId']);
+                $loanContract->setReservationId($loanContractArray['ReservationId']);
+                return $loanContract;
+            }
+
+            return $loanContract;
         }
 
         /**

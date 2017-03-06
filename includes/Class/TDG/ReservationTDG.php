@@ -63,7 +63,8 @@ namespace Stark\TDG
                         "Starttime" => $object->getStartTimeDate(),
                         "Endtime" => $object->getEndTimeDate(),
                         "CreatedOn" => date('Y-m-d H:i:s'),
-                        "Title" => $object->getTitle()
+                        "Title" => $object->getTitle(),
+                        "Waiting" => $object->isIsWaited()
                     ]
                 );
 

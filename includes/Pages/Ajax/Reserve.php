@@ -30,6 +30,7 @@ if (!empty($timeValidationErrors)) {
 }
 
 // TODO : Fix remaining old code to work with new reservation session
+// TODO : Prevent user from creating duplicate reservations (even if waitlisted)
 // Create reservation session
 $ReservationSession = new CreateReservationSession(
     $user,
@@ -62,10 +63,29 @@ if ($ReservationSession->reserve()) {
     </script>
     <?php
 
-} else if (count($ReservationSession->getConflicts()) > 0) {
-    // TODO : Refactor
+} else if (count($ReservationSession->getErrors()) > 0) {
+    $conflicts = $ReservationSession->getErrors();
+    ?>
+    <div id="successReservation">
+        <div class="alert alert-success">
+            Your reservation has been wait listed due to conflicts!
+        </div>
+    </div>
+    <script>
+        $(function () {
+
+            $('#myModal').dialog("destroy");
+
+            $('#successReservation').dialog({
+                title: 'Waitlist',
+                width: 400
+            });
+        })
+
+    </script>
+    <?php
     exit;
-    $conflicts = $ReservationSession->getConflicts();
+    // TODO : Refactor
     ?>
     <script>
         $(function () {
