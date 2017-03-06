@@ -10,7 +10,7 @@ use Stark\WebUser;
 $RoomDirectory = new RoomDirectory();
 
 
-$Wailist= new \Stark\Waitlist(1, "2017-03-05 15:00:00", "2017-03-05 17:00:00");
+$Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
 print_r($Wailist->getWaitlistedReservations());
 
 print_r($Wailist->getNextReservationWaiting());

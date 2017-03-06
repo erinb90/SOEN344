@@ -102,7 +102,7 @@ namespace Stark
          */
         private function sortReservations()
         {
-            krsort($this->_reservations);
+            ksort($this->_reservations);
         }
 
         /**
