@@ -49,11 +49,6 @@ class Utilities
      */
     public static function getDateRepeats($startTime, $endTime, $repeats = 0)
     {
-
-        $dates[]  = [
-            "start" => $startTime,
-            "end" => $endTime
-        ];
         for($i = 0; $i <= $repeats -1; $i++)
         {
 

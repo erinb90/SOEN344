@@ -99,7 +99,7 @@ class ReservationManager
 
             // Filter out active reservations
             if (!$reservation->isIsWaited()) {
-                array_push($activeReservations, $reservation);
+                $activeReservations[] = $reservation;
             }
         }
 
@@ -132,7 +132,7 @@ class ReservationManager
 
             // Filter out active reservations
             if (!$reservation->isIsWaited()) {
-                array_push($activeReservations, $reservation);
+                $activeReservations[] = $reservation;
             }
         }
 
@@ -184,14 +184,14 @@ class ReservationManager
             ) {
                 if ($roomId == $activeReservation->getRoomId()) {
                     $reservationConflict = new ReservationConflict($activeReservation, "Overlapping start time.");
-                    array_push($conflictingReservations, $reservationConflict);
+                    $conflictingReservations[] = $reservationConflict;
                 }
 
                 if ($hasEquipment) {
                     $conflictingEquipmentReservations = $this->checkForEquipmentConflictsPendingReservation($equipmentIds, $activeReservation);
                     if (!empty($conflictingEquipmentReservations)) {
                         foreach ($conflictingEquipmentReservations as $conflictingEquipmentReservation){
-                            array_push($conflictingReservations, $conflictingEquipmentReservation);
+                            $conflictingReservations[] = $conflictingEquipmentReservation;
                         }
                     }
                 }
@@ -201,14 +201,14 @@ class ReservationManager
             ) {
                 if ($roomId == $activeReservation->getRoomId()) {
                     $reservationConflict = new ReservationConflict($activeReservation, "Overlapping end time.");
-                    array_push($conflictingReservations, $reservationConflict);
+                    $conflictingReservations[] = $reservationConflict;
                 }
 
                 if ($hasEquipment) {
                     $conflictingEquipmentReservations = $this->checkForEquipmentConflictsPendingReservation($equipmentIds, $activeReservation);
                     if (!empty($conflictingEquipmentReservations)) {
                         foreach ($conflictingEquipmentReservations as $conflictingEquipmentReservation){
-                            array_push($conflictingReservations, $conflictingEquipmentReservation);
+                            $conflictingReservations[] = $conflictingEquipmentReservation;
                         }
                     }
                 }
@@ -218,14 +218,14 @@ class ReservationManager
             ) {
                 if ($roomId == $activeReservation->getRoomId()) {
                     $reservationConflict = new ReservationConflict($activeReservation, "Overlapping reservation times.");
-                    array_push($conflictingReservations, $reservationConflict);
+                    $conflictingReservations[] = $reservationConflict;
                 }
 
                 if ($hasEquipment) {
                     $conflictingEquipmentReservations = $this->checkForEquipmentConflictsPendingReservation($equipmentIds, $activeReservation);
                     if (!empty($conflictingEquipmentReservations)) {
                         foreach ($conflictingEquipmentReservations as $conflictingEquipmentReservation){
-                            array_push($conflictingReservations, $conflictingEquipmentReservation);
+                            $conflictingReservations[] = $conflictingEquipmentReservation;
                         }
                     }
                 }
@@ -264,14 +264,14 @@ class ReservationManager
             ) {
                 if ($currentReservation->getRoomId() == $activeReservation->getRoomId()) {
                     $reservationConflict = new ReservationConflict($activeReservation, "Overlapping start time.");
-                    array_push($conflictingReservations, $reservationConflict);
+                    $conflictingReservations[] = $reservationConflict;
                 }
 
                 if ($hasEquipment) {
                     $conflictingEquipmentReservations = $this->checkForEquipmentConflicts($equipments, $activeReservation);
                     if (!empty($conflictingEquipmentReservations)) {
                         foreach ($conflictingEquipmentReservations as $conflictingEquipmentReservation){
-                            array_push($conflictingReservations, $conflictingEquipmentReservation);
+                            $conflictingReservations[] = $conflictingEquipmentReservation;
                         }
                     }
                 }
@@ -281,14 +281,14 @@ class ReservationManager
             ) {
                 if ($currentReservation->getRoomId() == $activeReservation->getRoomId()) {
                     $reservationConflict = new ReservationConflict($activeReservation, "Overlapping end time.");
-                    array_push($conflictingReservations, $reservationConflict);
+                    $conflictingReservations[] = $reservationConflict;
                 }
 
                 if ($hasEquipment) {
                     $conflictingEquipmentReservations = $this->checkForEquipmentConflicts($equipments, $activeReservation);
                     if (!empty($conflictingEquipmentReservations)) {
                         foreach ($conflictingEquipmentReservations as $conflictingEquipmentReservation){
-                            array_push($conflictingReservations, $conflictingEquipmentReservation);
+                            $conflictingReservations[] = $conflictingEquipmentReservation;
                         }
                     }
                 }
@@ -298,14 +298,14 @@ class ReservationManager
             ) {
                 if ($currentReservation->getRoomId() == $activeReservation->getRoomId()) {
                     $reservationConflict = new ReservationConflict($activeReservation, "Overlapping reservation times.");
-                    array_push($conflictingReservations, $reservationConflict);
+                    $conflictingReservations[] = $reservationConflict;
                 }
 
                 if ($hasEquipment) {
                     $conflictingEquipmentReservations = $this->checkForEquipmentConflicts($equipments, $activeReservation);
                     if (!empty($conflictingEquipmentReservations)) {
                         foreach ($conflictingEquipmentReservations as $conflictingEquipmentReservation){
-                            array_push($conflictingReservations, $conflictingEquipmentReservation);
+                            $conflictingReservations[] = $conflictingEquipmentReservation;
                         }
                     }
                 }
@@ -340,7 +340,7 @@ class ReservationManager
                 if ($equipmentId == $equipmentForActiveReservation->getEquipmentId()) {
                     $conflictingEquipmentReservation = new ReservationConflict($activeReservation, "Conflict with equipment Id: "
                         . $equipmentId);
-                    array_push($conflictingEquipmentReservations, $conflictingEquipmentReservation);
+                    $conflictingEquipmentReservations[] = $conflictingEquipmentReservation;
                 }
             }
         }
@@ -373,7 +373,7 @@ class ReservationManager
                 if ($equipmentForCurrentReservation->getEquipmentId() == $equipmentForActiveReservation->getEquipmentId()) {
                     $conflictingEquipmentReservation = new ReservationConflict($activeReservation, "Conflict with equipment Id: "
                         . $equipmentForCurrentReservation->getEquipmentId());
-                    array_push($conflictingEquipmentReservations, $conflictingEquipmentReservation);
+                    $conflictingEquipmentReservations[] = $conflictingEquipmentReservation;
                     break;
                 }
             }

@@ -95,8 +95,14 @@ namespace Stark {
          */
         public function reserve()
         {
-            // TODO: Validate max 3 repeats as per requirements
             $repeatedDates = Utilities::getDateRepeats($this->_startTimeDate, $this->_endTimeDate, $this->_repeats);
+            $maxRepeats = CoreConfig::settings()['reservations']['max_repeats'];
+            if(isset($maxRepeats)){
+                if(count($repeatedDates) > 3){
+                    $this->setError("Cannot repeat reservation more than 3 times.");
+                    return false;
+                }
+            }
 
             $isWaiting = !$this->validateRepeats($repeatedDates);
 
@@ -151,7 +157,7 @@ namespace Stark {
                 $reservationConflicts = $this->_reservationManager
                     ->checkForConflictsPendingReservation($this->_roomId, $startTimeDate, $endTimeDate, $this->_equipmentIds);
                 foreach ($reservationConflicts as $reservationConflict) {
-                    array_push($this->_errors, $reservationConflict->getReasonForConflict());
+                    $this->_errors[] = $reservationConflict->getReasonForConflict();
                 }
             }
 
