@@ -38,10 +38,10 @@ namespace Stark\TDG
             $lastId = -1;
             try
             {
-                Registry::getConnection()->insert($this->getParentTable(),
+                Registry::getConnection()->insert($this->getTable(),
                     [
-                        "EquipmentId" => $object->getEquipmentId(),
-                        "Quantity"    => $object->getQuantity()
+                        "LoanContractId" => $object->getLoanContractId(),
+                        "EquipmentId" => $object->getEquipmentId()
                     ]
                 );
 

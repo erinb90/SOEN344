@@ -6,8 +6,7 @@
  * Time: 1:27 AM
  */
 
-namespace Stark\Models
-{
+namespace Stark\Models {
 
 
     use Stark\Interfaces\DomainObject;
@@ -18,7 +17,6 @@ namespace Stark\Models
      */
     class User implements DomainObject
     {
-
         /**
          * @var
          */
@@ -61,7 +59,6 @@ namespace Stark\Models
         {
             return $this->_UserId;
         }
-
 
         /**
          * @return mixed
@@ -119,8 +116,6 @@ namespace Stark\Models
             $this->_StudentId = $StudentId;
         }
 
-
-
         /**
          * @return mixed
          */
@@ -168,7 +163,5 @@ namespace Stark\Models
         {
             $this->_CapstoneStudent = $CapstoneStudent;
         }
-
-
     }
 }

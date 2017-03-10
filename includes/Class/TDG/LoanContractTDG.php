@@ -36,13 +36,14 @@ namespace Stark\TDG
             $lastId = -1;
             try
             {
-                Registry::getConnection()->insert($this->getParentTable(),
+                Registry::getConnection()->insert($this->getTable(),
                     [
                         "ReservationId" => $object->getReservationId()
                     ]
                 );
 
                 $lastId = Registry::getConnection()->lastInsertId();
+                $object->setLoanContractiD($lastId);
                 Registry::getConnection()->commit();
 
             }

@@ -2,36 +2,46 @@
 session_start();
 require_once($_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php');
 
-
-print_r($_REQUEST);
-
-exit;
-
-//THE STUFF BELOW IS FROM OLD PROJECT. NEEDS UPDATING
 use Stark\CreateReservationSession;
 
-$date = $_REQUEST['rDate'];
-$startTime = $_REQUEST['startTime'];
-$endTime = $_REQUEST['endTime'];
-$roomid = $_REQUEST['roomID'];
-$description = $_REQUEST['description'];
-$title = $_REQUEST['title'];
-$repeats = $_REQUEST['repeatReservation'];
+// Parse incoming request and extract query parameters
+$requestParameters = [];
+parse_str($_REQUEST['formData'], $requestParameters);
+$equipmentIds = json_decode($_REQUEST['equipment']);
 
+$userMapper = new \Stark\Mappers\UserMapper();
+$email = $_SESSION['email'];
+$user = $userMapper->findByEmail(trim($email));
 
-$ReservationCreator = new CreateReservationSession(
-    \Stark\WebUser::getUser(),
-    $roomid,
-    $title,
-    $description,
-    $date,
-    $startTime,
-    $endTime,
-    $repeats);
+// TODO : Perform time sanitizing using regex
+$startTimeDateAsString = $requestParameters['rDate'] . " " . $requestParameters['startTime'] . ":00";
+$startTimeDate = date("Y-m-d H:i:s", strtotime($startTimeDateAsString));
 
+$endTimeDateAsString = $requestParameters['rDate'] . " " . $requestParameters['endTime'] . ":00";
+$endTimeDate = date("Y-m-d H:i:s", strtotime($endTimeDateAsString));
 
-if ($ReservationCreator->reserve())
-{
+$timeValidationErrors = \Stark\TimeValidator::validate($startTimeDate, $endTimeDate)->getErrors();
+
+if (!empty($timeValidationErrors)) {
+    foreach ($timeValidationErrors as $error) {
+        echo $error;
+    }
+    return;
+}
+
+// TODO : Fix remaining old code to work with new reservation session
+// TODO : Prevent user from creating duplicate reservations (even if waitlisted)
+// Create reservation session
+$ReservationSession = new CreateReservationSession(
+    $user,
+    $requestParameters['roomID'],
+    $startTimeDate,
+    $endTimeDate,
+    $requestParameters['title'],
+    $requestParameters['repeatReservation'],
+    $equipmentIds);
+
+if ($ReservationSession->reserve()) {
     ?>
     <div id="successReservation">
         <div class="alert alert-success">
@@ -40,8 +50,7 @@ if ($ReservationCreator->reserve())
     </div>
     <script>
 
-        $(function ()
-        {
+        $(function () {
 
             $('#myModal').dialog("destroy");
 
@@ -54,43 +63,56 @@ if ($ReservationCreator->reserve())
     </script>
     <?php
 
-}
-else if (count($ReservationCreator->getConflicts()) > 0)
-{
+} else if (count($ReservationSession->getErrors()) > 0) {
+    $conflicts = $ReservationSession->getErrors();
+    ?>
+    <div id="successReservation">
+        <div class="alert alert-success">
+            Your reservation has been wait listed due to conflicts!
+        </div>
+    </div>
+    <script>
+        $(function () {
 
-    $conflicts = $ReservationCreator->getConflicts();
+            $('#myModal').dialog("destroy");
+
+            $('#successReservation').dialog({
+                title: 'Waitlist',
+                width: 400
+            });
+        })
+
+    </script>
+    <?php
+    exit;
+    // TODO : Refactor
     ?>
     <script>
-        $(function ()
-        {
+        $(function () {
             $('#conflictResolutionContainer').dialog({
-                width  : 800,
-                height : 550,
-                title  : "Conflict Resolution",
-                modal  : true,
+                width: 800,
+                height: 550,
+                title: "Conflict Resolution",
+                modal: true,
                 buttons: {
-                    "Save": function ()
-                    {
+                    "Save": function () {
 
                         var reid = $("input[name='conflict']:checked").val();
 
-                        if (!reid || reid === undefined)
-                        {
+                        if (!reid || reid === undefined) {
                             return;
                         }
 
 
                         $.ajax({
-                            url    : 'CreateWaitlist.php',
-                            data   : {
+                            url: 'CreateWaitlist.php',
+                            data: {
                                 reid: reid,
                             },
-                            error  : function ()
-                            {
+                            error: function () {
                                 $('#conflictResolutionMessage').html("An unknown error occurred");
                             },
-                            success: function (data)
-                            {
+                            success: function (data) {
                                 $('#conflictResolutionMessage').html(data);
                             }
                         });
@@ -98,8 +120,7 @@ else if (count($ReservationCreator->getConflicts()) > 0)
 
 
                 },
-                Close  : function ()
-                {
+                Close: function () {
                     $('#reservationContainerMessage').dialog('destroy');
                 }
             })
@@ -108,7 +129,8 @@ else if (count($ReservationCreator->getConflicts()) > 0)
 
     <div id="conflictResolutionContainer" style="display: none;">
         <p class="text-center text-danger">Conflicts Found!</p>
-        If you wish to put yourself on a waiting list for the reservations below, click on the appropriate reservation and click on "Save".
+        If you wish to put yourself on a waiting list for the reservations below, click on the appropriate reservation
+        and click on "Save".
         <div>
             <table class="table">
                 <thead>
@@ -127,8 +149,7 @@ else if (count($ReservationCreator->getConflicts()) > 0)
                  * @var $Reservation ReservationDomain
                  *
                  */
-                foreach ($conflicts as $reid => $Reservation)
-                {
+                foreach ($conflicts as $reid => $Reservation) {
                     $UserMapper = new StudentMapper();
                     /**
                      * @var StudentDomain $User
@@ -160,16 +181,13 @@ else if (count($ReservationCreator->getConflicts()) > 0)
     <?php
 
 
-}
-else
-{
-    $errors = $ReservationCreator->getErrors();
+} else {
+    $errors = $ReservationSession->getErrors();
     ?>
     <div class="alert alert-danger">
         <?php
         $msg .= "<ul>";
-        foreach ($errors as $error)
-        {
+        foreach ($errors as $error) {
             $msg .= '<li>' . $error . '</li>';
         }
         $msg .= "</ul>";

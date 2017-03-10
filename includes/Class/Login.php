@@ -1,6 +1,5 @@
 <?php
-namespace Stark
-{
+namespace Stark {
 
     use Stark\Mappers\UserMapper;
 
@@ -9,7 +8,6 @@ namespace Stark
      */
     class Login
     {
-
         /**
          * @var array credentials
          */
@@ -18,12 +16,18 @@ namespace Stark
         /**
          * @var array error messages
          */
-        protected $_error_messages;
+        protected $_errorMessages;
 
         /**
-         * @var int user id
+         * @var PasswordHash to validate password
          */
-        private $_userId;
+        private $_passwordHash;
+
+        /**
+         * @var UserMapper to create user object
+         */
+        private $_userMapper;
+
 
         /**
          * Login constructor.
@@ -32,79 +36,95 @@ namespace Stark
          */
         public function __construct(array $credentials)
         {
-
-            // initialize credentials
-            $this->_credentials = [
-                'email'    => "",
-                'password' => ""
-            ];
-
-            if ($credentials)
-            {
-                /* union of $credentials + $this->_credentials */
-                $this->_credentials = $credentials + $this->_credentials;
-            }
+            $this->_credentials = $credentials;
+            $this->_errorMessages = [];
+            $this->_passwordHash = new PasswordHash(8, FALSE);
+            $this->_userMapper = new UserMapper();
         }
 
         /**
-         * @return bool returns true if user credentials match db credentials
-         */
-        public function checkUser()
-        {
-            $UserMapper = new UserMapper();
-
-            /**
-             * @var \Stark\Models\User $User
-             */
-            $User = $UserMapper->findByEmail(trim($this->_credentials["email"]));
-
-            if ($User)
-            {
-                $PasswordHash = new PasswordHash(8, FALSE); // hash the password
-
-
-                $stored = $User->getPassword();
-
-
-                $this->_userId = $User->getUserId();
-                // compare given password with stored password
-                if (!$PasswordHash->CheckPassword($this->_credentials['password'], $stored))
-                {
-                    $this->_error_messages[] = "Username or password incorrect.";
-                }
-            }
-            else
-            {
-                $this->_error_messages[] = "Username or password incorrect.";
-            }
-        }
-
-        /**
-         * @return mixed
+         * @return array of errors during login process
          */
         public function getErrors()
         {
-            return $this->_error_messages;
+            return $this->_errorMessages;
         }
 
         /**
-         * @return bool returns true if successful login
+         * Fetches an existing user using their email
+         *
+         * @param string $email of the user
+         *
+         * @return \Stark\Models\User $User or null if the user does not exist
+         */
+        private function fetchUser($email)
+        {
+            if (!isset($this->_credentials)) {
+                $this->_errorMessages[] = "Empty credentials.";
+                return null;
+            }
+
+            if (!isset($this->_credentials["email"])) {
+                $this->_errorMessages[] = "Empty email";
+                return null;
+            }
+
+            $inputPassword = $this->_credentials["password"];
+            if (!isset($this->_credentials["password"])) {
+                $this->_errorMessages[] = "Empty password";
+                return null;
+            }
+
+            $user = $this->_userMapper->findByEmail(trim($email));
+
+            if (!isset($user)) {
+                $this->_errorMessages[] = "User does not exist.";
+                return null;
+            }
+
+            $isValidPassword = $this->validatePassword($inputPassword, $user->getPassword());
+
+            if ($isValidPassword) {
+                return $user;
+            }
+
+            return null;
+        }
+
+        /**
+         * Validates input password against stored user password.
+         *
+         * @param string $inputPassword from the login form
+         * @param string $storedPassword of the user from the database
+         *
+         * @return boolean if input password matches stored user password
+         */
+        private function validatePassword($inputPassword, $storedPassword)
+        {
+            if (!$this->_passwordHash->CheckPassword($inputPassword, $storedPassword)) {
+                $this->_errorMessages[] = "Password invalid.";
+                return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * @return boolean returns true if successful login
          */
         public function login()
         {
-            $this->checkUser();
-            if (empty($this->_error_messages))
-            {
+            $user = $this->fetchUser($this->_credentials["email"]);
+            if (empty($this->_error_messages)) {
                 session_start();
-                @session_regenerate_id(TRUE);
-                $_SESSION['email'] = $this->_credentials['email'];
-                $_SESSION['sid'] = $this->_userId;
-
-                return TRUE;
+                @session_regenerate_id(true);
+                $_SESSION['email'] = $user->getUserName();
+                $_SESSION['sid'] = $user->getStudentId();
+                WebUser::setUser($user);
+                return true;
             }
 
-            return FALSE;
-
+            return false;
         }
     }
 }
