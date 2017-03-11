@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php';
 
 use Stark\EquipmentFinder;
@@ -12,7 +13,7 @@ $RoomDirectory = new RoomDirectory();
 $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
 print_r($Wailist->getWaitlistedReservations());
 
-print_r($Wailist->getNextReservationWaiting());
+print_r($Wailist->getNextReservationsWaiting());
 
 ?>
 <!DOCTYPE html>
@@ -381,13 +382,13 @@ print_r($Wailist->getNextReservationWaiting());
 
                 computersListTable.rows('.selected').every( function ( rowIdx, tableLoop, rowLoop ) {
                     var data = this.data();
-                    equipment.push(data.EquipmentId);
+                    equipment.push([data.EquipmentId, 'c']);
 
                 } );
 
                 projectorsListTable.rows('.selected').every( function ( rowIdx, tableLoop, rowLoop ) {
                     var data = this.data();
-                    equipment.push(data.EquipmentId);
+                    equipment.push([data.EquipmentId , 'p']);
 
                 } );
 
@@ -690,9 +691,6 @@ print_r($Wailist->getNextReservationWaiting());
 
                                         <label for="repeatReservation">Repeat Reservation for:</label>
                                         <select id="repeatReservation" name="repeatReservation">
-                                            <option value="0">
-                                                No Repeat
-                                            </option>
                                             <option value="1">1 Week</option>
                                             <option value="2">2 Weeks</option>
                                             <option value="3">3 Weeks</option>

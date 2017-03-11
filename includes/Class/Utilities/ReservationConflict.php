@@ -2,30 +2,36 @@
 
 namespace Stark\Utilities;
 
+use Stark\Models\LoanedEquipment;
 use Stark\Models\Reservation;
 
 class ReservationConflict
 {
     /**
-     * @var Reservation $_reservation that is causing the conflict
+     * @var Reservation $_reservation that is causing the conflict.
      */
     private $_reservation;
 
     /**
-     * @var string $_reasonForConflict
+     * @var LoanedEquipment[] $_equipments that are causing conflicts (optional).
      */
-    private $_reasonForConflict;
+    private $_equipments;
+
+    /**
+     * @var \DateTime[] $_times that are causing conflicts with the reservation.
+     */
+    private $_dateTimes;
 
     /**
      * ReservationConflict constructor.
      *
      * @param Reservation $reservation that is causing the conflict
-     * @param string $reasonForConflict
      */
-    public function __construct($reservation, $reasonForConflict)
+    public function __construct($reservation)
     {
         $this->_reservation = $reservation;
-        $this->_reasonForConflict = $reasonForConflict;
+        $this->_equipments = [];
+        $this->_dateTimes = [];
     }
 
     /**
@@ -37,10 +43,38 @@ class ReservationConflict
     }
 
     /**
-     * @return string
+     * @return LoanedEquipment[] that are causing conflicts
      */
-    public function getReasonForConflict()
+    public function getEquipments()
     {
-        return $this->_reasonForConflict;
+        return $this->_equipments;
+    }
+
+    /**
+     * @param LoanedEquipment $equipment that is causing a conflict
+     *
+     * @return void
+     */
+    public function addEquipment($equipment)
+    {
+        $this->_equipments[] =  $equipment;
+    }
+
+    /**
+     * @return \DateTime[] that are causing conflicts
+     */
+    public function getDateTimes()
+    {
+        return $this->_dateTimes;
+    }
+
+    /**
+     * @param \DateTime $dateTime that is causing a conflict
+     *
+     * @return void
+     */
+    public function addDateTime($dateTime)
+    {
+        $this->_dateTimes[] = $dateTime;
     }
 }

@@ -83,8 +83,7 @@ namespace Stark\TDG
                 Registry::getConnection()->update(
                     $this->getTable(),
                     [
-                        "EquipmentId" => $object->getEquipmentId(),
-                        "Quantity"    => $object->getQuantity()
+                        "EquipmentId" => $object->getEquipmentId()
                     ],
                     [$this->getPk() => $object->getLoanContractId()]
                 );

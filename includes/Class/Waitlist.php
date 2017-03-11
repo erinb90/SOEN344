@@ -45,10 +45,6 @@ namespace Stark
             $this->_endTime = $endTime;
 
             $this->_ReservationMapper = new ReservationMapper();
-
-            // find all reservations bounded by this time slot
-            $this->findSamereservationTimes();
-            $this->sortReservations();
         }
 
         /**
@@ -57,8 +53,7 @@ namespace Stark
         //Todo: should refactor this into a separate class that finds reservations between timeslots. This is used a lot throughout application
         private function findSamereservationTimes()
         {
-            $ReservationMapper = new ReservationMapper();
-            $reservations = $ReservationMapper->findAllWaitlisted();
+            $reservations = $this->_ReservationMapper->findAllWaitlisted();
             $start = strtotime($this->_startTime);
             $end = strtotime($this->_endTime);
 
@@ -69,32 +64,24 @@ namespace Stark
             foreach ($reservations as $Reservation)
             {
 
-                if($Reservation->getRoomId() == $this->_RoomId)
+                $startTime = strtotime($Reservation->getStartTimeDate());
+                $endTime = strtotime($Reservation->getEndTimeDate());
+                // was the start time of current reservation between the conflicted start and end time period?
+                if ($start >= $startTime && $start < $endTime)
                 {
-                    $startTime = strtotime($Reservation->getStartTimeDate());
-                    $endTime = strtotime($Reservation->getEndTimeDate());
-                    // was the start time of current reservation between the conflicted start and end time period?
-                    if ($start >= $startTime && $start < $endTime)
-                    {
-                        $this->_reservations[$Reservation->getReservationID()] = $Reservation;
-                    }
-                    // was the end time of current reservation between the conflicted start and end time period?
-                    if ($end > $startTime && $end <= $endTime)
-                    {
-                        $this->_reservations[$Reservation->getReservationID()] = $Reservation;
-                    }
-                    // is the current reservation start time less than the one reserved and is the end time of the one reserved less than the current end time
-                    if ($startTime >= $start && $end >= $endTime)
-                    {
-                        $this->_reservations[$Reservation->getReservationID()] = $Reservation;
-                    }
+                    $this->_reservations[$Reservation->getReservationID()] = $Reservation;
                 }
-
-
+                // was the end time of current reservation between the conflicted start and end time period?
+                if ($end > $startTime && $end <= $endTime)
+                {
+                    $this->_reservations[$Reservation->getReservationID()] = $Reservation;
+                }
+                // is the current reservation start time less than the one reserved and is the end time of the one reserved less than the current end time
+                if ($startTime >= $start && $end >= $endTime)
+                {
+                    $this->_reservations[$Reservation->getReservationID()] = $Reservation;
+                }
             }
-
-
-
         }
 
         /**
@@ -117,10 +104,14 @@ namespace Stark
 
         /**
          * Returns the next student in line for a reservation based on the time slot
-         * @return Reservation|null
+         * @return Reservation[]|null
          */
-        public function getNextReservationWaiting()
+        public function getNextReservationsWaiting()
         {
+            // find all reservations bounded by this time slot
+            $this->findSamereservationTimes();
+            $this->sortReservations();
+
             if(empty($this->getWaitlistedReservations()))
                 return null;
 
@@ -157,13 +148,10 @@ namespace Stark
             // if capstone students were found, return first one in list
             if(!empty($capstoneStudentsReservation))
             {
-                return $capstoneStudentsReservation[0];
+                return array_merge($capstoneStudentsReservation, $regularStudentsReservation);
             }
 
-            // if no capstone students were found, return first one in list
-            return $regularStudentsReservation[0];
-
+            return $regularStudentsReservation;
         }
-
     }
 }

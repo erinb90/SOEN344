@@ -3,6 +3,7 @@ error_reporting(E_ALL ^ E_NOTICE);
 require $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 
 use Stark\CoreConfig;
+use Stark\Mappers\UserMapper;
 use Stark\Registry;
 use Stark\Mappers\StudentMapper;
 use Stark\WebUser;
@@ -34,13 +35,15 @@ $applicationAspectKernel->init(array(
 
 // SET USER INFORMATION
 if (!empty($_SESSION) && isset($_SESSION['sid'])) {
-    $StudentMapper = new \Stark\Mappers\UserMapper();
+    $StudentMapper = new UserMapper();
 
     // TODO : Cast to User object?
     $user = $StudentMapper->findByPk($_SESSION['sid']);
-    if($user != null){
-        WebUser::setUser($user);
+    if($user == null){
+        $user= $StudentMapper->findByEmail($_SESSION['email']);
     }
+
+    WebUser::setUser($user);
 }
 
 

@@ -47,8 +47,9 @@ class Utilities
      *
      * @return array returns an array of dates based on the original date
      */
-    public static function getDateRepeats($startTime, $endTime, $repeats = 0)
+    public static function getDateRepeats($startTime, $endTime, $repeats = 1)
     {
+        $dates = [];
         for($i = 0; $i <= $repeats -1; $i++)
         {
 

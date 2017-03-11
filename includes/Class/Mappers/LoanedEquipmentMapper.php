@@ -83,7 +83,6 @@ namespace Stark\Mappers
             $LoanedEquipment = new LoanedEquipment();
             $LoanedEquipment->setEquipmentId($data['EquipmentId']);
             $LoanedEquipment->setLoanContractId($data['LoanContractId']);
-            $LoanedEquipment->setQuantity($data['Quantity']);
 
             return $LoanedEquipment;
 
@@ -102,8 +101,6 @@ namespace Stark\Mappers
             $LoanedEquipment = new LoanedEquipment();
             $LoanedEquipment->setLoanContractId($loanContractId);
             $LoanedEquipment->setEquipmentId($equipmentId);
-            // TODO : Remove quantity from database tables
-            $LoanedEquipment->setQuantity(1);
             return $LoanedEquipment;
         }
     }

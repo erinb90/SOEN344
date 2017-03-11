@@ -84,6 +84,7 @@ namespace Stark\Mappers
             $Projector->setDescription($data['Description']);
             $Projector->setManufacturer($data['Manufacturer']);
             $Projector->setProductLine($data['ProductLine']);
+            $Projector->setDiscriminator($data['discrim']);
 
             return $Projector;
         }

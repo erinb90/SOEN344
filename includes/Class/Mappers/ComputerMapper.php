@@ -86,6 +86,7 @@ namespace Stark\Mappers
             $Computer->setDescription($data['Description']);
             $Computer->setManufacturer($data['Manufacturer']);
             $Computer->setProductLine($data['ProductLine']);
+            $Computer->setDiscriminator($data['discrim']);
 
             return $Computer;
 

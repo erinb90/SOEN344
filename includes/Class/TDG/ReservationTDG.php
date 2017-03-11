@@ -46,6 +46,20 @@ namespace Stark\TDG
         }
 
         /**
+         * @return array
+         */
+        public function findAllActive()
+        {
+            $query = Registry::getConnection()->createQueryBuilder();
+            $query->select("*");
+            $query->from($this->getTable());
+            $query->where("Waiting" . "=" . 0);
+            $sth = $query->execute();
+            $m = $sth->fetchAll();
+            return $m;
+        }
+
+        /**
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\Reservation $object
          *
          * @return int returns the last inserted id
