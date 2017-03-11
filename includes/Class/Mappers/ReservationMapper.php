@@ -10,9 +10,7 @@ namespace Stark\Mappers
 
 
     /**
-     * Mapper for Reservation objects
-     * Interacts with the ReservationTDG to retrieve and manipulate Reservation objects from DB
-     *
+     * Class ReservationMapper
      * @package Stark\Mappers
      */
     class ReservationMapper extends AbstractMapper
@@ -42,22 +40,20 @@ namespace Stark\Mappers
         }
 
         /**
-         * Retrieve all reservations matching a given userId
-         *
          * @param $userid
          *
          * @return array
          */
         public function findAllStudentReservations($userid)
         {
-            $dbEntries = $this->getTdg()->findAllStudentReservations($userid);
-            $reservations = [];
-            foreach ($dbEntries as $row)
+            $m = $this->getTdg()->findAllStudentReservations($userid);
+            $objects = [];
+            foreach ($m as $row)
             {
-                $reservations[] = $this->getModel($row);
+                $objects[] = $this->getModel($row);
             }
 
-            return $reservations;
+            return $objects;
         }
 
         /**
@@ -66,7 +62,6 @@ namespace Stark\Mappers
          * @param $uid int user id
          *
          * @return int number of reservation made
-         * TODO: do we use this method anywhere? do we need it?
          */
         public function numberOfReservationsMadeWeekUser($date, $uid)
         {
@@ -94,8 +89,6 @@ namespace Stark\Mappers
 
 
         /**
-         * Instantiates a new Reservation object
-         *
          * @param $userId
          * @param $roomId
          * @param $startTime
@@ -119,25 +112,36 @@ namespace Stark\Mappers
         }
 
         /**
-         * Retrieves all waitlisted reservations from DB
-         *
          * @return array
          */
         public function findAllWaitlisted()
         {
-            $dbEntries = $this->getTdg()->findAllWaitlisted();
-            $waitlistedReservations = [];
-            foreach ($dbEntries as $row)
+            $m = $this->getTdg()->findAllWaitlisted();
+            $objects = [];
+            foreach ($m as $row)
             {
-                $waitlistedReservations[] = $this->getModel($row);
+                $objects[] = $this->getModel($row);
             }
 
-            return $waitlistedReservations;
+            return $objects;
         }
 
         /**
-         * Creates a Reservation object from a DB entry
-         *
+         * @return array
+         */
+        public function findAllActive()
+        {
+            $m = $this->getTdg()->findAllActive();
+            $objects = [];
+            foreach ($m as $row)
+            {
+                $objects[] = $this->getModel($row);
+            }
+
+            return $objects;
+        }
+
+        /**
          * @param $data array data retrieve from the tdg
          *
          * @return Reservation returns a fully-dressed object
@@ -157,6 +161,8 @@ namespace Stark\Mappers
             $Reservation->setTitle($data['Title']);
             $Reservation->setUserId($data['UserId']);
             $Reservation->setIsWaited($data["Waiting"]);
+
+
 
             return $Reservation;
         }

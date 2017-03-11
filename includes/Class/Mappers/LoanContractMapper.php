@@ -8,9 +8,7 @@ namespace Stark\Mappers
     use Stark\TDG\LoanContractTDG;
 
     /**
-     * Mapper for LoanContract objects
-     * Interacts with the LoanContractTDG to retrieve and manipulate LoanContract objects from DB
-     *
+     * Class LoanContractMapper
      * @package Stark\Mappers
      */
     class LoanContractMapper extends AbstractMapper
@@ -36,8 +34,6 @@ namespace Stark\Mappers
         }
 
         /**
-         * Creates a LoanContract object from a DB entry
-         *
          * @param $data array data retrieve from the tdg
          *
          * @return LoanContract returns a fully-dressed object
@@ -58,8 +54,7 @@ namespace Stark\Mappers
         }
 
         /**
-         * Returns a LoanContract object given its ReservationId
-         *
+         * returns LoanContract based on Reservation
          * @param $reservationid
          *
          * @return \Stark\Models\LoanContract
@@ -67,19 +62,21 @@ namespace Stark\Mappers
         public function findByReservationId($reservationid)
         {
             $loanContractArray = $this->getTdg()->findByReservationId($reservationid)[0];
-            if(!isset($loanContract)){
-                return $this->getModel($loanContractArray);
+            if(isset($loanContractArray)){
+                $loanContract = new LoanContract();
+                $loanContract->setLoanContractiD($loanContractArray['LoanContractId']);
+                $loanContract->setReservationId($loanContractArray['ReservationId']);
+                return $loanContract;
             }
 
-            return $loanContract;
+            return null;
         }
 
         /**
-         * Creates a LoanContract object given a reservationId.
-         *
+         * Creates a loan contract with a reservationId.
          * @param int $reservationId The reservationId to associate with the loan contract.
          *
-         * @return \Stark\Models\LoanContract The newly created loan contract.
+         * @return \Stark\Models\LoanContract The newly created loan contract.s
          */
         public function createLoanContract($reservationId)
         {

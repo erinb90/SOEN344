@@ -4,9 +4,7 @@ namespace Stark\Interfaces
 {
 
     /**
-     * Abstract equipment class for equipment classes to inherit from
-     * Contains attributes common to all equipment types along with getters and setters for each one.
-     *
+     * Class Equipment
      * @package Stark\Interfaces
      */
     abstract class Equipment implements DomainObject
@@ -18,21 +16,25 @@ namespace Stark\Interfaces
         private $_EquipmentId;
 
         /**
-         * @var string
+         * @var
          */
         private $_Manufacturer;
 
         /**
-         * @var string
+         * @var
          */
         private $_ProductLine;
 
         /**
-         * @var string
+         * @var
          */
         private $_Description;
 
-
+        /**
+         * @var
+         */
+        private $_Discriminator;
+        
         /**
          * Equipment constructor.
          */
@@ -57,7 +59,7 @@ namespace Stark\Interfaces
         }
 
         /**
-         * @return string
+         * @return mixed
          */
         public function getManufacturer()
         {
@@ -65,7 +67,7 @@ namespace Stark\Interfaces
         }
 
         /**
-         * @param string $Manufacturer
+         * @param mixed $Manufacturer
          */
         public function setManufacturer($Manufacturer)
         {
@@ -73,7 +75,7 @@ namespace Stark\Interfaces
         }
 
         /**
-         * @return string
+         * @return mixed
          */
         public function getProductLine()
         {
@@ -81,7 +83,7 @@ namespace Stark\Interfaces
         }
 
         /**
-         * @param string $ProductLine
+         * @param mixed $ProductLine
          */
         public function setProductLine($ProductLine)
         {
@@ -89,7 +91,7 @@ namespace Stark\Interfaces
         }
 
         /**
-         * @return string
+         * @return mixed
          */
         public function getDescription()
         {
@@ -97,12 +99,27 @@ namespace Stark\Interfaces
         }
 
         /**
-         * @param string $Description
+         * @param mixed $Description
          */
         public function setDescription($Description)
         {
             $this->_Description = $Description;
         }
 
+        /**
+         * @return mixed
+         */
+        public function getDiscriminator()
+        {
+            return $this->_Discriminator;
+        }
+
+        /**
+         * @param mixed $Discriminator
+         */
+        public function setDiscriminator($Discriminator)
+        {
+            $this->_Discriminator = $Discriminator;
+        }
     }
 }
