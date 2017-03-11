@@ -4,7 +4,9 @@ namespace Stark\Interfaces
 {
 
     /**
-     * Class Equipment
+     * Abstract equipment class for equipment classes to inherit from
+     * Contains attributes common to all equipment types along with getters and setters for each one.
+     *
      * @package Stark\Interfaces
      */
     abstract class Equipment implements DomainObject
@@ -16,17 +18,17 @@ namespace Stark\Interfaces
         private $_EquipmentId;
 
         /**
-         * @var
+         * @var string
          */
         private $_Manufacturer;
 
         /**
-         * @var
+         * @var string
          */
         private $_ProductLine;
 
         /**
-         * @var
+         * @var string
          */
         private $_Description;
 
@@ -55,7 +57,7 @@ namespace Stark\Interfaces
         }
 
         /**
-         * @return mixed
+         * @return string
          */
         public function getManufacturer()
         {
@@ -63,7 +65,7 @@ namespace Stark\Interfaces
         }
 
         /**
-         * @param mixed $Manufacturer
+         * @param string $Manufacturer
          */
         public function setManufacturer($Manufacturer)
         {
@@ -71,7 +73,7 @@ namespace Stark\Interfaces
         }
 
         /**
-         * @return mixed
+         * @return string
          */
         public function getProductLine()
         {
@@ -79,7 +81,7 @@ namespace Stark\Interfaces
         }
 
         /**
-         * @param mixed $ProductLine
+         * @param string $ProductLine
          */
         public function setProductLine($ProductLine)
         {
@@ -87,7 +89,7 @@ namespace Stark\Interfaces
         }
 
         /**
-         * @return mixed
+         * @return string
          */
         public function getDescription()
         {
@@ -95,14 +97,12 @@ namespace Stark\Interfaces
         }
 
         /**
-         * @param mixed $Description
+         * @param string $Description
          */
         public function setDescription($Description)
         {
             $this->_Description = $Description;
         }
-
-
 
     }
 }

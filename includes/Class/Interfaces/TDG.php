@@ -6,19 +6,23 @@ namespace Stark\Interfaces
     use Stark\Registry;
 
     /**
-     * Class TDG
+     * Abstract TDG class for all TDG classes to inherit from
+     * Contains methods for making queries to DB
+     *
      * @package Stark\Interfaces
      */
     abstract class TDG implements Gateway
     {
 
         /**
-         * @var
+         * name of the table accessed by TDG
+         * @var string
          */
         private $_table;
 
         /**
-         * @var
+         * name of the primary key of table accessed by TDG
+         * @var string
          */
         private $_pk;
 
@@ -90,6 +94,8 @@ namespace Stark\Interfaces
         }
 
         /**
+         * Insert new object into DB
+         *
          * @param \Stark\Interfaces\DomainObject $object
          *
          * @return int returns the last inserted id
@@ -97,6 +103,8 @@ namespace Stark\Interfaces
         public abstract function insert(DomainObject &$object);
 
         /**
+         * Delete object from DB
+         *
          * @param \Stark\Interfaces\DomainObject $object
          *
          * @return mixed
@@ -104,6 +112,8 @@ namespace Stark\Interfaces
         public abstract function delete(DomainObject &$object);
 
         /**
+         * Modify object in DB
+         *
          * @param \Stark\Interfaces\DomainObject $object
          *
          * @return bool
@@ -111,6 +121,8 @@ namespace Stark\Interfaces
         public abstract function update(DomainObject &$object);
 
         /**
+         * Find an entry in DB by its primary key
+         *
          * @param $id
          *
          * @return array
@@ -121,6 +133,8 @@ namespace Stark\Interfaces
         }
 
         /**
+         * Return all entries for the given table
+         *
          * @return array
          */
         public function findAll()
@@ -129,6 +143,10 @@ namespace Stark\Interfaces
         }
 
         /**
+         * Makes an SQL query in the format:
+         * SELECT (value of $select) WHERE (column value pairs in $where)
+         * See Doctrine DBAL documentation for more details
+         *
          * @param $select
          * @param array $where [column => value]
          *
