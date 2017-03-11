@@ -28,6 +28,16 @@ class EquipmentManager
     }
 
     /**
+     * Gets all available equipment in the system.
+     *
+     * @return Equipment[] of all equipment in the system or empty array if none
+     */
+    public function getAllEquipment()
+    {
+        return $this->_loanedEquipmentMapper->findAll();
+    }
+
+    /**
      * Finds equipment associated with a reservation.
      *
      * @param int $reservationId to query
@@ -53,7 +63,7 @@ class EquipmentManager
      *
      * @param int $loanContractId to query
      *
-     * @return Equipment[] of equipment or empty array if none
+     * @return Equipment[] associated equipment or empty array if none
      */
     private function findEquipmentForLoanContract($loanContractId)
     {

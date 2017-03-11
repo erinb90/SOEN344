@@ -1,7 +1,6 @@
 <?php
-namespace Stark
-{
-
+namespace Stark {
+    require_once($_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php');
     use Stark\Models\StudentDomain;
     use Stark\Models\User;
 
@@ -53,18 +52,13 @@ namespace Stark
         {
             $root = (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/';
             $loggegIn = (!empty($_SESSION) && isset($_SESSION['uid']));
-            if ($loggegIn)
-            {
+            if ($loggegIn) {
                 return TRUE;
-            }
-            else
-            {
-                if ($redirect)
-                {
+            } else {
+                if ($redirect) {
                     header("location: " . $root . '?l=0&u=' . time());
 
                 }
-
                 return FALSE;
             }
 

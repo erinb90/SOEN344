@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Dimitri
- * Date: 2/25/2017
- * Time: 2:05 AM
- */
 
 namespace Stark\Models
 {
@@ -28,11 +22,6 @@ namespace Stark\Models
          * @var
          */
         private $_EquipmentId;
-
-        /**
-         * @var
-         */
-        private $_Quantity;
 
         /**
          * @return mixed
@@ -65,23 +54,5 @@ namespace Stark\Models
         {
             $this->_EquipmentId = $EquipmentId;
         }
-
-        /**
-         * @return mixed
-         */
-        public function getQuantity()
-        {
-            return $this->_Quantity;
-        }
-
-        /**
-         * @param mixed $Quantity
-         */
-        public function setQuantity($Quantity)
-        {
-            $this->_Quantity = $Quantity;
-        }
-
-
     }
 }

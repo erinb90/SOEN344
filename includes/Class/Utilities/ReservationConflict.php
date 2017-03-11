@@ -12,20 +12,19 @@ class ReservationConflict
     private $_reservation;
 
     /**
-     * @var string $_reasonForConflict
+     * @var String[] $_reasonForConflict
      */
-    private $_reasonForConflict;
+    private $_reasonsForConflict;
 
     /**
      * ReservationConflict constructor.
      *
      * @param Reservation $reservation that is causing the conflict
-     * @param string $reasonForConflict
      */
-    public function __construct($reservation, $reasonForConflict)
+    public function __construct($reservation)
     {
         $this->_reservation = $reservation;
-        $this->_reasonForConflict = $reasonForConflict;
+        $this->_reasonsForConflict = [];
     }
 
     /**
@@ -37,10 +36,22 @@ class ReservationConflict
     }
 
     /**
-     * @return string
+     * @return String[]
      */
-    public function getReasonForConflict()
+    public function getReasonsForConflict()
     {
-        return $this->_reasonForConflict;
+        return $this->_reasonsForConflict;
+    }
+
+    /**
+     * Adds a reason for conflict.
+     *
+     * @param string $reasonForConflict
+     *
+     * @return void
+     */
+    public function addReasonForConflict($reasonForConflict)
+    {
+        $this->_reasonsForConflict[] = $reasonForConflict;
     }
 }
