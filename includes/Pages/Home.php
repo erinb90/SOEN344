@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php';
 
 use Stark\EquipmentFinder;
@@ -381,7 +382,7 @@ print_r($Wailist->getNextReservationWaiting());
 
                 computersListTable.rows('.selected').every( function ( rowIdx, tableLoop, rowLoop ) {
                     var data = this.data();
-                    equipment.push([data.EquipmentId, 'c');
+                    equipment.push([data.EquipmentId, 'c']);
 
                 } );
 
