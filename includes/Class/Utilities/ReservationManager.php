@@ -28,7 +28,7 @@ class ReservationManager
     private $_userMapper;
 
     /**
-     * WaitlistManager constructor.
+     * ReservationManager constructor.
      */
     public function __construct()
     {
