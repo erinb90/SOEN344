@@ -34,11 +34,11 @@ body, html{
   opacity: 0;
   z-index: 1;
   text-align: left;
-  -webkit-animation: intro 2s ease-out;
-  -moz-animation: intro 2s ease-out;
-  -ms-animation: intro 2s ease-out;
-  -o-animation: intro 2s ease-out;
-  animation: intro 2s ease-out;
+  -webkit-animation: intro 3s ease-out;
+  -moz-animation: intro 3s ease-out;
+  -ms-animation: intro 3s ease-out;
+  -o-animation: intro 3s ease-out;
+  animation: intro 3s ease-out;
 }
 
 .star-wars-intro .main-content{
