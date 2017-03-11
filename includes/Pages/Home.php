@@ -691,9 +691,6 @@ print_r($Wailist->getNextReservationWaiting());
 
                                         <label for="repeatReservation">Repeat Reservation for:</label>
                                         <select id="repeatReservation" name="repeatReservation">
-                                            <option value="0">
-                                                No Repeat
-                                            </option>
                                             <option value="1">1 Week</option>
                                             <option value="2">2 Weeks</option>
                                             <option value="3">3 Weeks</option>

@@ -1,11 +1,13 @@
 <?php
 namespace Stark {
 
+    use Stark\Enums\EquipmentType;
     use Stark\Mappers\LoanContractMapper;
     use Stark\Mappers\LoanedEquipmentMapper;
     use Stark\Mappers\ReservationMapper;
-    use Stark\Models\Reservation;
+    use Stark\Models\EquipmentRequest;
     use Stark\Models\User;
+    use Stark\Utilities\ReservationConflict;
     use Stark\Utilities\ReservationManager;
 
     class CreateReservationSession
@@ -41,9 +43,9 @@ namespace Stark {
         private $_repeats;
 
         /**
-         * @var array $_equipmentIds The equipmentIds request for the reservation.
+         * @var EquipmentRequest[] $_equipmentRequests The equipmentRequests for the reservation.
          */
-        private $_equipmentIds;
+        private $_equipmentRequests;
 
         /**
          * @var ReservationManager $_reservationManager to check for reservation conflicts.
@@ -64,16 +66,16 @@ namespace Stark {
          * @param string $endTimeDate The end time for the room reservation.
          * @param string $title The title of the reservation.
          * @param int $repeats The number of times to repeat the reservation.
-         * @param array $equipmentIds (optional) The iDs of the equipment to be reserved.
+         * @param EquipmentRequest[] $equipmentRequests (optional) The equipment requests for the reservation.
          */
-        public function __construct(User $user, $roomId, $startTimeDate, $endTimeDate, $title, $repeats, $equipmentIds = [])
+        public function __construct(User $user, $roomId, $startTimeDate, $endTimeDate, $title, $repeats, $equipmentRequests = [])
         {
             $this->_user = $user;
             $this->_roomId = $roomId;
             $this->_startTimeDate = $startTimeDate;
             $this->_endTimeDate = $endTimeDate;
             $this->_title = $title;
-            $this->_equipmentIds = $equipmentIds;
+            $this->_equipmentRequests = $equipmentRequests;
             $this->_repeats = $repeats;
             $this->_errors = [];
             $this->_reservationManager = new ReservationManager();
@@ -97,8 +99,8 @@ namespace Stark {
         {
             $repeatedDates = Utilities::getDateRepeats($this->_startTimeDate, $this->_endTimeDate, $this->_repeats);
             $maxRepeats = CoreConfig::settings()['reservations']['max_repeats'];
-            if(isset($maxRepeats)){
-                if(count($repeatedDates) > 3){
+            if (isset($maxRepeats)) {
+                if (count($repeatedDates) > 3) {
                     $this->setError("Cannot repeat reservation more than 3 times.");
                     return false;
                 }
@@ -126,11 +128,10 @@ namespace Stark {
                     // Commit the unit of work
                     $reservationMapper->commit();
 
-                    // TODO : Check if equipmentIds are available for reservation and notify user
                     // Create a loan contract Id and associate request equipment
-                    if (!empty($this->_equipmentIds)) {
+                    if (!empty($this->_equipmentRequests)) {
                         $loanContractId = $this->associateLoanContract($reservation->getReservationID());
-                        $this->associateLoanedEquipment($loanContractId, $this->_equipmentIds);
+                        $this->associateLoanedEquipment($loanContractId, $this->_equipmentRequests);
                     }
 
                 } catch (\Exception $e) {
@@ -155,13 +156,90 @@ namespace Stark {
                 $endTimeDate = $repeatedDate['end'];
 
                 $reservationConflicts = $this->_reservationManager
-                    ->checkForConflictsPendingReservation($this->_roomId, $startTimeDate, $endTimeDate, $this->_equipmentIds);
-                foreach ($reservationConflicts as $reservationConflict) {
-                    $this->_errors[] = $reservationConflict->getReasonForConflict();
-                }
+                    ->checkForConflicts($this->_roomId, $startTimeDate, $endTimeDate, $this->_equipmentRequests);
+
+                $this->resolveConflicts($reservationConflicts, $this->_errors);
             }
 
             return empty($this->getErrors());
+        }
+
+        /**
+         * Resolves conflicts into user errors.
+         *
+         * @param ReservationConflict[] $reservationConflicts from the attempted reservation booking.
+         * @param String[] $errors to add.
+         *
+         * @return void
+         */
+        private function resolveConflicts($reservationConflicts, &$errors){
+            // No conflicts, so return
+            if (empty($reservationConflicts)) {
+                return;
+            }
+
+            // Attempt to resolve equipment conflicts
+            foreach ($reservationConflicts as $reservationConflict) {
+
+                // Log time conflicts
+                foreach ($reservationConflict->getDateTimes() as $timeConflict) {
+                    $errors[] = "Conflict with time: " . $timeConflict;
+                }
+
+                // Time conflicts exist, skip equipment conflict checks
+                if (!empty($errors)) {
+                    continue;
+                }
+
+                // Get loaned equipments for the reservation
+                $reservationId = $reservationConflict->getReservation()->getReservationID();
+                $loanedEquipments = $this->_reservationManager->getLoanedEquipmentForReservation($reservationId);
+
+                // Store already assigned equipment Ids
+                $assignedEquipmentIds = [];
+                foreach ($loanedEquipments as $assignedEquipment) {
+                    $assignedEquipmentIds[] = $assignedEquipment->getEquipmentId();
+                }
+
+                // Attempt to re-assign an available equipmentId
+                $equipments = $this->_reservationManager->getAllEquipment();
+                foreach ($this->_equipmentRequests as $equipmentRequest) {
+                    $newEquipmentIdAssigned = false;
+                    foreach ($equipments as $equipment) {
+                        // Wrong type, so continue
+                        if ($equipmentRequest->getEquipmentType() != $equipment->getDiscriminator()) {
+                            continue;
+                        }
+
+                        // Checks to see if id is part of the already assigned ids
+                        $foundId = in_array($equipment->getEquipmentId(), $assignedEquipmentIds);
+                        if (!$foundId) {
+                            $equipmentRequest->setEquipmentId($equipment->getEquipmentId());
+                            $newEquipmentIdAssigned = true;
+                        }
+
+                        // Break, since we have found a new id to assign
+                        if ($newEquipmentIdAssigned) {
+                            break;
+                        }
+                    }
+
+                    // Could not assign a new equipment id, reservation needs to be placed on wait list
+                    if (!$newEquipmentIdAssigned) {
+                        $equipmentType = 'Unknown';
+
+                        // This is awful, but would require a refactor in the database
+                        if ($equipmentRequest->getEquipmentType() == EquipmentType::Computer) {
+                            $equipmentType = 'Computer';
+                        } else if ($equipmentRequest->getEquipmentType() == EquipmentType::Projector) {
+                            $equipmentType = 'Projector';
+                        }
+
+                        $errors[] = "No alternative " . $equipmentType . " could be found for requested id "
+                            . $equipmentRequest->getEquipmentId();
+                    }
+                }
+            }
         }
 
         /**
@@ -170,7 +248,8 @@ namespace Stark {
          * @param int $reservationId The reservationId to associate with the loan contract.
          * @return int The id of the new loan contract, or -1 if the contract creation failed.
          */
-        private function associateLoanContract($reservationId)
+        private
+        function associateLoanContract($reservationId)
         {
             $loanContractMapper = new LoanContractMapper();
 
@@ -199,15 +278,17 @@ namespace Stark {
          * Creates loan contract for reservation with the requested equipmentIds.
          *
          * @param int $loanContractId The loanContractId to associate with the loan contract.
-         * @param array $equipmentIds The equipmentIds to associate with the loan contract.
+         * @param EquipmentRequest[] $equipmentRequests The equipment requests to associate with the loan contract.
          * @return void
          */
-        private function associateLoanedEquipment($loanContractId, $equipmentIds)
+        private
+        function associateLoanedEquipment($loanContractId, $equipmentRequests)
         {
             $loanedEquipmentMapper = new LoanedEquipmentMapper();
 
-            foreach ($equipmentIds as $equipmentId) {
+            foreach ($equipmentRequests as $equipmentRequest) {
                 try {
+                    $equipmentId = $equipmentRequest->getEquipmentId();
                     $loanedEquipment = $loanedEquipmentMapper->createLoanedEquipment($loanContractId, $equipmentId);
 
                     // Add it to the unit of work
@@ -220,8 +301,6 @@ namespace Stark {
 
             // Commit the units of work
             $loanedEquipmentMapper->commit();
-
-            // TODO : Return array of newly created entries?
         }
     }
 }

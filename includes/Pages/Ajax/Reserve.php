@@ -3,15 +3,22 @@ session_start();
 require_once($_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php');
 
 use Stark\CreateReservationSession;
+use Stark\Enums\EquipmentType;
+use Stark\Models\EquipmentRequest;
+use Stark\WebUser;
 
 // Parse incoming request and extract query parameters
 $requestParameters = [];
 parse_str($_REQUEST['formData'], $requestParameters);
-$equipmentIds = json_decode($_REQUEST['equipment']);
+$equipments = json_decode($_REQUEST['equipment']);
 
-$userMapper = new \Stark\Mappers\UserMapper();
-$email = $_SESSION['email'];
-$user = $userMapper->findByEmail(trim($email));
+// Convert to equipment requests
+$equipmentRequests = [];
+foreach ($equipments as $equipment){
+    $equipmentRequests[] = new EquipmentRequest($equipment[0], $equipment[1]);
+}
+
+$user = WebUser::getUser();
 
 // TODO : Perform time sanitizing using regex
 $startTimeDateAsString = $requestParameters['rDate'] . " " . $requestParameters['startTime'] . ":00";
@@ -39,7 +46,7 @@ $ReservationSession = new CreateReservationSession(
     $endTimeDate,
     $requestParameters['title'],
     $requestParameters['repeatReservation'],
-    $equipmentIds);
+    $equipmentRequests);
 
 if ($ReservationSession->reserve()) {
     ?>
@@ -69,6 +76,15 @@ if ($ReservationSession->reserve()) {
     <div id="successReservation">
         <div class="alert alert-success">
             Your reservation has been wait listed due to conflicts!
+        </div>
+        <div>
+            Reasons for conflict:
+            <br/>
+            <?php
+            foreach ($conflicts as $conflict){
+                echo $conflict . "<br/>";
+            }
+            ?>
         </div>
     </div>
     <script>

@@ -38,10 +38,6 @@ namespace Stark
             $this->_equipment["computers"] = $this->_ComputerMapper->findAll();
             $this->_equipment["projectors"] = $this->_ProjectorMapper->findAll();
 
-
-
-
-
         }
 
         public function getAllEquipment()

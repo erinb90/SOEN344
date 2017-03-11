@@ -30,7 +30,11 @@ namespace Stark\Interfaces
          */
         private $_Description;
 
-
+        /**
+         * @var
+         */
+        private $_Discriminator;
+        
         /**
          * Equipment constructor.
          */
@@ -102,7 +106,20 @@ namespace Stark\Interfaces
             $this->_Description = $Description;
         }
 
+        /**
+         * @return mixed
+         */
+        public function getDiscriminator()
+        {
+            return $this->_Discriminator;
+        }
 
-
+        /**
+         * @param mixed $Discriminator
+         */
+        public function setDiscriminator($Discriminator)
+        {
+            $this->_Discriminator = $Discriminator;
+        }
     }
 }
