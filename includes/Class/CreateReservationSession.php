@@ -106,6 +106,7 @@ namespace Stark {
                 }
             }
 
+            // TODO : Is it all or nothing? Or should we allow non-conflicting repeats to be scheduled?
             $isWaiting = !$this->validateRepeats($repeatedDates);
 
             // Create a repeated reservation based on the date repeats
@@ -172,7 +173,8 @@ namespace Stark {
          *
          * @return void
          */
-        private function resolveConflicts($reservationConflicts, &$errors){
+        private function resolveConflicts($reservationConflicts, &$errors)
+        {
             // No conflicts, so return
             if (empty($reservationConflicts)) {
                 return;
@@ -191,55 +193,43 @@ namespace Stark {
                     continue;
                 }
 
-                // Get loaned equipments for the reservation
-                $reservationId = $reservationConflict->getReservation()->getReservationID();
-                $loanedEquipments = $this->_reservationManager->getLoanedEquipmentForReservation($reservationId);
-
-                // Store already assigned equipment Ids
-                $assignedEquipmentIds = [];
-                foreach ($loanedEquipments as $assignedEquipment) {
-                    $assignedEquipmentIds[] = $assignedEquipment->getEquipmentId();
-                }
-
-                // Attempt to re-assign an available equipmentId
-                $equipments = $this->_reservationManager->getAllEquipment();
-                foreach ($this->_equipmentRequests as $equipmentRequest) {
-                    $newEquipmentIdAssigned = false;
-                    foreach ($equipments as $equipment) {
-                        // Wrong type, so continue
-                        if ($equipmentRequest->getEquipmentType() != $equipment->getDiscriminator()) {
-                            continue;
+                // Attempt re-assignment of equipment ids
+                foreach ($reservationConflict->getEquipments() as $equipmentConflict) {
+                    foreach ($this->_equipmentRequests as $equipmentRequest) {
+                        if ($equipmentConflict->getEquipmentId() == $equipmentRequest->getEquipmentId()) {
+                            $availableEquipmentIds = $this->_reservationManager->findAvailableEquipmentIds($equipmentRequest->getEquipmentType());
+                            if (count($availableEquipmentIds) >= 1) {
+                                $equipmentRequest->setEquipmentId($availableEquipmentIds[0]);
+                            } else {
+                                $this->noAlternativeError($equipmentRequest, $errors);
+                            }
                         }
-
-                        // Checks to see if id is part of the already assigned ids
-                        $foundId = in_array($equipment->getEquipmentId(), $assignedEquipmentIds);
-                        if (!$foundId) {
-                            $equipmentRequest->setEquipmentId($equipment->getEquipmentId());
-                            $newEquipmentIdAssigned = true;
-                        }
-
-                        // Break, since we have found a new id to assign
-                        if ($newEquipmentIdAssigned) {
-                            break;
-                        }
-                    }
-
-                    // Could not assign a new equipment id, reservation needs to be placed on wait list
-                    if (!$newEquipmentIdAssigned) {
-                        $equipmentType = 'Unknown';
-
-                        // This is awful, but would require a refactor in the database
-                        if ($equipmentRequest->getEquipmentType() == EquipmentType::Computer) {
-                            $equipmentType = 'Computer';
-                        } else if ($equipmentRequest->getEquipmentType() == EquipmentType::Projector) {
-                            $equipmentType = 'Projector';
-                        }
-
-                        $errors[] = "No alternative " . $equipmentType . " could be found for requested id "
-                            . $equipmentRequest->getEquipmentId();
                     }
                 }
             }
+        }
+
+        /**
+         * Add an error that no alternative equipment could be found.
+         *
+         * @param EquipmentRequest $equipmentRequest from the attempted reservation booking.
+         * @param String[] $errors to add.
+         *
+         * @return void
+         */
+        private function noAlternativeError(&$equipmentRequest, &$errors)
+        {
+            $equipmentType = 'Unknown';
+
+            // This is awful, but would require a refactor in the database
+            if ($equipmentRequest->getEquipmentType() == EquipmentType::Computer) {
+                $equipmentType = 'Computer';
+            } else if ($equipmentRequest->getEquipmentType() == EquipmentType::Projector) {
+                $equipmentType = 'Projector';
+            }
+
+            $errors[] = "No alternative " . $equipmentType . " could be found for requested id "
+                . $equipmentRequest->getEquipmentId();
         }
 
         /**
@@ -248,8 +238,7 @@ namespace Stark {
          * @param int $reservationId The reservationId to associate with the loan contract.
          * @return int The id of the new loan contract, or -1 if the contract creation failed.
          */
-        private
-        function associateLoanContract($reservationId)
+        private function associateLoanContract($reservationId)
         {
             $loanContractMapper = new LoanContractMapper();
 

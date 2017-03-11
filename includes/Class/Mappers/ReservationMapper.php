@@ -127,6 +127,21 @@ namespace Stark\Mappers
         }
 
         /**
+         * @return array
+         */
+        public function findAllActive()
+        {
+            $m = $this->getTdg()->findAllActive();
+            $objects = [];
+            foreach ($m as $row)
+            {
+                $objects[] = $this->getModel($row);
+            }
+
+            return $objects;
+        }
+
+        /**
          * @param $data array data retrieve from the tdg
          *
          * @return Reservation returns a fully-dressed object

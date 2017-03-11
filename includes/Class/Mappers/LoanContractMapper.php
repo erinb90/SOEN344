@@ -62,14 +62,14 @@ namespace Stark\Mappers
         public function findByReservationId($reservationid)
         {
             $loanContractArray = $this->getTdg()->findByReservationId($reservationid)[0];
-            if(!isset($loanContract)){
+            if(isset($loanContractArray)){
                 $loanContract = new LoanContract();
                 $loanContract->setLoanContractiD($loanContractArray['LoanContractId']);
                 $loanContract->setReservationId($loanContractArray['ReservationId']);
                 return $loanContract;
             }
 
-            return $loanContract;
+            return null;
         }
 
         /**

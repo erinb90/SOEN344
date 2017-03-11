@@ -4,9 +4,11 @@ namespace Stark\Utilities;
 
 use Stark\Interfaces\Equipment;
 use Stark\Mappers\ReservationMapper;
+use Stark\Mappers\UserMapper;
 use Stark\Models\EquipmentRequest;
 use Stark\Models\LoanedEquipment;
 use Stark\Models\Reservation;
+use Stark\Models\User;
 
 class ReservationManager
 {
@@ -21,12 +23,59 @@ class ReservationManager
     private $_equipmentManager;
 
     /**
+     * @var \Stark\Mappers\UserMapper $_userMapper to map users
+     */
+    private $_userMapper;
+
+    /**
      * WaitlistManager constructor.
      */
     public function __construct()
     {
         $this->_reservationMapper = new ReservationMapper();
         $this->_equipmentManager = new EquipmentManager();
+        $this->_userMapper = new UserMapper();
+    }
+
+    /**
+     * Gets all wait list reservations sorted in order.
+     *
+     * @return Reservation[] of waitlisted reservations or empty if none
+     */
+    public function getOrderedWaitingReservations()
+    {
+        $reservations = $this->_reservationMapper->findAllWaitlisted();
+        ksort($reservations);
+
+        // Cache the students
+        $capstoneStudentsReservation = [];
+        $regularStudentsReservation = [];
+
+        /**
+         * @var Reservation $reservation
+         */
+        foreach ($reservations as $reservationId => $reservation) {
+            $userId = $reservation->getUserId();
+            /**
+             * @var User $user
+             */
+            $user = $this->_userMapper->findByPk($userId);
+
+            // Sort these users
+            if ($user->isCapstoneStudent()) {
+                $capstoneStudentsReservation[] = $reservation;
+            } else {
+                $regularStudentsReservation[] = $reservation;
+            }
+
+        }
+
+        // If Capstone students were found, merge arrays then return
+        if (!empty($capstoneStudentsReservation)) {
+            return array_merge($capstoneStudentsReservation, $regularStudentsReservation);
+        }
+
+        return $regularStudentsReservation;
     }
 
     /**
@@ -40,6 +89,16 @@ class ReservationManager
     }
 
     /**
+     * Gets active reservations.
+     *
+     * @return array of active reservations or empty if none
+     */
+    public function getAllActiveReservations()
+    {
+        return $this->_reservationMapper->findAllActive();
+    }
+
+    /**
      * Gets all equipment.
      *
      * @return Equipment[] of equipment or empty if none
@@ -48,6 +107,44 @@ class ReservationManager
     {
         return $this->_equipmentManager->getAllEquipment();
     }
+
+    /**
+     * Gets available equipment ids based on active reservations.
+     *
+     * @param string $equipmentType of the requested equipment.
+     *
+     * @return int[] equipmentIds of an available equipment in the system or empty if none
+     */
+    public function findAvailableEquipmentIds($equipmentType)
+    {
+        /**
+         * @var Reservation[] $activeReservations
+         */
+        $activeReservations = $this->_reservationMapper->findAllActive();
+        $takenEquipmentIds = [];
+        foreach ($activeReservations as $activeReservation) {
+            $loanedEquipments = $this->getLoanedEquipmentForReservation($activeReservation->getReservationID());
+            foreach ($loanedEquipments as $loanedEquipment) {
+                $takenEquipmentIds[] = $loanedEquipment->getEquipmentId();
+            }
+        }
+
+        $availableEquipmentIds = [];
+        $equipments = $this->getAllEquipment();
+        foreach ($equipments as $equipment) {
+            if ($equipment->getDiscriminator() != $equipmentType) {
+                continue;
+            }
+
+            $isFound = in_array($equipment->getEquipmentId(), $takenEquipmentIds);
+            if (!$isFound) {
+                $availableEquipmentIds[] = $equipment->getEquipmentId();
+            }
+        }
+
+        return $availableEquipmentIds;
+    }
+
 
     /**
      * Gets all loaned equipment for a reservation id.
@@ -74,52 +171,6 @@ class ReservationManager
     }
 
     /**
-     * Find conflicting active reservations based on an existing reservation using Id.
-     *
-     * @param int $reservationId of the reservation that is being checked
-     *
-     * @return ReservationConflict[] of conflicting reservations or empty if none
-     */
-    public function checkForExistingConflictsWithId($reservationId)
-    {
-        $reservation = $this->findReservationForId($reservationId);
-        if ($reservation == null) {
-            return [];
-        }
-        $reservations = $this->_reservationMapper->findAll();
-        /**
-         * @var Equipment[] $equipmentsForReservation
-         */
-        $equipments = $this->_equipmentManager->findEquipmentForReservation($reservation->getReservationID());
-        $equipmentRequests = [];
-        foreach ($equipments as $equipment) {
-            $equipmentRequests[] = new EquipmentRequest($equipment->getEquipmentId(), $equipment->getDiscriminator());
-        }
-        return $this->checkForActiveReservations($reservation->getRoomId(), $reservation->getStartTimeDate(), $reservation->getEndTimeDate(), $reservations, $equipmentRequests);
-    }
-
-    /**
-     * Find conflicting active reservations based on an existing reservation.
-     *
-     * @param Reservation $reservation that is being checked
-     *
-     * @return ReservationConflict[] of conflicting reservations or empty if none
-     */
-    public function checkForExistingConflicts($reservation)
-    {
-        $reservations = $this->_reservationMapper->findAll();
-        /**
-         * @var Equipment[] $equipmentsForReservation
-         */
-        $equipments = $this->_equipmentManager->findEquipmentForReservation($reservation->getReservationID());
-        $equipmentRequests = [];
-        foreach ($equipments as $equipment) {
-            $equipmentRequests[] = new EquipmentRequest($equipment->getEquipmentId(), $equipment->getDiscriminator());
-        }
-        return $this->checkForActiveReservations($reservation->getRoomId(), $reservation->getStartTimeDate(), $reservation->getEndTimeDate(), $reservations, $equipmentRequests);
-    }
-
-    /**
      * Find conflicting active reservations based on a yet to be created reservation.
      *
      * @param int $roomId of the room in the pending reservation
@@ -131,41 +182,8 @@ class ReservationManager
      */
     public function checkForConflicts($roomId, $startTimeDate, $endTimeDate, $equipmentRequests = [])
     {
-        $reservations = $this->_reservationMapper->findAll();
-        return $this->checkForActiveReservations($roomId, $startTimeDate, $endTimeDate, $reservations, $equipmentRequests);
-    }
-
-    /**
-     * Filter active reservations in order to check conflicts for a pending reservation.
-     *
-     * @param int $roomId of the room in the pending reservation
-     * @param \DateTime $startTimeDate of the pendingReservation
-     * @param \DateTime $endTimeDate of the pendingReservation
-     * @param Reservation[] $reservations in the system
-     * @param EquipmentRequest[] $equipmentRequests of the equipment requested (optional)
-     *
-     * @return ReservationConflict[] of conflicting reservations or empty if none
-     */
-    private function checkForActiveReservations($roomId, $startTimeDate, $endTimeDate, $reservations, $equipmentRequests)
-    {
-        if (empty($reservations) || !isset($roomId) || !isset($startTimeDate) || !isset($endTimeDate)) {
-            return [];
-        }
-
-        $activeReservations = [];
-        foreach ($reservations as $reservation) {
-
-            // Filter out active reservations
-            if (!$reservation->isIsWaited()) {
-                $activeReservations[] = $reservation;
-            }
-        }
-
-        if (empty($activeReservations)) {
-            return [];
-        }
-
-        return $this->checkForTimeConflicts($roomId, $startTimeDate, $endTimeDate, $activeReservations, $equipmentRequests);
+        $reservations = $this->_reservationMapper->findAllActive();
+        return $this->checkForTimeConflicts($roomId, $startTimeDate, $endTimeDate, $reservations, $equipmentRequests);
     }
 
     /**
@@ -208,7 +226,7 @@ class ReservationManager
             if ($startTimeDate >= $activeReservation->getStartTimeDate()
                 && $startTimeDate <= $activeReservation->getEndTimeDate()
             ) {
-                if ($roomId == $activeReservation->getRoomId()) {
+                if ($roomId == $activeReservation->getRoomId() && !$activeReservation->isIsWaited()) {
                     $reservationConflict->addDateTime($activeReservation->getStartTimeDate());
                     $reservationConflict->addDateTime($activeReservation->getEndTimeDate());
                 }
@@ -220,7 +238,7 @@ class ReservationManager
             else if ($endTimeDate >= $activeReservation->getStartTimeDate()
                 && $endTimeDate <= $activeReservation->getEndTimeDate()
             ) {
-                if ($roomId == $activeReservation->getRoomId()) {
+                if ($roomId == $activeReservation->getRoomId() && !$activeReservation->isIsWaited()) {
                     $reservationConflict->addDateTime($activeReservation->getStartTimeDate());
                     $reservationConflict->addDateTime($activeReservation->getEndTimeDate());
                 }
@@ -232,7 +250,7 @@ class ReservationManager
             else if ($startTimeDate <= $activeReservation->getStartTimeDate()
                 && $endTimeDate >= $activeReservation->getEndTimeDate()
             ) {
-                if ($roomId == $activeReservation->getRoomId()) {
+                if ($roomId == $activeReservation->getRoomId() && !$activeReservation->isIsWaited()) {
                     $reservationConflict->addDateTime($activeReservation->getStartTimeDate());
                     $reservationConflict->addDateTime($activeReservation->getEndTimeDate());
                 }
@@ -242,7 +260,9 @@ class ReservationManager
                 }
             }
 
-            $conflictingReservations[] = $reservationConflict;
+            if (!empty($reservationConflict->getDateTimes()) || !empty($reservationConflict->getEquipments())) {
+                $conflictingReservations[] = $reservationConflict;
+            }
         }
 
         return $conflictingReservations;
