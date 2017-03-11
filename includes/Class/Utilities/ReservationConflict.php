@@ -18,7 +18,7 @@ class ReservationConflict
     private $_equipments;
 
     /**
-     * @var \DateTime[] $_times that are causing conflicts with the reservation.
+     * @var String[] $_dateTimes that are causing conflicts with the reservation.
      */
     private $_dateTimes;
 
@@ -61,7 +61,7 @@ class ReservationConflict
     }
 
     /**
-     * @return \DateTime[] that are causing conflicts
+     * @return String[] date times that are causing conflicts
      */
     public function getDateTimes()
     {
@@ -69,7 +69,7 @@ class ReservationConflict
     }
 
     /**
-     * @param \DateTime $dateTime that is causing a conflict
+     * @param String[] $dateTime that is causing a conflict
      *
      * @return void
      */
