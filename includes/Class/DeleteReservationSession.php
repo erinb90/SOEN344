@@ -87,60 +87,70 @@ namespace Stark {
          */
         public static function delete($reservationId)
         {
-
-
             $Session = new DeleteReservationSession($reservationId);
 
-            $waitList = new Waitlist($Session->getReservation()->getRoomId(), $Session->getReservation()->getStartTimeDate(), $Session->getReservation()->getEndTimeDate());
+            $waitList = $Session->getReservationManager()->getOrderedWaitingReservations();
 
-            $NextReservation = $waitList->getNextReservationWaiting();
+            $currentReservation = $Session->getReservation();
+
+            $Session->getReservationMapper()->uowDelete($currentReservation);
+            $Session->getReservationMapper()->commit();
 
             // No next reservation
-            if (!$NextReservation) {
+            if (empty($waitList)) {
                 return false;
             }
 
-            $canBeAccommodated = false;
-            $loanedEquipments = $Session->getReservationManager()->getLoanedEquipmentForReservation($NextReservation->getReservationID());
-            if (isset($loanedEquipments) && !empty($loanedEquipments)) {
-                /**
-                 * @var EquipmentRequest[] $equipmentRequests
-                 */
-                $equipmentRequests = [];
-                foreach ($loanedEquipments as $loanedEquipment) {
-                    $equipment = $Session->getReservationManager()->getEquipmentForId($loanedEquipment->getEquipmentId());
-                    if ($equipment != null) {
-                        $equipmentRequests[] = new EquipmentRequest($equipment->getEquipmentId(), $equipment->getDiscriminator());
+            do {
+                $reservationWasAccommodated = false;
+                foreach ($waitList as $waitingReservation) {
+                    $canBeAccommodated = false;
+
+                    $loanedEquipments = $Session->getReservationManager()->getLoanedEquipmentForReservation($waitingReservation->getReservationID());
+                    if (isset($loanedEquipments) && !empty($loanedEquipments)) {
+                        /**
+                         * @var EquipmentRequest[] $equipmentRequests
+                         */
+                        $equipmentRequests = [];
+                        foreach ($loanedEquipments as $loanedEquipment) {
+                            $equipment = $Session->getReservationManager()->getEquipmentForId($loanedEquipment->getEquipmentId());
+                            if ($equipment != null) {
+                                $equipmentRequests[] = new EquipmentRequest($equipment->getEquipmentId(), $equipment->getDiscriminator());
+                            }
+                        }
+
+                        $reservationConflicts = $Session->getReservationManager()
+                            ->checkForConflicts($waitingReservation->getRoomId(), $waitingReservation->getStartTimeDate(), $waitingReservation->getEndTimeDate(), $equipmentRequests);
+
+                        // If required
+                        $errors = $Session->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
+
+                        if (empty($reservationConflicts)) {
+                            $canBeAccommodated = true;
+                        } else if (!empty($reservationConflicts) && empty($errors)) {
+                            // Re-map loaned equipment with new ids
+                            foreach ($equipmentRequests as $i => $equipmentRequest) {
+                                $loanedEquipments[$i]->setEquipmentId($equipmentRequest->getEquipmentId());
+                                $Session->getLoanedEquipmentMapper()->uowUpdate($loanedEquipments[$i]);
+                            }
+                            $canBeAccommodated = true;
+                        }
+                    }
+
+                    if ($canBeAccommodated) {
+                        $reservationWasAccommodated = true;
+                        $waitingReservation->setIsWaited(false);
+                        $Session->getReservationMapper()->uowUpdate($waitingReservation);
+                        $Session->getReservationMapper()->commit();
+                        break;
                     }
                 }
 
-                $reservationConflicts = $Session->getReservationManager()
-                    ->checkForConflicts($NextReservation->_roomId, $NextReservation->getStartTimeDate(), $NextReservation->getEndTimeDate(), $equipmentRequests);
+                // Refresh the list
+                $waitList = $Session->getReservationManager()->getOrderedWaitingReservations();
+            } while ($reservationWasAccommodated);
 
-                // If required
-                $errors = $Session->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
-
-                if (empty($errors)) {
-                    // Re-map loaned equipment with new ids
-                    foreach ($equipmentRequests as $i => $equipmentRequest) {
-                        $loanedEquipments[$i]->setEquipmentId($equipmentRequest->getEquipmentId());
-                        $Session->getLoanedEquipmentMapper()->uowUpdate($loanedEquipments[$i]);
-                    }
-                    $canBeAccommodated = true;
-                } else {
-                    // TODO: Cycle through next reservation
-                }
-            }
-
-            if ($canBeAccommodated) {
-                $NextReservation->setIsWaited(false);
-                $Session->getReservationMapper()->uowUpdate($NextReservation);
-                $CurrentReservation = $Session->getReservation();
-                $Session->getReservationMapper()->uowDelete($CurrentReservation);
-                $Session->getReservationMapper()->commit();
-            }
-
-            return $canBeAccommodated;
+            return true;
         }
 
         /**
@@ -173,57 +183,45 @@ namespace Stark {
                     continue;
                 }
 
-                // Get loaned equipments for the reservation
-                $reservationId = $reservationConflict->getReservation()->getReservationID();
-                $loanedEquipments = $this->getReservationManager()->getLoanedEquipmentForReservation($reservationId);
-
-                // Store already assigned equipment Ids
-                $assignedEquipmentIds = [];
-                foreach ($loanedEquipments as $assignedEquipment) {
-                    $assignedEquipmentIds[] = $assignedEquipment->getEquipmentId();
-                }
-
-                // Attempt to re-assign an available equipmentId
-                $equipments = $this->getReservationManager()->getAllEquipment();
-                foreach ($equipmentRequests as $equipmentRequest) {
-                    $newEquipmentIdAssigned = false;
-                    foreach ($equipments as $equipment) {
-                        // Wrong type, so continue
-                        if ($equipmentRequest->getEquipmentType() != $equipment->getDiscriminator()) {
-                            continue;
+                // Attempt re-assignment of equipment ids
+                foreach ($reservationConflict->getEquipments() as $equipmentConflict) {
+                    foreach ($equipmentRequests as $equipmentRequest) {
+                        if ($equipmentConflict->getEquipmentId() == $equipmentRequest->getEquipmentId()) {
+                            $availableEquipmentIds = $this->_reservationManager->findAvailableEquipmentIds($equipmentRequest->getEquipmentType());
+                            if (count($availableEquipmentIds) >= 1) {
+                                $equipmentRequest->setEquipmentId($availableEquipmentIds[0]);
+                            } else {
+                                $this->noAlternativeError($equipmentRequest, $errors);
+                            }
                         }
-
-                        // Checks to see if id is part of the already assigned ids
-                        $foundId = in_array($equipment->getEquipmentId(), $assignedEquipmentIds);
-                        if (!$foundId) {
-                            $equipmentRequest->setEquipmentId($equipment->getEquipmentId());
-                            $newEquipmentIdAssigned = true;
-                        }
-
-                        // Break, since we have found a new id to assign
-                        if ($newEquipmentIdAssigned) {
-                            break;
-                        }
-                    }
-
-                    // Could not assign a new equipment id, reservation needs to be placed on wait list
-                    if (!$newEquipmentIdAssigned) {
-                        $equipmentType = 'Unknown';
-
-                        // This is awful, but would require a refactor in the database
-                        if ($equipmentRequest->getEquipmentType() == EquipmentType::Computer) {
-                            $equipmentType = 'Computer';
-                        } else if ($equipmentRequest->getEquipmentType() == EquipmentType::Projector) {
-                            $equipmentType = 'Projector';
-                        }
-
-                        $errors[] = "No alternative " . $equipmentType . " could be found for requested id "
-                            . $equipmentRequest->getEquipmentId();
                     }
                 }
             }
 
             return $errors;
+        }
+
+        /**
+         * Add an error that no alternative equipment could be found.
+         *
+         * @param EquipmentRequest $equipmentRequest from the attempted reservation booking.
+         * @param String[] $errors to add.
+         *
+         * @return void
+         */
+        private function noAlternativeError(&$equipmentRequest, &$errors)
+        {
+            $equipmentType = 'Unknown';
+
+            // This is awful, but would require a refactor in the database
+            if ($equipmentRequest->getEquipmentType() == EquipmentType::Computer) {
+                $equipmentType = 'Computer';
+            } else if ($equipmentRequest->getEquipmentType() == EquipmentType::Projector) {
+                $equipmentType = 'Projector';
+            }
+
+            $errors[] = "No alternative " . $equipmentType . " could be found for requested id "
+                . $equipmentRequest->getEquipmentId();
         }
     }
 }
