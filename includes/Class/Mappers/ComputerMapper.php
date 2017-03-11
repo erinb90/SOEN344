@@ -17,7 +17,9 @@ namespace Stark\Mappers
     use Stark\TDG\ComputerTDG;
 
     /**
-     * Class ComputerMapper
+     * Mapper for Computer objects
+     * Interacts with the ComputerTDG to retrieve and manipulate Computer objects from DB
+     *
      * @package Stark\Mappers
      */
     class ComputerMapper extends AbstractMapper
@@ -27,6 +29,7 @@ namespace Stark\Mappers
 
         /**
          * ComputerMapper constructor.
+         * Set the parent table to Equipment to mimic inheritance in the DB
          */
         public function __construct()
         {
@@ -44,14 +47,15 @@ namespace Stark\Mappers
         }
 
         /**
+         * Returns all Computer objects from DB
          * @return array
          */
         public function findAll()
         {
-            $m = $this->getTdg()->findAll();
+            $dbEntries = $this->getTdg()->findAll();
 
             $computers = [];
-            foreach ($m as $row)
+            foreach ($dbEntries as $row)
             {
                 $computers[] = $this->getModel($row);
             }
@@ -61,6 +65,8 @@ namespace Stark\Mappers
         }
 
         /**
+         * Creates a Computer object from a DB entry
+         *
          * @param $data array data retrieve from the tdg
          *
          * @return Computer returns a fully-dressed object

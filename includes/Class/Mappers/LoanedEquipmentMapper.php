@@ -16,7 +16,9 @@ namespace Stark\Mappers
     use Stark\TDG\LoanedEquipmentTDG;
 
     /**
-     * Class LoanedEquipmentMapper
+     * Mapper for LoanedEquipment objects
+     * Interacts with the LoanedEquipmentTDG to retrieve and manipulate LoanedEquipment objects from DB
+     *
      * @package Stark\Mappers
      */
     class LoanedEquipmentMapper extends AbstractMapper
@@ -47,15 +49,17 @@ namespace Stark\Mappers
 
 
         /**
+         * Returns all equipment under a certain LoanContract, given its LoanContractId
+         *
          * @param $LoanContractId
          *
          * @return array
          */
         public function findEquipmentByContractId($LoanContractId)
         {
-            $m = $this->getTdg()->findEquipmentByContractId($LoanContractId);
+            $dbEntries = $this->getTdg()->findEquipmentByContractId($LoanContractId);
             $equipment = [];
-            foreach ($m as $row)
+            foreach ($dbEntries as $row)
             {
                 $equipment[] = $this->getModel($row);
             }
@@ -63,6 +67,8 @@ namespace Stark\Mappers
 
         }
         /**
+         * Creates a LoanedEquipment object from a DB entry
+         *
          * @param $data array data retrieve from the tdg
          *
          * @return LoanedEquipment returns a fully-dressed object
@@ -84,7 +90,8 @@ namespace Stark\Mappers
         }
 
         /**
-         * Creates a loaned equipment entry with a loanContractId.
+         * Creates a LoanedEquipment object given a loanContractId and equipmentId
+         *
          * @param int $loanContractId The loanContractId to associate with the loaned equipment.
          * @param int $equipmentId The equipmentId to associate with the loaned equipment.
          *
