@@ -4,7 +4,7 @@ namespace Stark\Interfaces
 {
 
     /**
-     * Class Equipment
+     * Abstract equipment class for equipment types (computer, projector, etc) to inherit from
      * @package Stark\Interfaces
      */
     abstract class Equipment implements DomainObject
