@@ -10,12 +10,12 @@ use Stark\WebUser;
 // Parse incoming request and extract query parameters
 $requestParameters = [];
 parse_str($_REQUEST['formData'], $requestParameters);
-$equipmentIds = json_decode($_REQUEST['equipment']);
+$equipments = json_decode($_REQUEST['equipment']);
 
 // Convert to equipment requests
 $equipmentRequests = [];
-foreach ($equipmentIds as $equipmentId){
-    $equipmentRequests[] = new EquipmentRequest($equipmentId, EquipmentType::Computer);
+foreach ($equipments as $equipment){
+    $equipmentRequests[] = new EquipmentRequest($equipment[0], $equipment[1]);
 }
 
 $user = WebUser::getUser();
