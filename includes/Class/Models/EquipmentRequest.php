@@ -39,6 +39,16 @@ class EquipmentRequest
     }
 
     /**
+     * @param int $equipmentId the equipment to be requested
+     *
+     * @return void
+     */
+    public function setEquipmentId($equipmentId)
+    {
+        $this->_equipmentId = $equipmentId;
+    }
+
+    /**
      * @return string type of equipment to be requested (projector or computer)
      */
     public function getEquipmentType()

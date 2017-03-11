@@ -5,6 +5,7 @@ namespace Stark\Utilities;
 use Stark\Interfaces\Equipment;
 use Stark\Mappers\ReservationMapper;
 use Stark\Models\EquipmentRequest;
+use Stark\Models\LoanedEquipment;
 use Stark\Models\Reservation;
 
 class ReservationManager
@@ -36,6 +37,40 @@ class ReservationManager
     public function getWaitlistedReservations()
     {
         return $this->_reservationMapper->findAllWaitlisted();
+    }
+
+    /**
+     * Gets all equipment.
+     *
+     * @return Equipment[] of equipment or empty if none
+     */
+    public function getAllEquipment()
+    {
+        return $this->_equipmentManager->getAllEquipment();
+    }
+
+    /**
+     * Gets all loaned equipment for a reservation id.
+     *
+     * @param int $reservationId of the reservation
+     *
+     * @return LoanedEquipment[] of loaned equipment or empty if none
+     */
+    public function getLoanedEquipmentForReservation($reservationId)
+    {
+        return $this->_equipmentManager->findEquipmentForReservation($reservationId);
+    }
+
+    /**
+     * Gets equipment based on id.
+     *
+     * @param int $equipmentId for the requested equipment.
+     *
+     * @return Equipment equipment in the system or null if not found
+     */
+    public function getEquipmentForId($equipmentId)
+    {
+        return $this->_equipmentManager->getEquipmentForId($equipmentId);
     }
 
     /**
@@ -174,7 +209,8 @@ class ReservationManager
                 && $startTimeDate <= $activeReservation->getEndTimeDate()
             ) {
                 if ($roomId == $activeReservation->getRoomId()) {
-                    $reservationConflict->addReasonForConflict("Overlapping start time.");
+                    $reservationConflict->addDateTime($activeReservation->getStartTimeDate());
+                    $reservationConflict->addDateTime($activeReservation->getEndTimeDate());
                 }
 
                 if ($hasEquipment) {
@@ -185,7 +221,8 @@ class ReservationManager
                 && $endTimeDate <= $activeReservation->getEndTimeDate()
             ) {
                 if ($roomId == $activeReservation->getRoomId()) {
-                    $reservationConflict->addReasonForConflict("Overlapping end time.");
+                    $reservationConflict->addDateTime($activeReservation->getStartTimeDate());
+                    $reservationConflict->addDateTime($activeReservation->getEndTimeDate());
                 }
 
                 if ($hasEquipment) {
@@ -196,7 +233,8 @@ class ReservationManager
                 && $endTimeDate >= $activeReservation->getEndTimeDate()
             ) {
                 if ($roomId == $activeReservation->getRoomId()) {
-                    $reservationConflict->addReasonForConflict("Overlapping entire reservation time.");
+                    $reservationConflict->addDateTime($activeReservation->getStartTimeDate());
+                    $reservationConflict->addDateTime($activeReservation->getEndTimeDate());
                 }
 
                 if ($hasEquipment) {
@@ -230,11 +268,10 @@ class ReservationManager
             return;
         }
 
-        // TODO : Refactor for better efficiency
-        foreach ($equipmentRequests as $equipmentRequest) {
-            foreach ($equipmentsForActiveReservation as $equipmentForActiveReservation) {
+        foreach ($equipmentsForActiveReservation as $equipmentForActiveReservation) {
+            foreach ($equipmentRequests as $equipmentRequest) {
                 if ($equipmentRequest->getEquipmentId() == $equipmentForActiveReservation->getEquipmentId()) {
-                    $reservationConflict->addReasonForConflict("Conflict with equipment Id: " . $equipmentRequest->getEquipmentId());
+                    $reservationConflict->addEquipment($equipmentForActiveReservation);
                 }
             }
         }

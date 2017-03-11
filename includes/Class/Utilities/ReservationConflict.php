@@ -2,19 +2,25 @@
 
 namespace Stark\Utilities;
 
+use Stark\Models\LoanedEquipment;
 use Stark\Models\Reservation;
 
 class ReservationConflict
 {
     /**
-     * @var Reservation $_reservation that is causing the conflict
+     * @var Reservation $_reservation that is causing the conflict.
      */
     private $_reservation;
 
     /**
-     * @var String[] $_reasonForConflict
+     * @var LoanedEquipment[] $_equipments that are causing conflicts (optional).
      */
-    private $_reasonsForConflict;
+    private $_equipments;
+
+    /**
+     * @var \DateTime[] $_times that are causing conflicts with the reservation.
+     */
+    private $_dateTimes;
 
     /**
      * ReservationConflict constructor.
@@ -24,7 +30,8 @@ class ReservationConflict
     public function __construct($reservation)
     {
         $this->_reservation = $reservation;
-        $this->_reasonsForConflict = [];
+        $this->_equipments = [];
+        $this->_dateTimes = [];
     }
 
     /**
@@ -36,22 +43,38 @@ class ReservationConflict
     }
 
     /**
-     * @return String[]
+     * @return LoanedEquipment[] that are causing conflicts
      */
-    public function getReasonsForConflict()
+    public function getEquipments()
     {
-        return $this->_reasonsForConflict;
+        return $this->_equipments;
     }
 
     /**
-     * Adds a reason for conflict.
-     *
-     * @param string $reasonForConflict
+     * @param LoanedEquipment $equipment that is causing a conflict
      *
      * @return void
      */
-    public function addReasonForConflict($reasonForConflict)
+    public function addEquipment($equipment)
     {
-        $this->_reasonsForConflict[] = $reasonForConflict;
+        $this->_equipments[] =  $equipment;
+    }
+
+    /**
+     * @return \DateTime[] that are causing conflicts
+     */
+    public function getDateTimes()
+    {
+        return $this->_dateTimes;
+    }
+
+    /**
+     * @param \DateTime $dateTime that is causing a conflict
+     *
+     * @return void
+     */
+    public function addDateTime($dateTime)
+    {
+        $this->_dateTimes[] = $dateTime;
     }
 }

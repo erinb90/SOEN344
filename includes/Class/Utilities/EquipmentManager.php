@@ -3,8 +3,11 @@
 namespace Stark\Utilities;
 
 use Stark\Interfaces\Equipment;
+use Stark\Mappers\ComputerMapper;
 use Stark\Mappers\LoanContractMapper;
 use Stark\Mappers\LoanedEquipmentMapper;
+use Stark\Mappers\ProjectorMapper;
+use Stark\Models\LoanedEquipment;
 
 class EquipmentManager
 {
@@ -14,9 +17,14 @@ class EquipmentManager
     private $_loanContractMapper;
 
     /**
-     * @var \Stark\Mappers\LoanedEquipmentMapper $_loanedEquipmentMapper to retrieve loaned equipment
+     * @var \Stark\Mappers\ComputerMapper $_computerMapper to retrieve computers
      */
-    private $_loanedEquipmentMapper;
+    private $_computerMapper;
+
+    /**
+     * @var \Stark\Mappers\ProjectorMapper $_projectorMapper to retrieve projectors
+     */
+    private $_projectorMapper;
 
     /**
      * EquipmentManager constructor.
@@ -25,6 +33,8 @@ class EquipmentManager
     {
         $this->_loanContractMapper = new LoanContractMapper();
         $this->_loanedEquipmentMapper = new LoanedEquipmentMapper();
+        $this->_computerMapper = new ComputerMapper();
+        $this->_projectorMapper = new ProjectorMapper();
     }
 
     /**
@@ -34,7 +44,33 @@ class EquipmentManager
      */
     public function getAllEquipment()
     {
-        return $this->_loanedEquipmentMapper->findAll();
+        /**
+         * @var Equipment[] $equipment
+         */
+        $equipment = array_merge($this->_computerMapper->findAll(), $this->_projectorMapper->findAll());
+        return $equipment;
+    }
+
+    /**
+     * Gets equipment based on id.
+     *
+     * @param int $equipmentId for the requested equipment.
+     *
+     * @return Equipment equipment in the system or null if not found
+     */
+    public function getEquipmentForId($equipmentId)
+    {
+        /**
+         * @var Equipment[] $equipments
+         */
+        $equipments = array_merge($this->_computerMapper->findAll(), $this->_projectorMapper->findAll());
+        foreach ($equipments as $equipment){
+            if($equipment->getEquipmentId() == $equipmentId){
+                return $equipment;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -42,7 +78,7 @@ class EquipmentManager
      *
      * @param int $reservationId to query
      *
-     * @return Equipment[] of equipment or empty array if none
+     * @return LoanedEquipment[] of equipment or empty array if none
      */
     public function findEquipmentForReservation($reservationId)
     {
@@ -63,7 +99,7 @@ class EquipmentManager
      *
      * @param int $loanContractId to query
      *
-     * @return Equipment[] associated equipment or empty array if none
+     * @return LoanedEquipment[] associated equipment or empty array if none
      */
     private function findEquipmentForLoanContract($loanContractId)
     {
