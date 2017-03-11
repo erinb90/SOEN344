@@ -382,13 +382,13 @@ print_r($Wailist->getNextReservationWaiting());
 
                 computersListTable.rows('.selected').every( function ( rowIdx, tableLoop, rowLoop ) {
                     var data = this.data();
-                    equipment.push(data.EquipmentId);
+                    equipment.push([data.EquipmentId, 'c']);
 
                 } );
 
                 projectorsListTable.rows('.selected').every( function ( rowIdx, tableLoop, rowLoop ) {
                     var data = this.data();
-                    equipment.push(data.EquipmentId);
+                    equipment.push([data.EquipmentId , 'p']);
 
                 } );
 
