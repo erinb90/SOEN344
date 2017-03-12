@@ -5,6 +5,8 @@ use Go\Core\AspectKernel;
 use Go\Core\AspectContainer;
 
 use Stark\Aspects\LogAspect;
+use Stark\Aspects\PreventReservation;
+use Stark\Aspects\ReservationLogger;
 use Stark\Aspects\TestAspect;
 
 /**
@@ -25,5 +27,7 @@ class ApplicationAspectKernel extends AspectKernel
         // REGISTER OUR ASPECTS
         $container->registerAspect(new LogAspect());
         $container->registerAspect(new TestAspect());
+        //$container->registerAspect(new ReservationLogger());
+        $container->registerAspect(new PreventReservation());
     }
 }
