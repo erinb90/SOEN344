@@ -17,7 +17,7 @@ interface Gateway
      *
      * @param  DomainObject $object
      *
-     * @return mixed
+     * @return int
      */
     public function insert(DomainObject &$object);
 
@@ -26,7 +26,7 @@ interface Gateway
      *
      * @param  DomainObject $object
      *
-     * @return mixed
+     * @return bool
      */
     public function delete(DomainObject &$object);
 
@@ -35,7 +35,7 @@ interface Gateway
      *
      * @param  DomainObject $object
      *
-     * @return mixed
+     * @return bool
      */
     public function update(DomainObject &$object);
 
