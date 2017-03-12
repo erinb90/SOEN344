@@ -15,6 +15,12 @@ namespace Stark\Mappers
     use Stark\Models\Room;
     use Stark\TDG\RoomTDG;
 
+    /**
+     * Mapper for Room objects
+     * Interacts with the RoomTDG to retrieve and manipulate Room objects from DB
+     *
+     * @package Stark\Mappers
+     */
     class RoomMapper extends AbstractMapper
     {
 
@@ -37,6 +43,8 @@ namespace Stark\Mappers
         }
 
         /**
+         * Creates a Room object from a DB entry
+         *
          * @param $data array data retrieve from the tdg
          *
          * @return DomainObject returns a fully-dressed object

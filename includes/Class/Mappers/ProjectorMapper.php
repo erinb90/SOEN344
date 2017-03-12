@@ -16,7 +16,9 @@ namespace Stark\Mappers
     use Stark\TDG\ProjectorTDG;
 
     /**
-     * Class ProjectorMapper
+     * Mapper for Projector objects
+     * Interacts with the ProjectorTDG to retrieve and manipulate Projector objects from DB
+     *
      * @package Stark\Mappers
      */
     class ProjectorMapper extends AbstractMapper
@@ -29,6 +31,7 @@ namespace Stark\Mappers
 
         /**
          * ProjectorMapper constructor.
+         * Set the parent table to Equipment to mimic inheritance in the DB
          */
         public function __construct()
         {
@@ -45,6 +48,7 @@ namespace Stark\Mappers
         }
 
         /**
+         * Returns all Projector objects from DB
          * @return array
          */
         public function findAll()
@@ -59,6 +63,8 @@ namespace Stark\Mappers
         }
 
         /**
+         * Creates a Projector object from a DB entry
+         *
          * @param $data array data retrieve from the tdg
 
          * @return Projector returns a fully-dressed object

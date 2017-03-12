@@ -8,7 +8,9 @@ namespace Stark\Mappers
     use Stark\TDG\LoanContractTDG;
 
     /**
-     * Class LoanContractMapper
+     * Mapper for LoanContract objects
+     * Interacts with the LoanContractTDG to retrieve and manipulate LoanContract objects from DB
+     *
      * @package Stark\Mappers
      */
     class LoanContractMapper extends AbstractMapper
@@ -34,6 +36,8 @@ namespace Stark\Mappers
         }
 
         /**
+         * Creates a LoanContract object from a DB entry
+         *
          * @param $data array data retrieve from the tdg
          *
          * @return LoanContract returns a fully-dressed object
@@ -54,7 +58,8 @@ namespace Stark\Mappers
         }
 
         /**
-         * returns LoanContract based on Reservation
+         * Returns a LoanContract given its ReservationId
+         *
          * @param $reservationid
          *
          * @return \Stark\Models\LoanContract
@@ -63,10 +68,7 @@ namespace Stark\Mappers
         {
             $loanContractArray = $this->getTdg()->findByReservationId($reservationid)[0];
             if(isset($loanContractArray)){
-                $loanContract = new LoanContract();
-                $loanContract->setLoanContractiD($loanContractArray['LoanContractId']);
-                $loanContract->setReservationId($loanContractArray['ReservationId']);
-                return $loanContract;
+                return $this->getModel($loanContractArray);
             }
 
             return null;

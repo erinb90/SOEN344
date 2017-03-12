@@ -5,7 +5,8 @@ namespace Stark\Interfaces
     use Stark\UnitOfWork;
     use Stark\Interfaces\TDG;
     /**
-     * Class AbstractMapper
+     * Abstract Mapper for all Mapper classes to inherit from.
+     * Contains methods for interacting with TDGs and UoW
      * @package Stark\Interfaces
      */
     abstract class AbstractMapper implements Gateway
@@ -24,7 +25,9 @@ namespace Stark\Interfaces
          */
         public abstract function getTdg();
 
-        /**.
+        /**
+         * Find an object from DB given its primary key
+         *
          * @param $id int
          *
          * @return DomainObject
@@ -35,6 +38,8 @@ namespace Stark\Interfaces
         }
 
         /**
+         * Takes all objects of the given type from DB and puts them into array
+         *
          * @return array returns an array of objects based on the domain object
          */
         public function findAll()
@@ -49,7 +54,9 @@ namespace Stark\Interfaces
         }
 
         /**
-         * @param $data array data retrieveD from the tdg
+         * Accesses the TDG to get object data, then uses data to instantiate a model object
+         *
+         * @param $data array data retrieved from the tdg
          *
          * @return DomainObject returns a fully-dressed object
          */
@@ -110,7 +117,7 @@ namespace Stark\Interfaces
         }
 
         /**
-         * This method registers deletion object in unit of work
+         * This method registers deletion of object in unit of work
          *
          * @param  DomainObject $object
          *

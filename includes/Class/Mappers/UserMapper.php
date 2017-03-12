@@ -10,13 +10,15 @@ namespace Stark\Mappers
     use Stark\TDG\UserTDG;
 
     /**
-     * Class UserMapper
+     * Mapper for User objects
+     * Interacts with the UserTDG to retrieve and manipulate User objects from DB
+     *
      * @package Stark\Mappers
      */
     class UserMapper extends AbstractMapper
     {
 
-        /**+
+        /**
          * @var \Stark\TDG\UserTDG
          */
         private $_tdg;
@@ -38,23 +40,26 @@ namespace Stark\Mappers
         }
 
         /**
+         * Retrieve all User objects from DB
+         *
          * @return array
          */
         public function findAll()
         {
-            $m = $this->getTdg()->findAll();
+            $dbEntries = $this->getTdg()->findAll();
 
             $users = [];
-            foreach ($m as $row)
+            foreach ($dbEntries as $row)
             {
                 $users[] = $this->getModel($row);
             }
-
 
             return $users;
         }
 
         /**
+         * Find a user given its email
+         *
          * @param $email
          *
          * @return \Stark\Models\User
@@ -65,6 +70,8 @@ namespace Stark\Mappers
         }
 
         /**
+         * Creates a User object from a DB entry
+         *
          * @param $data array data retrieve from the tdg
          *
          * @return User returns a fully-dressed object
@@ -77,7 +84,6 @@ namespace Stark\Mappers
                 return NULL;
             }
 
-
             $User = new User();
             $User->setCapstoneStudent( $data['CapstoneStudent']);
             $User->setFirstName($data['FirstName']);
@@ -86,8 +92,6 @@ namespace Stark\Mappers
             $User->setUserName($data['UserName']);
             $User->setUserId($data['UserId']);
             $User->setStudentId($data['StudentId']);
-
-
 
             return $User;
 
