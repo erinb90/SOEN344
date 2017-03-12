@@ -16,18 +16,25 @@ namespace Stark\TDG
 
     /**
      * Class LoanedEquipmentTDG
+     * Performs DB calls for LoanedEquipment table
      * @package Stark\TDG
      */
     class LoanedEquipmentTDG extends TDG
 
     {
 
+        /**
+         * Find a LoanedEquipment object given its LoanContractId
+         * @param $LoanContractId
+         * @return array
+         */
         public function findEquipmentByContractId($LoanContractId)
         {
             return $this->query('*', ['LoanContractId' => $LoanContractId]);
         }
 
         /**
+         * Insert LoanedEquipment object into DB
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\LoanedEquipment $object
          *
          * @return int returns the last inserted id
@@ -58,20 +65,32 @@ namespace Stark\TDG
         }
 
         /**
+         * Delete LoanedEquipment object from DB
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\LoanedEquipment $object
          *
-         * @return mixed
+         * @return bool
          */
         public function delete(DomainObject &$object)
         {
-            return Registry::getConnection()->delete($this->getTable(),
-                [
-                    $this->getPk() => $object->getLoanContractId()
-                ]
-            );
+            try
+            {
+                Registry::getConnection()->delete($this->getTable(),
+                    [
+                        $this->getPk() => $object->getLoanContractId()
+                    ]
+                );
+                return true;
+            }
+            catch(\Exception $e)
+            {
+
+            }
+            return false;
+
         }
 
         /**
+         * Update LoanedEquipment object in DB
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\LoanedEquipment $object
          *
          * @return bool

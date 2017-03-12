@@ -27,11 +27,15 @@ namespace Stark\Interfaces
         private $_pk;
 
         /**
+         * name of the parent table accessed by TDG in the case of inheritance
+         * set to null by default
          * @var null
          */
         private $_parentTable = NULL;
 
         /**
+         * name of the primary key of the parent table
+         * set to null by default
          * @var null
          */
         private $_parentPk = NULL;
@@ -50,6 +54,7 @@ namespace Stark\Interfaces
         }
 
         /**
+         * set a parent table in the case of inheritance
          * @param $table
          * @param $pk
          */
@@ -95,6 +100,7 @@ namespace Stark\Interfaces
 
         /**
          * Insert new object into DB
+         * Returns the ID of the last inserted row, or -1 if insert unsuccessful
          *
          * @param \Stark\Interfaces\DomainObject $object
          *
@@ -104,15 +110,17 @@ namespace Stark\Interfaces
 
         /**
          * Delete object from DB
+         * Returns true if delete was successful, false if not
          *
          * @param \Stark\Interfaces\DomainObject $object
          *
-         * @return mixed
+         * @return bool
          */
         public abstract function delete(DomainObject &$object);
 
         /**
          * Modify object in DB
+         * Returns true if update was successful, false if not
          *
          * @param \Stark\Interfaces\DomainObject $object
          *

@@ -16,12 +16,14 @@ namespace Stark\TDG
 
     /**
      * Class ProjectorTDG
+     * Performs DB calls for Projector and Equipment tables
      * @package Stark\TDG
      */
     class ProjectorTDG extends TDG
     {
 
         /**
+         * Insert a Projector object into DB
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\Projector $object
          *
          * @return int returns the last inserted id
@@ -33,6 +35,7 @@ namespace Stark\TDG
 
             try
             {
+                //Common equipment attributes to insert into parent Equipment table
                 Registry::getConnection()->insert($this->getParentTable(),
                     [
                         "Manufacturer" => $object->getManufacturer(),
@@ -45,7 +48,7 @@ namespace Stark\TDG
                 $lastId = Registry::getConnection()->lastInsertId();
 
 
-                // Projector specific
+                // Projector-specific attributes to insert into Projector table
                 Registry::getConnection()->insert($this->getTable(),
                     [
                         "Display"     => $object->getManufacturer(),
@@ -68,47 +71,73 @@ namespace Stark\TDG
         }
 
         /**
+         * Delete a Projector object from parent Equipment table
+         * This should automatically remove the entry from the child Projector table
+         *
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\Projector $object
          *
-         * @return mixed
+         * @return bool
          */
         public function delete(DomainObject &$object)
         {
-            // This works under the assumption that CASCADE DELETE is on
-            return Registry::getConnection()->delete($this->getParentTable(),
-                [
-                    $this->getParentPk() => $object->getEquipmentId()
-                ]
-            );
+            try
+            {
+                // This works under the assumption that CASCADE DELETE is on
+                Registry::getConnection()->delete($this->getParentTable(),
+                    [
+                        $this->getParentPk() => $object->getEquipmentId()
+                    ]
+                );
+                return true;
+            }
+            catch(\Exception $e)
+            {
+
+            }
+            return false;
+
         }
 
         /**
+         * Updates a Projector object in DB
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\Projector $object
          *
          * @return bool
          */
         public function update(DomainObject &$object)
         {
-            Registry::getConnection()->update(
-                $this->getTable(),
-                [
-                    "Display"    => $object->getDisplay(),
-                    "Resolution" => $object->getResolution()
-                ],
-                [$this->getPk() => $object->getEquipmentId()]
-            );
+            try
+            {
+                //update projector-specific attributes in Projector table
+                Registry::getConnection()->update(
+                    $this->getTable(),
+                    [
+                        "Display"    => $object->getDisplay(),
+                        "Resolution" => $object->getResolution()
+                    ],
+                    [$this->getPk() => $object->getEquipmentId()]
+                );
 
+                //update common equipment attributes in Equipment table
+                Registry::getConnection()->update(
+                    $this->getParentTable(),
+                    [
+                        "Manufacturer" => $object->getManufacturer(),
+                        "ProductLine"  => $object->getProductLine(),
+                        "Description"  => $object->getDescription(),
+                        "Quantity"     => $object->getQuantity()
+                    ],
+                    [$this->getParentPk() => $object->getEquipmentId()]
+                );
 
-            Registry::getConnection()->update(
-                $this->getParentTable(),
-                [
-                    "Manufacturer" => $object->getManufacturer(),
-                    "ProductLine"  => $object->getProductLine(),
-                    "Description"  => $object->getDescription(),
-                    "Quantity"     => $object->getQuantity()
-                ],
-                [$this->getParentPk() => $object->getEquipmentId()]
-            );
+                return true;
+            }
+            catch(\Exception $e)
+            {
+
+            }
+            return false;
+
         }
     }
 }
