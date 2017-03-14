@@ -5,6 +5,8 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php');
 use Stark\CreateReservationSession;
 use Stark\Enums\EquipmentType;
 use Stark\Models\EquipmentRequest;
+use Stark\TimeValidator;
+use Stark\Utilities\ReservationSanitizer;
 use Stark\WebUser;
 
 // Parse incoming request and extract query parameters
@@ -14,20 +16,17 @@ $equipments = json_decode($_REQUEST['equipment']);
 
 // Convert to equipment requests
 $equipmentRequests = [];
-foreach ($equipments as $equipment){
+foreach ($equipments as $equipment) {
     $equipmentRequests[] = new EquipmentRequest($equipment[0], $equipment[1]);
 }
 
 $user = WebUser::getUser();
 
-// TODO : Perform time sanitizing using regex
-$startTimeDateAsString = $requestParameters['rDate'] . " " . $requestParameters['startTime'] . ":00";
-$startTimeDate = date("Y-m-d H:i:s", strtotime($startTimeDateAsString));
-
-$endTimeDateAsString = $requestParameters['rDate'] . " " . $requestParameters['endTime'] . ":00";
-$endTimeDate = date("Y-m-d H:i:s", strtotime($endTimeDateAsString));
-
-$timeValidationErrors = \Stark\TimeValidator::validate($startTimeDate, $endTimeDate)->getErrors();
+// Sanitize input data
+$reservationSanitizer = new ReservationSanitizer();
+$startTimeDate = $reservationSanitizer->convertToDateTime($requestParameters['rDate'], $requestParameters['startTime']);
+$endTimeDate = $reservationSanitizer->convertToDateTime($requestParameters['rDate'], $requestParameters['endTime']);
+$timeValidationErrors = TimeValidator::validate($startTimeDate, $endTimeDate)->getErrors();
 
 if (!empty($timeValidationErrors)) {
     foreach ($timeValidationErrors as $error) {
@@ -81,7 +80,7 @@ if ($ReservationSession->reserve()) {
             Reasons for conflict:
             <br/>
             <?php
-            foreach ($conflicts as $conflict){
+            foreach ($conflicts as $conflict) {
                 echo $conflict . "<br/>";
             }
             ?>

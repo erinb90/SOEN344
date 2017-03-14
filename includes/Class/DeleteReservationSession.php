@@ -106,35 +106,35 @@ namespace Stark {
                 foreach ($waitList as $waitingReservation) {
                     $canBeAccommodated = false;
 
+                    $equipmentRequests = [];
                     $loanedEquipments = $Session->getReservationManager()->getLoanedEquipmentForReservation($waitingReservation->getReservationID());
                     if (isset($loanedEquipments) && !empty($loanedEquipments)) {
                         /**
                          * @var EquipmentRequest[] $equipmentRequests
                          */
-                        $equipmentRequests = [];
                         foreach ($loanedEquipments as $loanedEquipment) {
                             $equipment = $Session->getReservationManager()->getEquipmentForId($loanedEquipment->getEquipmentId());
                             if ($equipment != null) {
                                 $equipmentRequests[] = new EquipmentRequest($equipment->getEquipmentId(), $equipment->getDiscriminator());
                             }
                         }
+                    }
 
-                        $reservationConflicts = $Session->getReservationManager()
-                            ->checkForConflicts($waitingReservation->getRoomId(), $waitingReservation->getStartTimeDate(), $waitingReservation->getEndTimeDate(), $equipmentRequests);
+                    $reservationConflicts = $Session->getReservationManager()
+                        ->checkForConflicts($waitingReservation->getRoomId(), $waitingReservation->getStartTimeDate(), $waitingReservation->getEndTimeDate(), $equipmentRequests);
 
-                        // If required
-                        $errors = $Session->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
+                    // If required
+                    $errors = $Session->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
 
-                        if (empty($reservationConflicts)) {
-                            $canBeAccommodated = true;
-                        } else if (!empty($reservationConflicts) && empty($errors)) {
-                            // Re-map loaned equipment with new ids
-                            foreach ($equipmentRequests as $i => $equipmentRequest) {
-                                $loanedEquipments[$i]->setEquipmentId($equipmentRequest->getEquipmentId());
-                                $Session->getLoanedEquipmentMapper()->uowUpdate($loanedEquipments[$i]);
-                            }
-                            $canBeAccommodated = true;
+                    if (empty($reservationConflicts)) {
+                        $canBeAccommodated = true;
+                    } else if (!empty($reservationConflicts) && empty($errors)) {
+                        // Re-map loaned equipment with new ids
+                        foreach ($equipmentRequests as $i => $equipmentRequest) {
+                            $loanedEquipments[$i]->setEquipmentId($equipmentRequest->getEquipmentId());
+                            $Session->getLoanedEquipmentMapper()->uowUpdate($loanedEquipments[$i]);
                         }
+                        $canBeAccommodated = true;
                     }
 
                     if ($canBeAccommodated) {
