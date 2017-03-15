@@ -115,7 +115,7 @@ namespace Stark {
         public function login()
         {
             $user = $this->fetchUser($this->_credentials["email"]);
-            if (empty($this->_error_messages)) {
+            if (empty($this->_errorMessages)) {
                 session_start();
                 @session_regenerate_id(true);
                 $_SESSION['email'] = $user->getUserName();
