@@ -17,6 +17,7 @@ namespace Stark\TDG
 
     /**
      * Class ComputerTDG
+     * Performs DB calls for Equipment and Computer tables
      * @package Stark\TDG
      */
     class ComputerTDG extends TDG
@@ -34,6 +35,8 @@ namespace Stark\TDG
         }
 
         /**
+         * Inserts a Computer object into DB
+         *
          * @param \Stark\Models\Computer|\Stark\Interfaces\DomainObject $computer
          *
          * @return int
@@ -46,6 +49,7 @@ namespace Stark\TDG
 
             try
             {
+                //Common equipment attributes to insert into parent Equipment table
                 Registry::getConnection()->insert($this->getParentTable(),
                     [
                         "Manufacturer" => $computer->getManufacturer(),
@@ -55,10 +59,11 @@ namespace Stark\TDG
                     ]
                 );
 
+                //get the id of the last inserted row
                 $lastId = Registry::getConnection()->lastInsertId();
 
 
-                // computer specific
+                // Computer-specific attributes to insert into Computer table
                 Registry::getConnection()->insert($this->getTable(),
                     [
                         "Ram"         => $computer->getManufacturer(),
@@ -67,7 +72,7 @@ namespace Stark\TDG
                     ]
                 );
 
-
+                //commit changes
                 Registry::getConnection()->commit();
 
             }
@@ -83,48 +88,72 @@ namespace Stark\TDG
         }
 
         /**
+         * Removes a Computer object from parent Equipment table
+         * This should automatically remove the entry from the child Computer table
+         *
          * @param \Stark\Models\Computer|\Stark\Interfaces\DomainObject $object
          *
-         * @return mixed
+         * @return bool
          */
         public function delete(DomainObject &$object)
         {
-            // This works under the assumption that CASCADE DELETE is on
-            return Registry::getConnection()->delete($this->getParentTable(),
-                [
-                    $this->getParentPk() => $object->getEquipmentId()
-                ]
-            );
+            try
+            {
+                // This works under the assumption that CASCADE DELETE is on
+                Registry::getConnection()->delete($this->getParentTable(),
+                    [
+                        $this->getParentPk() => $object->getEquipmentId()
+                    ]
+                );
+                return true;
+            }
+            catch(\Exception $e)
+            {
+
+            }
+            return false;
         }
 
         /**
+         * Updates a Computer object in the DB
+         *
          * @param \Stark\Models\Computer|\Stark\Interfaces\DomainObject $object
          *
-         * @return mixed
+         * @return bool
          */
         public function update(DomainObject &$object)
         {
+            try
+            {
+                //update computer-specific attributes in Computer table
+                Registry::getConnection()->update(
+                    $this->getTable(),
+                    [
+                        "Ram" => $object->getRam(),
+                        "Cpu" => $object->getCpu()
+                    ],
+                    [$this->getPk() => $object->getEquipmentId()]
+                );
 
-            Registry::getConnection()->update(
-                $this->getTable(),
-                [
-                    "Ram" => $object->getRam(),
-                    "Cpu" => $object->getCpu()
-                ],
-                [$this->getPk() => $object->getEquipmentId()]
-            );
+                //update common equipment attributes in Equipment table
+                Registry::getConnection()->update(
+                    $this->getParentTable(),
+                    [
+                        "Manufacturer" => $object->getManufacturer(),
+                        "ProductLine"  => $object->getProductLine(),
+                        "Description"  => $object->getDescription(),
+                        "Quantity"     => $object->getQuantity()
+                    ],
+                    [$this->getParentPk() => $object->getEquipmentId()]
+                );
 
-
-            Registry::getConnection()->update(
-                $this->getParentTable(),
-                [
-                    "Manufacturer" => $object->getManufacturer(),
-                    "ProductLine"  => $object->getProductLine(),
-                    "Description"  => $object->getDescription(),
-                    "Quantity"     => $object->getQuantity()
-                ],
-                [$this->getParentPk() => $object->getEquipmentId()]
-            );
+                return true;
+            }
+            catch(\Exception $e)
+            {
+                
+            }
+            return false;
         }
     }
 }

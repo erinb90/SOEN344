@@ -15,17 +15,24 @@ namespace Stark\TDG
 
     /**
      * Class LoanContractTDG
+     * Performs DB calls for LoanContract table
      * @package Stark\TDG
      */
     class LoanContractTDG extends TDG
     {
-
+        /**
+         * Find a LoanContract in DB given its reservationId
+         * @param $reservationId
+         * @return array
+         */
         public function findByReservationId($reservationId)
         {
             return $this->query('*',["ReservationId" => $reservationId]);
         }
 
         /**
+         * Insert a LoanContract object in DB
+         *
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\LoanContract $object
          *
          * @return int
@@ -56,24 +63,34 @@ namespace Stark\TDG
         }
 
         /**
+         * Deletes a LoanContract object from DB
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\LoanContract $object
          *
-         * @return mixed
+         * @return bool
          */
         public function delete(DomainObject &$object)
         {
+            try
+            {
+                Registry::getConnection()->delete($this->getTable(),
+                    [
+                        $this->getPk() => $object->getLoanContractiD()
+                    ]
+                );
+                return true;
+            }
+            catch(\Exception $e)
+            {
 
-            return Registry::getConnection()->delete($this->getTable(),
-                [
-                    $this->getPk() => $object->getLoanContractiD()
-                ]
-            );
+            }
+            return false;
         }
 
         /**
+         * Updates a LoanContract object in DB
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\LoanContract $object
          *
-         * @return mixed
+         * @return bool
          */
         public function update(DomainObject &$object)
         {

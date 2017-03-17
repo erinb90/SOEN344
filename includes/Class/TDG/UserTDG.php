@@ -16,12 +16,14 @@ namespace Stark\TDG
 
     /**
      * Class UserTDG
+     * Performs DB calls for Users table
      * @package Stark\TDG
      */
     class UserTDG extends TDG
     {
 
         /**
+         * Find a user given an email address
          * @param $email
          *
          * @return array
@@ -33,6 +35,7 @@ namespace Stark\TDG
         }
 
         /**
+         * Insert a User into DB
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\User $object
          *
          * @return int returns the last inserted id
@@ -70,38 +73,58 @@ namespace Stark\TDG
         }
 
         /**
+         * Delete a User from DB
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\User $object
          *
-         * @return mixed
+         * @return bool
          */
         public function delete(DomainObject &$object)
         {
-            return Registry::getConnection()->delete($this->getTable(),
-                [
-                    $this->getPk() => $object->getUserId()
-                ]
-            );
+            try
+            {
+                Registry::getConnection()->delete($this->getTable(),
+                    [
+                        $this->getPk() => $object->getUserId()
+                    ]
+                );
+                return true;
+            }
+            catch(\Exception $e)
+            {
+
+            }
+            return false;
+
         }
 
         /**
+         * Update a User in DB
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\User $object
          *
          * @return bool
          */
         public function update(DomainObject &$object)
         {
-            Registry::getConnection()->update(
-                $this->getTable(),
-                [
-                    "FirstName"       => $object->getFirstName(),
-                    "LastName"        => $object->getLastName(),
-                    "Password"        => $object->getPassword(),
-                    "StudentId"       => $object->getStudentId(),
-                    "CapstoneStudent" => $object->isCapstoneStudent()
-                ],
-                [$this->getPk() => $object->getUserId()]
-            );
+            try
+            {
+                Registry::getConnection()->update(
+                    $this->getTable(),
+                    [
+                        "FirstName"       => $object->getFirstName(),
+                        "LastName"        => $object->getLastName(),
+                        "Password"        => $object->getPassword(),
+                        "StudentId"       => $object->getStudentId(),
+                        "CapstoneStudent" => $object->isCapstoneStudent()
+                    ],
+                    [$this->getPk() => $object->getUserId()]
+                );
+                return true;
+            }
+            catch(\Exception $e)
+            {
 
+            }
+            return false;
 
         }
     }

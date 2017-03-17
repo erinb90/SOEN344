@@ -16,12 +16,14 @@ namespace Stark\TDG
 
     /**
      * Class RoomTDG
+     * Performs DB calls for Rooms table
      * @package Stark\TDG
      */
     class RoomTDG extends TDG
     {
 
         /**
+         * Insert a Room into DB
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\Room $object
          *
          * @return int returns the last inserted id
@@ -52,21 +54,32 @@ namespace Stark\TDG
         }
 
         /**
+         * Delete a Room from DB
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\Room $object
          *
-         * @return mixed
+         * @return bool
          */
         public function delete(DomainObject &$object)
         {
+            try
+            {
+                Registry::getConnection()->delete($this->getTable(),
+                    [
+                        $this->getPk() => $object->getRoomId()
+                    ]
+                );
+                return true;
+            }
+            catch (\Exception $e)
+            {
 
-            return Registry::getConnection()->delete($this->getTable(),
-                [
-                    $this->getPk() => $object->getRoomId()
-                ]
-            );
+            }
+            return false;
+
         }
 
         /**
+         * Update a Room in DB
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\Room $object
          *
          * @return bool

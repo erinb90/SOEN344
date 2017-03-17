@@ -9,6 +9,7 @@ namespace Stark\TDG
     use Stark\Registry;
 
     /**
+     * Performs DB calls for Reservation table
      * Class ReservationTDG
      * @package Stark\TDG
      */
@@ -16,6 +17,7 @@ namespace Stark\TDG
     {
 
         /**
+         * Find a Reservation given a UserId
          * @param $studentid
          *
          * @return array
@@ -32,6 +34,7 @@ namespace Stark\TDG
         }
 
         /**
+         * Returns all waitlisted reservations
          * @return array
          */
         public function findAllWaitlisted()
@@ -46,6 +49,7 @@ namespace Stark\TDG
         }
 
         /**
+         * Returns all active reservations
          * @return array
          */
         public function findAllActive()
@@ -60,6 +64,7 @@ namespace Stark\TDG
         }
 
         /**
+         * Inserts a Reservation object into DB
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\Reservation $object
          *
          * @return int returns the last inserted id
@@ -96,21 +101,33 @@ namespace Stark\TDG
         }
 
         /**
+         * Delete a Reservation from DB
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\Reservation $object
          *
-         * @return mixed
+         * @return bool
          */
         public function delete(DomainObject &$object)
         {
-            return Registry::getConnection()->delete($this->getTable(),
-                [
-                    $this->getPk() => $object->getReservationID()
-                ]
-            );
+            try
+            {
+                Registry::getConnection()->delete($this->getTable(),
+                    [
+                        $this->getPk() => $object->getReservationID()
+                    ]
+                );
+                return true;
+            }
+            catch(\Exception $e)
+            {
+
+            }
+            return false;
+
         }
 
 
         /**
+         * Update a Reservation in DB
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\Reservation $object
          *
          * @return bool
