@@ -1,6 +1,6 @@
 <?php
 
-namespace Stark
+namespace Stark\Utilities;
 {
 
 
@@ -13,7 +13,8 @@ namespace Stark
 
     /**
      * Class EquipmentFinder
-     * @package Stark
+     * Helper class to find a list of equipment loaned on a specific timeslot
+     * @package Stark\Utilities
      */
     class EquipmentFinder
     {
@@ -40,7 +41,7 @@ namespace Stark
             $this->_endtime = $endtime;
 
 
-            $this->findSamereservationTimes();
+            $this->findSameReservationTimes();
             $this->mapEquipment();
 
         }
@@ -48,7 +49,7 @@ namespace Stark
         /**
          *
          */
-        private function findSamereservationTimes()
+        private function findSameReservationTimes()
         {
             $ReservationMapper = new ReservationMapper();
 

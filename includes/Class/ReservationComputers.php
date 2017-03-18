@@ -8,6 +8,11 @@ namespace Stark
     use Stark\Models\Computer;
     use Stark\Models\LoanedEquipment;
 
+    /**
+     * Class ReservationComputers
+     * fetches a list/array of computers for a particular reservation
+     * @package Stark
+     */
     class ReservationComputers extends ReservationEquipment
     {
 
