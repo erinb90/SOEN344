@@ -10,6 +10,7 @@ return [
     'reservations' => [
         'max_per_week'        => 3,    // hours
         'max_per_reservation' => 180,  // mins
-        'max_repeats'         => 3
+        'max_repeats'         => 3,
+        'lock'                => 120   // seconds
     ]
 ];

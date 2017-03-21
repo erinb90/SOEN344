@@ -120,7 +120,7 @@ namespace Stark {
                 @session_regenerate_id(true);
                 $_SESSION['email'] = $user->getUserName();
                 $_SESSION['sid'] = $user->getStudentId();
-                WebUser::setUser($user);
+
                 return true;
             }
 
@@ -128,4 +128,3 @@ namespace Stark {
         }
     }
 }
-

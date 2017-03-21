@@ -1,90 +1,132 @@
 <?php
 
-/**
- * Created by PhpStorm.
- * User: Dimitri
- * Date: 1/23/2017
- * Time: 12:54 AM
- */
-class LockDomain implements DomainObject
+
+namespace Stark\Models
 {
 
-    private $_lid;
-
-    private $_roomID;
-
-    private $_studentID;
-
-    private $_Locktime;
-
-    public function __construct()
-    {
-
-    }
+    use Stark\Interfaces\DomainObject;
 
     /**
-     * @return mixed
+     * Class LockDomain
+     * @package Stark\Models
      */
-    public function getLid()
+    class LockDomain implements DomainObject
     {
-        return $this->_lid;
+
+        private $_lockId;
+
+        private $_RoomId;
+
+        private $_UserId;
+
+        private $_LockStartTime;
+
+        private $_LockEndTime;
+
+        /**
+         * LockDomain constructor.
+         */
+        public function __construct()
+        {
+
+        }
+
+        /**
+         * @return mixed
+         */
+        public function getLockId()
+        {
+            return $this->_lockId;
+        }
+
+        /**
+         * @param mixed $lockId
+         */
+        public function setLockId($lockId)
+        {
+            $this->_lockId = $lockId;
+        }
+
+        /**
+         * @return mixed
+         */
+        public function getRoomId()
+        {
+            return $this->_RoomId;
+        }
+
+        /**
+         * @param mixed $RoomId
+         */
+        public function setRoomId($RoomId)
+        {
+            $this->_RoomId = $RoomId;
+        }
+
+        /**
+         * @return mixed
+         */
+        public function getUserId()
+        {
+            return $this->_UserId;
+        }
+
+        /**
+         * @param mixed $UserId
+         */
+        public function setUserId($UserId)
+        {
+            $this->_UserId = $UserId;
+        }
+
+        /**
+         * @return mixed
+         */
+        public function getLockStartTime()
+        {
+            return $this->_LockStartTime;
+        }
+
+        /**
+         * @param mixed $LockStartTime
+         */
+        public function setLockStartTime($LockStartTime)
+        {
+            $this->_LockStartTime = $LockStartTime;
+        }
+
+        /**
+         * @return mixed
+         */
+        public function getLockEndTime()
+        {
+            return $this->_LockEndTime;
+        }
+
+        /**
+         * @param mixed $LockEndTime
+         */
+        public function setLockEndTime($LockEndTime)
+        {
+            $this->_LockEndTime = $LockEndTime;
+        }
+
+
+        /**
+         * @return bool
+         */
+        public function isExpired()
+        {
+            return strtotime(date('Y-m-d H:i:s')) > strtotime($this->getLockEndTime());
+        }
+
+        /**
+         * @return int
+         */
+        public function getRemainingSeconds()
+        {
+            return strtotime($this->getLockEndTime()) - strtotime(date('Y-m-d H:i:s'));
+        }
+
     }
-
-    /**
-     * @param mixed $lid
-     */
-    public function setLid($lid)
-    {
-        $this->_lid = $lid;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getRoomID()
-    {
-        return $this->_roomID;
-    }
-
-    /**
-     * @param mixed $roomID
-     */
-    public function setRoomID($roomID)
-    {
-        $this->_roomID = $roomID;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getStudentID()
-    {
-        return $this->_studentID;
-    }
-
-    /**
-     * @param mixed $studentID
-     */
-    public function setStudentID($studentID)
-    {
-        $this->_studentID = $studentID;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getLocktime()
-    {
-        return $this->_Locktime;
-    }
-
-    /**
-     * @param mixed $Locktime
-     */
-    public function setLocktime($Locktime)
-    {
-        $this->_Locktime = $Locktime;
-    }
-
-
 }

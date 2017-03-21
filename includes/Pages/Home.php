@@ -2,6 +2,8 @@
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php';
 
+Stark\WebUser::isLoggedIn(true);
+
 use Stark\EquipmentFinder;
 use Stark\RoomDirectory;
 use Stark\Utilities;
@@ -11,9 +13,9 @@ $RoomDirectory = new RoomDirectory();
 
 
 $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
-print_r($Wailist->getWaitlistedReservations());
+//print_r($Wailist->getWaitlistedReservations());
 
-print_r($Wailist->getNextReservationsWaiting());
+//print_r($Wailist->getNextReservationsWaiting());
 
 ?>
 <!DOCTYPE html>
@@ -45,11 +47,6 @@ print_r($Wailist->getNextReservationsWaiting());
     <!--Try to update to new jquery, doesn't seem to work with jquery 3.1.1-->
     <link rel="stylesheet" href="../../plugins/jquery-ui/jquery-ui.min.css">
     <!-- All Javascript for Home.php page -->
-
-    <!--
-    <script src="../../Javascript/Home.js"></script>
-
-    -->
     <script src="../../plugins/jquery-ui/jquery-ui.min.js"></script>
     <!-- Google Web Font Format for title -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
@@ -79,7 +76,7 @@ print_r($Wailist->getNextReservationsWaiting());
 
         //todo: needs some refactoring
 
-        var CCOUNT = 5000;
+        CCOUNT = "<?php echo \Stark\CoreConfig::settings()['reservations']['lock']; ?>";
 
         var t, count;
 
@@ -122,6 +119,55 @@ print_r($Wailist->getNextReservationsWaiting());
             cddisplay();
         };
 
+        function openReservation(roomid)
+        {
+            // open modal
+            $('#myModal').dialog({
+                width      : 1200,
+                modal      : true,
+                height     : 700,
+                show       : 'fade',
+                title      : 'Make Reservation',
+                beforeClose: function (event, ui)
+                {
+                    //unlock room
+                    $.ajax({
+                        type    : "POST",
+                        url     : "Lock.php", //file name
+                        dataType: "json",
+                        data    :
+                            {
+                                action: "unlock",
+                                roomID: roomid
+                            },
+                        success : function (data)
+                        {
+
+                            console.log(data);
+                            if(data.success)
+                            {
+                                // stop timer
+                                cdpause();
+                            }
+                            else
+                            {
+                                $('#lockMessageModal').dialog({
+
+                                    width : 300,
+                                    height :200
+                                });
+
+                                $('#lockMessage').html(data.error);
+
+                                return;
+                            }
+                        },
+                    });
+
+                    $(this).dialog("destroy");
+                }
+            });
+        }
 
         $(function ()
         {
@@ -145,18 +191,29 @@ print_r($Wailist->getNextReservationsWaiting());
             //what happens when you click on the make reserve button
             $(document).on('click', '#makeReserve', function ()
             {
-                //reset timer
-                cdreset();
+
+                // count errors to check if we can actually open modal for reservation
+                errors = 0;
 
                 var roomid = $('#roomOptions').val();
                 var roomName = $('#roomOptions option[value=' + roomid + ']').text();
                 $('#roomName').val(roomName);
                 $('#roomID').val(roomid);
 
+                $('#lockMessageModal').dialog({
+
+                    width : 300,
+                    height :200,
+                    modal : true
+
+                });
+                $('#lockMessage').html("Please wait...");
+
                 // lock room
                 $.ajax({
                     type    : "POST",
                     url     : "Lock.php", //file name
+                    dataType: "json",
                     data    : {
                         action: "lock",
                         roomID: roomid
@@ -164,53 +221,35 @@ print_r($Wailist->getNextReservationsWaiting());
                     success : function (data)
                     {
                         // start countdown
-                        countdown();
-                    },
-                    complete: function ()
-                    {
-                    },
-                    error   : function ()
-                    {
-                        alert("Cannot lock room. Network error.");
-                        return;
+
+                        console.log(data);
+                        if(data.success)
+                        {
+
+                            if(data.remaining !== undefined)
+                            {
+                                //let the timer start where it left off for the user
+                                CCOUNT = data.remaining;
+                            }
+
+                            $('#lockMessageModal').dialog('close');
+                            openReservation(roomid);
+                            cdreset();
+                            countdown();
+                        }
+                        else
+                        {
+
+                            $('#lockMessage').html(data.error);
+                        }
                     }
                 });
 
-                // open modal
-                $('#myModal').dialog({
-                    width      : 1200,
-                    modal      : true,
-                    height     : 700,
-                    show       : 'fade',
-                    title      : 'Make Reservation',
-                    beforeClose: function (event, ui)
-                    {
-                        //unlock room
-                        $.ajax({
-                            type    : "POST",
-                            url     : "Lock.php", //file name
-                            data    : {
-                                action: "unlock",
-                                roomID: roomid
-                            },
-                            success : function (data)
-                            {
-                                // stop timer
-                                cdpause();
-                            },
-                            complete: function ()
-                            {
-                            },
-                            error   : function ()
-                            {
-                            }
-                        });
-                        $(this).dialog("destroy");
-                    }
-                });
+
+
             });
-            
-            // cancel reservation 
+
+            // cancel reservation
 
             // cancel reservation
             $(document).on('click', '#cancelReservation', function ()
@@ -255,19 +294,19 @@ print_r($Wailist->getNextReservationsWaiting());
             //when clicking on View for a user's equipment if he has for his/her reservation
 
             $(document).on('click', '#viewEquipment', function(){
-               $row = $(this).closest('tr');
-               var reservation = userReservations.row($row).data();
-               var reservationId = reservation.reid;
+                $row = $(this).closest('tr');
+                var reservation = userReservations.row($row).data();
+                var reservationId = reservation.reid;
 
-               if(!reservationId)
-                   return;
+                if(!reservationId)
+                    return;
 
 
-               $('#myEquipmentModal').dialog({
-                  width: 1000,
-                   height: 500,
-                   title : 'Loaned Equipment for Reservation #' + reservationId
-               });
+                $('#myEquipmentModal').dialog({
+                    width: 1000,
+                    height: 500,
+                    title : 'Loaned Equipment for Reservation #' + reservationId
+                });
 
 
                 myProjectorsListTable = $('#myProjectorsListTable').DataTable({
@@ -410,7 +449,7 @@ print_r($Wailist->getNextReservationsWaiting());
                     type    : "POST",
                     url     : "Ajax/Reserve.php", //file name
                     data    : {
-                      formData : ser,
+                        formData : ser,
                         equipment: JSON.stringify(equipment)
                     },
                     success : function (data)
@@ -627,7 +666,7 @@ print_r($Wailist->getNextReservationsWaiting());
                         </select>
                         <!-- Hidden input for temporary datepicker fix-->
                         <input type="hidden" readonly="readonly" type="text" class="form-control" name="dateDrop"
-                                id="dateDrop" placeholder="Nothing" />
+                               id="dateDrop" placeholder="Nothing" />
                         <button type="button" class="btn btn-default btn-lg" id="makeReserve"><span
                                     class="network-name">Make a Reservation</span></button>
 
@@ -636,11 +675,6 @@ print_r($Wailist->getNextReservationsWaiting());
 
                 </div>
                 <br>
-                <div id="legendContainer">
-                    <h6 class="legendTitle">LEGEND</h6>
-                    <h6 class="green">Your Booking</h6>
-                    <h6 class="red">Booked</h6>
-                </div>
             </div>
 
             <!-- Reservation Modal -->
@@ -673,12 +707,12 @@ print_r($Wailist->getNextReservationsWaiting());
                                         <input readonly="readonly" class="form-control" id="roomName" name="roomName" />
                                         <label>Title of Reservation</label>
                                         <input required type="text" class="form-control" placeholder="Enter a Title"
-                                                name="title">
+                                               name="title">
 
                                         <label>Description of Reservation</label>
                                         <textarea style="resize:none;" rows="3" cols="50"
-                                                placeholder="Describe the Reservation here..." class="form-control"
-                                                name="description"></textarea>
+                                                  placeholder="Describe the Reservation here..." class="form-control"
+                                                  name="description"></textarea>
 
                                         <label for="rDate">Date:</label>
                                         <input type="text" class="form-control" name="rDate" id="rDate" /> <br>
@@ -757,35 +791,35 @@ print_r($Wailist->getNextReservationsWaiting());
                                 <div class="form-group">
                                     <label>First name</label>
                                     <input readonly="readonly" type="text" class="form-control" name="firstName" id="firstName"
-                                            placeholder="First Name"
-                                            value="<?php echo WebUser::getUser()->getFirstName(); ?>" />
+                                           placeholder="First Name"
+                                           value="<?php echo WebUser::getUser()->getFirstName(); ?>" />
                                 </div>
                                 <div class="form-group">
                                     <label>Last name</label>
                                     <input readonly="readonly" type="text" class="form-control" name="lastName" id="lastName"
-                                            placeholder="Last Name"
-                                            value="<?php echo WebUser::getUser()->getLastName(); ?>" />
+                                           placeholder="Last Name"
+                                           value="<?php echo WebUser::getUser()->getLastName(); ?>" />
                                 </div>
                                 <div class="form-group">
                                     <label>Student ID</label>
                                     <input readonly="readonly" type="text" class="form-control" name="studentID"
-                                            placeholder="Student ID" value="<?php echo WebUser::getUser()->getStudentId(); ?>" />
+                                           placeholder="Student ID" value="<?php echo WebUser::getUser()->getStudentId(); ?>" />
                                 </div>
 
                                 <div class="form-group">
                                     <label>Old Password</label>
                                     <input type="password" class="form-control" name="oldPass"
-                                            placeholder="Old Password" />
+                                           placeholder="Old Password" />
                                 </div>
                                 <div class="form-group">
                                     <label>New Password</label>
                                     <input type="password" class="form-control" name="newPass"
-                                            placeholder="New Password" />
+                                           placeholder="New Password" />
                                 </div>
                                 <div class="form-group">
                                     <label>Email Address</label>
                                     <input type="text" class="form-control" name="uEmail" id="uEmail"
-                                            placeholder="Email Address" value="<?php echo WebUser::getUser()->getUserName(); ?>" />
+                                           placeholder="Email Address" value="<?php echo WebUser::getUser()->getUserName(); ?>" />
                                 </div>
 
 
@@ -867,34 +901,34 @@ print_r($Wailist->getNextReservationsWaiting());
     <div id="accordionEquipment">
         <h3>Computers</h3>
         <div>
-        <table id="myComputersListTable" width="100%" class="table table-bordered">
-            <thead>
-            <tr>
-                <th>Equipment ID</th>
-                <th>Manufacturer</th>
-                <th>Product Line</th>
-                <th>Description</th>
-                <th>CPU</th>
-                <th>RAM</th>
-            </tr>
-            </thead>
-        </table>
+            <table id="myComputersListTable" width="100%" class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Equipment ID</th>
+                    <th>Manufacturer</th>
+                    <th>Product Line</th>
+                    <th>Description</th>
+                    <th>CPU</th>
+                    <th>RAM</th>
+                </tr>
+                </thead>
+            </table>
         </div>
 
         <h3>Projectors</h3>
         <div>
-        <table id="myProjectorsListTable" width="100%" class="table table-bordered">
-            <thead>
-            <tr>
-                <th>Equipment ID</th>
-                <th>Manufacturer</th>
-                <th>Product Line</th>
-                <th>Description</th>
-                <th>Display</th>
-                <th>Resolution</th>
-            </tr>
-            </thead>
-        </table>
+            <table id="myProjectorsListTable" width="100%" class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Equipment ID</th>
+                    <th>Manufacturer</th>
+                    <th>Product Line</th>
+                    <th>Description</th>
+                    <th>Display</th>
+                    <th>Resolution</th>
+                </tr>
+                </thead>
+            </table>
         </div>
     </div>
 </div>
@@ -904,8 +938,17 @@ print_r($Wailist->getNextReservationsWaiting());
     <p>
         <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>You are about to delete this reservation. Are you sure?
     </p>
-
 </div>
+
+
+
+<!-- Lock Message -->
+<div id="lockMessageModal" style="display: none;" title="Reservation">
+    <p>
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><span id="lockMessage"></span>
+    </p>
+</div>
+
 
 <!-- Reservation Cancel Message -->
 <div id="cancelMessage" style="display: none;" title="Cancel Reservation">
@@ -915,4 +958,3 @@ print_r($Wailist->getNextReservationsWaiting());
 </body>
 
 </html>
-

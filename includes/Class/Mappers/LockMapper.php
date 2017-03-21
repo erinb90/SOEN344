@@ -1,17 +1,13 @@
 <?php
 
-/**
- * Created by PhpStorm.
- * User: Dimitri
- * Date: 1/22/2017
- * Time: 11:30 PM
- */
 
 namespace Stark\Mappers
 {
 
-    use LockDomain;
+
     use Stark\Interfaces\AbstractMapper;
+
+    use Stark\Models\LockDomain;
     use Stark\Models\User;
     use Stark\TDG\LockTDG;
 
@@ -25,6 +21,9 @@ namespace Stark\Mappers
     class LockMapper extends AbstractMapper
     {
 
+        /**
+         * @var \Stark\TDG\LockTDG
+         */
         protected $tdg;
 
 
@@ -33,7 +32,7 @@ namespace Stark\Mappers
          */
         public function __construct()
         {
-            $this->tdg = new LockTDG();
+            $this->tdg = new LockTDG("locks", "lockId");
         }
 
         /**
@@ -45,11 +44,14 @@ namespace Stark\Mappers
          */
         public function getModel(array $data = null)
         {
+            if(!$data)
+                return null;
             $LockDomain = new LockDomain();
-            $LockDomain->setRoomID($data['roomID']);
-            $LockDomain->setLocktime($data['Locktime']);
-            $LockDomain->setStudentID($data['studentID']);
-            $LockDomain->setLid($data['lid']);
+            $LockDomain->setRoomId($data['roomID']);
+            $LockDomain->setLockStartTime($data['LockStartTime']);
+            $LockDomain->setLockEndTime($data['LockEndTime']);
+            $LockDomain->setLockId($data['lockId']);
+            $LockDomain->setUserId($data['UserId']);
 
             return $LockDomain;
         }
@@ -64,41 +66,46 @@ namespace Stark\Mappers
         }
 
         /**
-         * Method to lock a room while a user is performing a write transaction
-         * Creates a LockDomain object given a room ID and a User
+         * @param $roomid
+         * @param $startTime
+         * @param $endTime
+         * @param \Stark\Models\User $student
          *
-         * @param $roomid int this is the room id
-         *
-         * @return LockDomain
+         * @return \Stark\Models\LockDomain
          */
-        public function lockRoom($roomid, User $student)
+        public function lockRoom($roomid, $startTime, $endTime,  User $student)
         {
             $LockDomain = new LockDomain();
-            $LockDomain->setLocktime(date("Y-m-d H:i:s"));
-            $LockDomain->setStudentID($student->getStudentId());
+            $LockDomain->setLockStartTime($startTime);
+            $LockDomain->setLockEndTime($endTime);
             $LockDomain->setRoomID($roomid);
+            $LockDomain->setUserId($student->getUserId());
 
             return $LockDomain;
 
         }
-
 
         /**
-         * Method to unlock a room once a user is finished with it
-         * Retrieves the LockDomain entry from DB given its room ID, then instantiates a LockDomain object
-         *
          * @param $roomid
          *
-         * @return \LockDomain
+         * @return bool
          */
-        public function unlockRoom($roomid)
+        public function isLocked($roomid)
         {
-            $dbEntry = $this->getTdg()->getLockIdForRoom($roomid);
-
-            $LockDomain = $this->getModel($dbEntry);
-
-            return $LockDomain;
+            return !$this->getRoomLockByRoomId($roomid);
         }
+
+        /**
+         * @param $roomid
+         *
+         * @return \Stark\Models\LockDomain
+         */
+        public function getRoomLockByRoomId($roomid)
+        {
+            $lock = $this->getModel( $this->getTdg()->getRoomLockByRoomId($roomid) );
+            return $lock;
+        }
+
 
 
     }
