@@ -3,7 +3,7 @@ session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php';
 Stark\WebUser::isLoggedIn(TRUE);
 use Stark\WebUser;
-
+$RoomDirectory = new \Stark\RoomDirectory();
 ?>
 <!DOCTYPE html>
 <html lang="en">
