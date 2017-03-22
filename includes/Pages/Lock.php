@@ -77,6 +77,7 @@ if ($action == "unlock")
 {
     $response["success"] = false;
     $response["error"] =  null;
+    $response["secondsDefault"]  = \Stark\CoreConfig::settings()['reservations']['lock'];
     try
     {
         /**

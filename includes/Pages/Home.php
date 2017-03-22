@@ -1,21 +1,8 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php';
-
-Stark\WebUser::isLoggedIn(true);
-
-use Stark\EquipmentFinder;
-use Stark\RoomDirectory;
-use Stark\Utilities;
+Stark\WebUser::isLoggedIn(TRUE);
 use Stark\WebUser;
-
-$RoomDirectory = new RoomDirectory();
-
-
-$Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
-//print_r($Wailist->getWaitlistedReservations());
-
-//print_r($Wailist->getNextReservationsWaiting());
 
 ?>
 <!DOCTYPE html>
@@ -36,14 +23,12 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
     <!-- Custom CSS -->
     <link href="../../CSS/landing-page-Registration.css" rel="stylesheet">
 
-
     <!-- jQuery -->
     <script src="../../Javascript/jquery.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
     <script src="../../Javascript/bootstrap.min.js"></script>
 
-    <!--jQuery stuff-->
     <!--Try to update to new jquery, doesn't seem to work with jquery 3.1.1-->
     <link rel="stylesheet" href="../../plugins/jquery-ui/jquery-ui.min.css">
     <!-- All Javascript for Home.php page -->
@@ -52,17 +37,13 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
     <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Abel" rel="stylesheet">
 
-
     <!-- DataTables CSS -->
     <link href="../../plugins/datatables/media/css/dataTables.bootstrap4.min.css" rel="stylesheet">
     <!-- DataTables Buttons Extension -->
     <link href="../../plugins/datatables/extensions/Buttons/css/buttons.dataTables.min.css" rel="stylesheet">
     <link href="../../plugins/datatables/extensions/Buttons/css/buttons.bootstrap.min.css" rel="stylesheet">
-
     <!-- DataTable Select Extension -->
     <link href="../../plugins/datatables/extensions/Select/css/select.dataTables.min.css" rel="stylesheet">
-
-
     <!-- DataTables JavaScript -->
     <script src="../../plugins/datatables/media/js/jquery.dataTables.min.js"></script>
     <script src="../../plugins/datatables/media/js/dataTables.bootstrap.min.js"></script>
@@ -117,7 +98,8 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
             cdpause();
             count = CCOUNT;
             cddisplay();
-        };
+        }
+        ;
 
         function openReservation(roomid)
         {
@@ -128,6 +110,17 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                 height     : 700,
                 show       : 'fade',
                 title      : 'Make Reservation',
+                buttons    : {
+                    "Close" : function ()
+                    {
+                        $(this).dialog('destroy');
+                    }
+                },
+                Close : function()
+                {
+                    // erase any error messages that might have been created
+                    $('#resultsReservation').html("");
+                },
                 beforeClose: function (event, ui)
                 {
                     //unlock room
@@ -135,18 +128,18 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                         type    : "POST",
                         url     : "Lock.php", //file name
                         dataType: "json",
-                        data    :
-                            {
-                                action: "unlock",
-                                roomID: roomid
-                            },
+                        data    : {
+                            action: "unlock",
+                            roomID: roomid
+                        },
                         success : function (data)
                         {
 
                             console.log(data);
-                            if(data.success)
+                            if (data.success)
                             {
                                 // stop timer
+                                CCOUNT = data.secondsDefault;
                                 cdpause();
                             }
                             else
@@ -154,13 +147,15 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                                 $('#lockMessageModal').dialog({
 
                                     width : 300,
-                                    height :200
+                                    height: 200
                                 });
 
                                 $('#lockMessage').html(data.error);
 
                                 return;
                             }
+
+
                         },
                     });
 
@@ -169,9 +164,7 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
             });
         }
 
-        $(function ()
-        {
-
+        $(function () {
             // initialize booking tabs
             $("#tabs").tabs();
 
@@ -184,14 +177,12 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
 
 
             // bind accordion to equipment
-            $( "#accordionEquipment" ).accordion({
+            $("#accordionEquipment").accordion({
                 heightStyle: "content"
             });
 
             //what happens when you click on the make reserve button
-            $(document).on('click', '#makeReserve', function ()
-            {
-
+            $(document).on('click', '#makeReserve', function () {
                 // count errors to check if we can actually open modal for reservation
                 errors = 0;
 
@@ -203,7 +194,7 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                 $('#lockMessageModal').dialog({
 
                     width : 300,
-                    height :200,
+                    height: 200,
                     modal : true
 
                 });
@@ -223,15 +214,13 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                         // start countdown
 
                         console.log(data);
-                        if(data.success)
+                        if (data.success)
                         {
-
-                            if(data.remaining !== undefined)
+                            if (data.remaining !== undefined)
                             {
                                 //let the timer start where it left off for the user
                                 CCOUNT = data.remaining;
                             }
-
                             $('#lockMessageModal').dialog('close');
                             openReservation(roomid);
                             cdreset();
@@ -245,16 +234,14 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                     }
                 });
 
-
-
             });
 
-            // cancel reservation
 
             // cancel reservation
-            $(document).on('click', '#cancelReservation', function ()
-            {
+            $(document).on('click', '#cancelReservation', function () {
+
                 var reservation = userReservations.row($(this).closest('tr')).data();
+
                 $('#cancelReservationModal').dialog({
                     title  : "Cancel Reservation",
                     modal  : true,
@@ -262,9 +249,7 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                         "Yes": function ()
                         {
                             $(this).dialog('close');
-
                             $('#cancelMessage').html("Canceling reservation...please wait...").dialog({
-
                                 modal: true
                             });
 
@@ -285,7 +270,7 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                         },
                         "No" : function ()
                         {
-                            $(this).dialog("close");
+                            $(this).dialog("destroy");
                         }
                     }
                 });
@@ -293,22 +278,24 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
 
             //when clicking on View for a user's equipment if he has for his/her reservation
 
-            $(document).on('click', '#viewEquipment', function(){
+            $(document).on('click', '#viewEquipment', function () {
                 $row = $(this).closest('tr');
                 var reservation = userReservations.row($row).data();
                 var reservationId = reservation.reid;
 
-                if(!reservationId)
+                if (!reservationId)
+                {
                     return;
+                }
 
 
                 $('#myEquipmentModal').dialog({
-                    width: 1000,
+                    width : 1000,
                     height: 500,
                     title : 'Loaned Equipment for Reservation #' + reservationId
                 });
 
-
+                // get the reservation's project list
                 myProjectorsListTable = $('#myProjectorsListTable').DataTable({
                     "processing"   : true,
                     "destroy"      : true,
@@ -317,7 +304,7 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                     "ajax"         : {
                         "url" : 'Ajax/myProjectorList.php',
                         "type": "POST",
-                        "data" : {
+                        "data": {
                             id: reservationId
                         }
                     },
@@ -336,7 +323,7 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                     }],
                 });
 
-
+                // get the reservation's computer list
                 myComputersListTable = $('#myComputersListTable').DataTable({
                     "processing"   : true,
                     "destroy"      : true,
@@ -345,7 +332,7 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                     "ajax"         : {
                         "url" : 'Ajax/myComputerList.php',
                         "type": "POST",
-                        "data" : {
+                        "data": {
                             id: reservationId
                         }
                     },
@@ -375,6 +362,19 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                     modal: true,
                     title: 'My Profile'
                 });
+            });
+
+            // when click on the My Reservations Button
+            $(document).on('click', '#third-r', function ()
+            {
+
+                $('#myReservationsModal').dialog({
+                    width : 1200,
+                    height: 500,
+                    modal : true,
+                    title : 'My Reservations'
+                });
+
             });
 
             // when saving profile information
@@ -412,24 +412,26 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                 });
             });
 
-
+            // when click on the big reserve button to create  a reservation
             $(document).on('click', '#createReservation', function ()
             {
 
                 // capture any equipment selected
-                var equipment  = [];
+                var equipment = [];
 
-                computersListTable.rows('.selected').every( function ( rowIdx, tableLoop, rowLoop ) {
+                computersListTable.rows('.selected').every(function (rowIdx, tableLoop, rowLoop)
+                {
                     var data = this.data();
                     equipment.push([data.EquipmentId, 'c']);
 
-                } );
+                });
 
-                projectorsListTable.rows('.selected').every( function ( rowIdx, tableLoop, rowLoop ) {
+                projectorsListTable.rows('.selected').every(function (rowIdx, tableLoop, rowLoop)
+                {
                     var data = this.data();
-                    equipment.push([data.EquipmentId , 'p']);
+                    equipment.push([data.EquipmentId, 'p']);
 
-                } );
+                });
 
 
                 /// capture form
@@ -470,17 +472,6 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
 
             });
 
-            $(document).on('click', '#third-r', function ()
-            {
-
-                $('#myReservationsModal').dialog({
-                    width: 1200,
-                    height: 500,
-                    modal: true,
-                    title: 'My Reservations'
-                });
-
-            });
 
             // list of static computeres
             computersListTable = $('#computersListTable').DataTable({
@@ -650,23 +641,20 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                     <div>
                         <select id="roomOptions" class="btn btn-default btn-lg network-name" name="rID">
                             <?php
-
                             /**
                              * @var \Stark\Models\Room $RoomDomain
                              */
                             foreach ($RoomDirectory->getRooms() as $RoomDomain)
                             {
                                 ?>
-
                                 <option value="<?php echo $RoomDomain->getRoomId(); ?>"><?php echo $RoomDomain->getName(); ?></option>
-
                                 <?php
                             }
                             ?>
                         </select>
                         <!-- Hidden input for temporary datepicker fix-->
                         <input type="hidden" readonly="readonly" type="text" class="form-control" name="dateDrop"
-                               id="dateDrop" placeholder="Nothing" />
+                                id="dateDrop" placeholder="Nothing" />
                         <button type="button" class="btn btn-default btn-lg" id="makeReserve"><span
                                     class="network-name">Make a Reservation</span></button>
 
@@ -685,12 +673,10 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
 
                         <form id="reservationForm">
 
-                            <div class="timer" style="color:red;text-align: center;">Reservation closes in
-                                <span
+                            <div class="timer" style="color:red;text-align: center;">Reservation closes in <span
                                         id="timer">-</span> seconds!
                             </div>
                             <div class="modal-body">
-
 
                                 <div id="tabs">
 
@@ -701,28 +687,23 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                                     </ul>
 
                                     <div id="tabs-1" class="form-group">
-
                                         <label for="roomName">Room:</label>
-
                                         <input readonly="readonly" class="form-control" id="roomName" name="roomName" />
                                         <label>Title of Reservation</label>
                                         <input required type="text" class="form-control" placeholder="Enter a Title"
-                                               name="title">
-
+                                                name="title">
                                         <label>Description of Reservation</label>
                                         <textarea style="resize:none;" rows="3" cols="50"
-                                                  placeholder="Describe the Reservation here..." class="form-control"
-                                                  name="description"></textarea>
-
+                                                placeholder="Describe the Reservation here..." class="form-control"
+                                                name="description"></textarea>
                                         <label for="rDate">Date:</label>
                                         <input type="text" class="form-control" name="rDate" id="rDate" /> <br>
                                         <label for="startTime">Start Time: (mm:ss)</label>
                                         <input type="text" class="form-control" id="startTime" name="startTime">
                                         <label for="endTime">End Time: (mm:ss)</label>
                                         <input type="text" class="form-control" id="endTime" name="endTime">
-
                                         <input hidden name="roomID" id="roomID">
-
+                                        <br>
                                         <label for="repeatReservation">Repeat Reservation for:</label>
                                         <select id="repeatReservation" name="repeatReservation">
                                             <option value="1">1 Week</option>
@@ -730,10 +711,7 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                                             <option value="3">3 Weeks</option>
                                         </select>
                                     </div>
-
                                     <div id="tabs-2">
-
-
                                         <div class="text-center h1">Computers</div>
                                         <table id="computersListTable" width="100%" class="table table-responsive">
                                             <thead>
@@ -747,7 +725,6 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                                             </tr>
                                             </thead>
                                         </table>
-
                                         <div class="text-center h1">Projectors</div>
                                         <table id="projectorsListTable" width="100%" class="table table-responsive">
                                             <thead>
@@ -761,17 +738,10 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                                             </tr>
                                             </thead>
                                         </table>
-
                                     </div>
-
                                 </div>
-
-
-
-
+                                <button type="button" id="createReservation" class="btn btn-default btn-success btn-block">Create Reservation</button>
                             </div>
-                            <br>
-                            <button type="button" id="createReservation" class="btn btn-default btn-success btn-block">Submit</button>
                         </form>
                         <div id="resultsReservation"></div>
                     </div>
@@ -779,7 +749,6 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
             </div>
 
             <!-- Edit Reservation Modal -->
-
 
             <!-- Profile Modal -->
             <div id="profilemyModal" style="display: none;">
@@ -791,38 +760,36 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                                 <div class="form-group">
                                     <label>First name</label>
                                     <input readonly="readonly" type="text" class="form-control" name="firstName" id="firstName"
-                                           placeholder="First Name"
-                                           value="<?php echo WebUser::getUser()->getFirstName(); ?>" />
+                                            placeholder="First Name"
+                                            value="<?php echo WebUser::getUser()->getFirstName(); ?>" />
                                 </div>
                                 <div class="form-group">
                                     <label>Last name</label>
                                     <input readonly="readonly" type="text" class="form-control" name="lastName" id="lastName"
-                                           placeholder="Last Name"
-                                           value="<?php echo WebUser::getUser()->getLastName(); ?>" />
+                                            placeholder="Last Name"
+                                            value="<?php echo WebUser::getUser()->getLastName(); ?>" />
                                 </div>
                                 <div class="form-group">
                                     <label>Student ID</label>
                                     <input readonly="readonly" type="text" class="form-control" name="studentID"
-                                           placeholder="Student ID" value="<?php echo WebUser::getUser()->getStudentId(); ?>" />
+                                            placeholder="Student ID" value="<?php echo WebUser::getUser()->getStudentId(); ?>" />
                                 </div>
 
                                 <div class="form-group">
                                     <label>Old Password</label>
                                     <input type="password" class="form-control" name="oldPass"
-                                           placeholder="Old Password" />
+                                            placeholder="Old Password" />
                                 </div>
                                 <div class="form-group">
                                     <label>New Password</label>
                                     <input type="password" class="form-control" name="newPass"
-                                           placeholder="New Password" />
+                                            placeholder="New Password" />
                                 </div>
                                 <div class="form-group">
                                     <label>Email Address</label>
                                     <input type="text" class="form-control" name="uEmail" id="uEmail"
-                                           placeholder="Email Address" value="<?php echo WebUser::getUser()->getUserName(); ?>" />
+                                            placeholder="Email Address" value="<?php echo WebUser::getUser()->getUserName(); ?>" />
                                 </div>
-
-
                                 <button type="button" id="submitProfile" class="btn btn-default btn-success btn-block">Submit</button>
                             </form>
                             <br>
@@ -856,21 +823,12 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
     </div>
     <!-- class containter -->
 </div>
-<!-- class="intro-header" -->
-
 
 <!-- Conflict Resolution Message -->
 
-<div id="conflictResolutionMessage" style="display: none;" title="Conflict Resolution">
-
-</div>
-
-
+<div id="conflictResolutionMessage" style="display: none;" title="Conflict Resolution"></div>
 <!-- Reservation Creation Container -->
-<div id="reservationContainerMessage" style="display: none;" title="Create Reservation">
-
-</div>
-
+<div id="reservationContainerMessage" style="display: none;" title="Create Reservation"></div>
 
 <!-- My Reservations Modal -->
 <div id="myReservationsModal" style="display: none;">
@@ -896,7 +854,6 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
 
 
 <!-- My Reservation Equipment -->
-
 <div id="myEquipmentModal" style="display: none;">
     <div id="accordionEquipment">
         <h3>Computers</h3>
@@ -914,7 +871,6 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
                 </thead>
             </table>
         </div>
-
         <h3>Projectors</h3>
         <div>
             <table id="myProjectorsListTable" width="100%" class="table table-bordered">
@@ -940,15 +896,12 @@ $Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
     </p>
 </div>
 
-
-
 <!-- Lock Message -->
 <div id="lockMessageModal" style="display: none;" title="Reservation">
     <p>
         <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><span id="lockMessage"></span>
     </p>
 </div>
-
 
 <!-- Reservation Cancel Message -->
 <div id="cancelMessage" style="display: none;" title="Cancel Reservation">
