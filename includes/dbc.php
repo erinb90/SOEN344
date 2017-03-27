@@ -5,7 +5,6 @@ require $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 use Stark\CoreConfig;
 use Stark\Mappers\UserMapper;
 use Stark\Registry;
-use Stark\Mappers\StudentMapper;
 use Stark\WebUser;
 use Doctrine\Common\ClassLoader;
 

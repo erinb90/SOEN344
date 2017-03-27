@@ -1,20 +1,9 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php';
-
-use Stark\EquipmentFinder;
-use Stark\RoomDirectory;
-use Stark\Utilities;
+Stark\WebUser::isLoggedIn(TRUE);
 use Stark\WebUser;
-
-$RoomDirectory = new RoomDirectory();
-
-
-$Wailist= new \Stark\Waitlist(1, "2017-03-06 15:00:00", "2017-03-06 17:00:00");
-print_r($Wailist->getWaitlistedReservations());
-
-print_r($Wailist->getNextReservationsWaiting());
-
+$RoomDirectory = new \Stark\RoomDirectory();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -34,38 +23,27 @@ print_r($Wailist->getNextReservationsWaiting());
     <!-- Custom CSS -->
     <link href="../../CSS/landing-page-Registration.css" rel="stylesheet">
 
-
     <!-- jQuery -->
     <script src="../../Javascript/jquery.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
     <script src="../../Javascript/bootstrap.min.js"></script>
 
-    <!--jQuery stuff-->
     <!--Try to update to new jquery, doesn't seem to work with jquery 3.1.1-->
     <link rel="stylesheet" href="../../plugins/jquery-ui/jquery-ui.min.css">
     <!-- All Javascript for Home.php page -->
-
-    <!--
-    <script src="../../Javascript/Home.js"></script>
-
-    -->
     <script src="../../plugins/jquery-ui/jquery-ui.min.js"></script>
     <!-- Google Web Font Format for title -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Abel" rel="stylesheet">
-
 
     <!-- DataTables CSS -->
     <link href="../../plugins/datatables/media/css/dataTables.bootstrap4.min.css" rel="stylesheet">
     <!-- DataTables Buttons Extension -->
     <link href="../../plugins/datatables/extensions/Buttons/css/buttons.dataTables.min.css" rel="stylesheet">
     <link href="../../plugins/datatables/extensions/Buttons/css/buttons.bootstrap.min.css" rel="stylesheet">
-
     <!-- DataTable Select Extension -->
     <link href="../../plugins/datatables/extensions/Select/css/select.dataTables.min.css" rel="stylesheet">
-
-
     <!-- DataTables JavaScript -->
     <script src="../../plugins/datatables/media/js/jquery.dataTables.min.js"></script>
     <script src="../../plugins/datatables/media/js/dataTables.bootstrap.min.js"></script>
@@ -79,7 +57,7 @@ print_r($Wailist->getNextReservationsWaiting());
 
         //todo: needs some refactoring
 
-        var CCOUNT = 5000;
+        CCOUNT = "<?php echo \Stark\CoreConfig::settings()['reservations']['lock']; ?>";
 
         var t, count;
 
@@ -120,12 +98,73 @@ print_r($Wailist->getNextReservationsWaiting());
             cdpause();
             count = CCOUNT;
             cddisplay();
-        };
+        }
+        ;
 
-
-        $(function ()
+        function openReservation(roomid)
         {
+            // open modal
+            $('#myModal').dialog({
+                width      : 1200,
+                modal      : true,
+                height     : 700,
+                show       : 'fade',
+                title      : 'Make Reservation',
+                buttons    : {
+                    "Close" : function ()
+                    {
+                        $(this).dialog('destroy');
+                    }
+                },
+                Close : function()
+                {
+                    // erase any error messages that might have been created
+                    $('#resultsReservation').html("");
+                },
+                beforeClose: function (event, ui)
+                {
+                    //unlock room
+                    $.ajax({
+                        type    : "POST",
+                        url     : "Lock.php", //file name
+                        dataType: "json",
+                        data    : {
+                            action: "unlock",
+                            roomID: roomid
+                        },
+                        success : function (data)
+                        {
 
+                            console.log(data);
+                            if (data.success)
+                            {
+                                // stop timer
+                                CCOUNT = data.secondsDefault;
+                                cdpause();
+                            }
+                            else
+                            {
+                                $('#lockMessageModal').dialog({
+
+                                    width : 300,
+                                    height: 200
+                                });
+
+                                $('#lockMessage').html(data.error);
+
+                                return;
+                            }
+
+
+                        },
+                    });
+
+                    $(this).dialog("destroy");
+                }
+            });
+        }
+
+        $(function () {
             // initialize booking tabs
             $("#tabs").tabs();
 
@@ -138,25 +177,34 @@ print_r($Wailist->getNextReservationsWaiting());
 
 
             // bind accordion to equipment
-            $( "#accordionEquipment" ).accordion({
+            $("#accordionEquipment").accordion({
                 heightStyle: "content"
             });
 
             //what happens when you click on the make reserve button
-            $(document).on('click', '#makeReserve', function ()
-            {
-                //reset timer
-                cdreset();
+            $(document).on('click', '#makeReserve', function () {
+                // count errors to check if we can actually open modal for reservation
+                errors = 0;
 
                 var roomid = $('#roomOptions').val();
                 var roomName = $('#roomOptions option[value=' + roomid + ']').text();
                 $('#roomName').val(roomName);
                 $('#roomID').val(roomid);
 
+                $('#lockMessageModal').dialog({
+
+                    width : 300,
+                    height: 200,
+                    modal : true
+
+                });
+                $('#lockMessage').html("Please wait...");
+
                 // lock room
                 $.ajax({
                     type    : "POST",
                     url     : "Lock.php", //file name
+                    dataType: "json",
                     data    : {
                         action: "lock",
                         roomID: roomid
@@ -164,58 +212,36 @@ print_r($Wailist->getNextReservationsWaiting());
                     success : function (data)
                     {
                         // start countdown
-                        countdown();
-                    },
-                    complete: function ()
-                    {
-                    },
-                    error   : function ()
-                    {
-                        alert("Cannot lock room. Network error.");
-                        return;
+
+                        console.log(data);
+                        if (data.success)
+                        {
+                            if (data.remaining !== undefined)
+                            {
+                                //let the timer start where it left off for the user
+                                CCOUNT = data.remaining;
+                            }
+                            $('#lockMessageModal').dialog('close');
+                            openReservation(roomid);
+                            cdreset();
+                            countdown();
+                        }
+                        else
+                        {
+
+                            $('#lockMessage').html(data.error);
+                        }
                     }
                 });
 
-                // open modal
-                $('#myModal').dialog({
-                    width      : 1200,
-                    modal      : true,
-                    height     : 700,
-                    show       : 'fade',
-                    title      : 'Make Reservation',
-                    beforeClose: function (event, ui)
-                    {
-                        //unlock room
-                        $.ajax({
-                            type    : "POST",
-                            url     : "Lock.php", //file name
-                            data    : {
-                                action: "unlock",
-                                roomID: roomid
-                            },
-                            success : function (data)
-                            {
-                                // stop timer
-                                cdpause();
-                            },
-                            complete: function ()
-                            {
-                            },
-                            error   : function ()
-                            {
-                            }
-                        });
-                        $(this).dialog("destroy");
-                    }
-                });
             });
-            
-            // cancel reservation 
+
 
             // cancel reservation
-            $(document).on('click', '#cancelReservation', function ()
-            {
+            $(document).on('click', '#cancelReservation', function () {
+
                 var reservation = userReservations.row($(this).closest('tr')).data();
+
                 $('#cancelReservationModal').dialog({
                     title  : "Cancel Reservation",
                     modal  : true,
@@ -223,9 +249,7 @@ print_r($Wailist->getNextReservationsWaiting());
                         "Yes": function ()
                         {
                             $(this).dialog('close');
-
                             $('#cancelMessage').html("Canceling reservation...please wait...").dialog({
-
                                 modal: true
                             });
 
@@ -246,7 +270,7 @@ print_r($Wailist->getNextReservationsWaiting());
                         },
                         "No" : function ()
                         {
-                            $(this).dialog("close");
+                            $(this).dialog("destroy");
                         }
                     }
                 });
@@ -254,22 +278,24 @@ print_r($Wailist->getNextReservationsWaiting());
 
             //when clicking on View for a user's equipment if he has for his/her reservation
 
-            $(document).on('click', '#viewEquipment', function(){
-               $row = $(this).closest('tr');
-               var reservation = userReservations.row($row).data();
-               var reservationId = reservation.reid;
+            $(document).on('click', '#viewEquipment', function () {
+                $row = $(this).closest('tr');
+                var reservation = userReservations.row($row).data();
+                var reservationId = reservation.reid;
 
-               if(!reservationId)
-                   return;
-
-
-               $('#myEquipmentModal').dialog({
-                  width: 1000,
-                   height: 500,
-                   title : 'Loaned Equipment for Reservation #' + reservationId
-               });
+                if (!reservationId)
+                {
+                    return;
+                }
 
 
+                $('#myEquipmentModal').dialog({
+                    width : 1000,
+                    height: 500,
+                    title : 'Loaned Equipment for Reservation #' + reservationId
+                });
+
+                // get the reservation's project list
                 myProjectorsListTable = $('#myProjectorsListTable').DataTable({
                     "processing"   : true,
                     "destroy"      : true,
@@ -278,7 +304,7 @@ print_r($Wailist->getNextReservationsWaiting());
                     "ajax"         : {
                         "url" : 'Ajax/myProjectorList.php',
                         "type": "POST",
-                        "data" : {
+                        "data": {
                             id: reservationId
                         }
                     },
@@ -297,7 +323,7 @@ print_r($Wailist->getNextReservationsWaiting());
                     }],
                 });
 
-
+                // get the reservation's computer list
                 myComputersListTable = $('#myComputersListTable').DataTable({
                     "processing"   : true,
                     "destroy"      : true,
@@ -306,7 +332,7 @@ print_r($Wailist->getNextReservationsWaiting());
                     "ajax"         : {
                         "url" : 'Ajax/myComputerList.php',
                         "type": "POST",
-                        "data" : {
+                        "data": {
                             id: reservationId
                         }
                     },
@@ -336,6 +362,19 @@ print_r($Wailist->getNextReservationsWaiting());
                     modal: true,
                     title: 'My Profile'
                 });
+            });
+
+            // when click on the My Reservations Button
+            $(document).on('click', '#third-r', function ()
+            {
+
+                $('#myReservationsModal').dialog({
+                    width : 1200,
+                    height: 500,
+                    modal : true,
+                    title : 'My Reservations'
+                });
+
             });
 
             // when saving profile information
@@ -373,24 +412,26 @@ print_r($Wailist->getNextReservationsWaiting());
                 });
             });
 
-
+            // when click on the big reserve button to create  a reservation
             $(document).on('click', '#createReservation', function ()
             {
 
                 // capture any equipment selected
-                var equipment  = [];
+                var equipment = [];
 
-                computersListTable.rows('.selected').every( function ( rowIdx, tableLoop, rowLoop ) {
+                computersListTable.rows('.selected').every(function (rowIdx, tableLoop, rowLoop)
+                {
                     var data = this.data();
                     equipment.push([data.EquipmentId, 'c']);
 
-                } );
+                });
 
-                projectorsListTable.rows('.selected').every( function ( rowIdx, tableLoop, rowLoop ) {
+                projectorsListTable.rows('.selected').every(function (rowIdx, tableLoop, rowLoop)
+                {
                     var data = this.data();
-                    equipment.push([data.EquipmentId , 'p']);
+                    equipment.push([data.EquipmentId, 'p']);
 
-                } );
+                });
 
 
                 /// capture form
@@ -410,7 +451,7 @@ print_r($Wailist->getNextReservationsWaiting());
                     type    : "POST",
                     url     : "Ajax/Reserve.php", //file name
                     data    : {
-                      formData : ser,
+                        formData : ser,
                         equipment: JSON.stringify(equipment)
                     },
                     success : function (data)
@@ -431,17 +472,6 @@ print_r($Wailist->getNextReservationsWaiting());
 
             });
 
-            $(document).on('click', '#third-r', function ()
-            {
-
-                $('#myReservationsModal').dialog({
-                    width: 1200,
-                    height: 500,
-                    modal: true,
-                    title: 'My Reservations'
-                });
-
-            });
 
             // list of static computeres
             computersListTable = $('#computersListTable').DataTable({
@@ -611,16 +641,13 @@ print_r($Wailist->getNextReservationsWaiting());
                     <div>
                         <select id="roomOptions" class="btn btn-default btn-lg network-name" name="rID">
                             <?php
-
                             /**
                              * @var \Stark\Models\Room $RoomDomain
                              */
                             foreach ($RoomDirectory->getRooms() as $RoomDomain)
                             {
                                 ?>
-
                                 <option value="<?php echo $RoomDomain->getRoomId(); ?>"><?php echo $RoomDomain->getName(); ?></option>
-
                                 <?php
                             }
                             ?>
@@ -636,11 +663,6 @@ print_r($Wailist->getNextReservationsWaiting());
 
                 </div>
                 <br>
-                <div id="legendContainer">
-                    <h6 class="legendTitle">LEGEND</h6>
-                    <h6 class="green">Your Booking</h6>
-                    <h6 class="red">Booked</h6>
-                </div>
             </div>
 
             <!-- Reservation Modal -->
@@ -651,12 +673,10 @@ print_r($Wailist->getNextReservationsWaiting());
 
                         <form id="reservationForm">
 
-                            <div class="timer" style="color:red;text-align: center;">Reservation closes in
-                                <span
+                            <div class="timer" style="color:red;text-align: center;">Reservation closes in <span
                                         id="timer">-</span> seconds!
                             </div>
                             <div class="modal-body">
-
 
                                 <div id="tabs">
 
@@ -667,28 +687,23 @@ print_r($Wailist->getNextReservationsWaiting());
                                     </ul>
 
                                     <div id="tabs-1" class="form-group">
-
                                         <label for="roomName">Room:</label>
-
                                         <input readonly="readonly" class="form-control" id="roomName" name="roomName" />
                                         <label>Title of Reservation</label>
                                         <input required type="text" class="form-control" placeholder="Enter a Title"
                                                 name="title">
-
                                         <label>Description of Reservation</label>
                                         <textarea style="resize:none;" rows="3" cols="50"
                                                 placeholder="Describe the Reservation here..." class="form-control"
                                                 name="description"></textarea>
-
                                         <label for="rDate">Date:</label>
                                         <input type="text" class="form-control" name="rDate" id="rDate" /> <br>
                                         <label for="startTime">Start Time: (mm:ss)</label>
                                         <input type="text" class="form-control" id="startTime" name="startTime">
                                         <label for="endTime">End Time: (mm:ss)</label>
                                         <input type="text" class="form-control" id="endTime" name="endTime">
-
                                         <input hidden name="roomID" id="roomID">
-
+                                        <br>
                                         <label for="repeatReservation">Repeat Reservation for:</label>
                                         <select id="repeatReservation" name="repeatReservation">
                                             <option value="1">1 Week</option>
@@ -696,10 +711,7 @@ print_r($Wailist->getNextReservationsWaiting());
                                             <option value="3">3 Weeks</option>
                                         </select>
                                     </div>
-
                                     <div id="tabs-2">
-
-
                                         <div class="text-center h1">Computers</div>
                                         <table id="computersListTable" width="100%" class="table table-responsive">
                                             <thead>
@@ -713,7 +725,6 @@ print_r($Wailist->getNextReservationsWaiting());
                                             </tr>
                                             </thead>
                                         </table>
-
                                         <div class="text-center h1">Projectors</div>
                                         <table id="projectorsListTable" width="100%" class="table table-responsive">
                                             <thead>
@@ -727,17 +738,10 @@ print_r($Wailist->getNextReservationsWaiting());
                                             </tr>
                                             </thead>
                                         </table>
-
                                     </div>
-
                                 </div>
-
-
-
-
+                                <button type="button" id="createReservation" class="btn btn-default btn-success btn-block">Create Reservation</button>
                             </div>
-                            <br>
-                            <button type="button" id="createReservation" class="btn btn-default btn-success btn-block">Submit</button>
                         </form>
                         <div id="resultsReservation"></div>
                     </div>
@@ -745,7 +749,6 @@ print_r($Wailist->getNextReservationsWaiting());
             </div>
 
             <!-- Edit Reservation Modal -->
-
 
             <!-- Profile Modal -->
             <div id="profilemyModal" style="display: none;">
@@ -787,8 +790,6 @@ print_r($Wailist->getNextReservationsWaiting());
                                     <input type="text" class="form-control" name="uEmail" id="uEmail"
                                             placeholder="Email Address" value="<?php echo WebUser::getUser()->getUserName(); ?>" />
                                 </div>
-
-
                                 <button type="button" id="submitProfile" class="btn btn-default btn-success btn-block">Submit</button>
                             </form>
                             <br>
@@ -822,21 +823,12 @@ print_r($Wailist->getNextReservationsWaiting());
     </div>
     <!-- class containter -->
 </div>
-<!-- class="intro-header" -->
-
 
 <!-- Conflict Resolution Message -->
 
-<div id="conflictResolutionMessage" style="display: none;" title="Conflict Resolution">
-
-</div>
-
-
+<div id="conflictResolutionMessage" style="display: none;" title="Conflict Resolution"></div>
 <!-- Reservation Creation Container -->
-<div id="reservationContainerMessage" style="display: none;" title="Create Reservation">
-
-</div>
-
+<div id="reservationContainerMessage" style="display: none;" title="Create Reservation"></div>
 
 <!-- My Reservations Modal -->
 <div id="myReservationsModal" style="display: none;">
@@ -862,39 +854,37 @@ print_r($Wailist->getNextReservationsWaiting());
 
 
 <!-- My Reservation Equipment -->
-
 <div id="myEquipmentModal" style="display: none;">
     <div id="accordionEquipment">
         <h3>Computers</h3>
         <div>
-        <table id="myComputersListTable" width="100%" class="table table-bordered">
-            <thead>
-            <tr>
-                <th>Equipment ID</th>
-                <th>Manufacturer</th>
-                <th>Product Line</th>
-                <th>Description</th>
-                <th>CPU</th>
-                <th>RAM</th>
-            </tr>
-            </thead>
-        </table>
+            <table id="myComputersListTable" width="100%" class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Equipment ID</th>
+                    <th>Manufacturer</th>
+                    <th>Product Line</th>
+                    <th>Description</th>
+                    <th>CPU</th>
+                    <th>RAM</th>
+                </tr>
+                </thead>
+            </table>
         </div>
-
         <h3>Projectors</h3>
         <div>
-        <table id="myProjectorsListTable" width="100%" class="table table-bordered">
-            <thead>
-            <tr>
-                <th>Equipment ID</th>
-                <th>Manufacturer</th>
-                <th>Product Line</th>
-                <th>Description</th>
-                <th>Display</th>
-                <th>Resolution</th>
-            </tr>
-            </thead>
-        </table>
+            <table id="myProjectorsListTable" width="100%" class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Equipment ID</th>
+                    <th>Manufacturer</th>
+                    <th>Product Line</th>
+                    <th>Description</th>
+                    <th>Display</th>
+                    <th>Resolution</th>
+                </tr>
+                </thead>
+            </table>
         </div>
     </div>
 </div>
@@ -904,7 +894,13 @@ print_r($Wailist->getNextReservationsWaiting());
     <p>
         <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>You are about to delete this reservation. Are you sure?
     </p>
+</div>
 
+<!-- Lock Message -->
+<div id="lockMessageModal" style="display: none;" title="Reservation">
+    <p>
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><span id="lockMessage"></span>
+    </p>
 </div>
 
 <!-- Reservation Cancel Message -->
@@ -915,4 +911,3 @@ print_r($Wailist->getNextReservationsWaiting());
 </body>
 
 </html>
-
