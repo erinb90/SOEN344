@@ -28,12 +28,27 @@ $startTimeDate = $reservationSanitizer->convertToDateTime($requestParameters['rD
 $endTimeDate = $reservationSanitizer->convertToDateTime($requestParameters['rDate'], $requestParameters['endTime']);
 $timeValidationErrors = TimeValidator::validate($startTimeDate, $endTimeDate)->getErrors();
 
-if (!empty($timeValidationErrors)) {
-    foreach ($timeValidationErrors as $error) {
-        echo $error;
-    }
+if (!empty($timeValidationErrors))
+{
+?>
+    <br>
+    <div class="alert alert-danger">
+        <?php
+        $msg .= "<ul>";
+        foreach ($timeValidationErrors as $error) {
+            $msg .= '<li>' . $error . '</li>';
+        }
+        $msg .= "</ul>";
+        echo $msg;
+        ?>
+    </div>
+
+  <?php
     return;
 }
+
+
+
 
 // TODO : Fix remaining old code to work with new reservation session
 // TODO : Prevent user from creating duplicate reservations (even if waitlisted)
@@ -49,7 +64,7 @@ $ReservationSession = new CreateReservationSession(
 
 if ($ReservationSession->reserve()) {
     ?>
-    <div id="successReservation">
+    <div id="successReservation" title="Success">
         <div class="alert alert-success">
             You have successfully created your reservation!
         </div>
@@ -61,7 +76,6 @@ if ($ReservationSession->reserve()) {
             $('#myModal').dialog("destroy");
 
             $('#successReservation').dialog({
-                title: 'Success',
                 width: 400
             });
         })
@@ -69,22 +83,27 @@ if ($ReservationSession->reserve()) {
     </script>
     <?php
 
-} else if (count($ReservationSession->getErrors()) > 0) {
+}
+else if (count($ReservationSession->getErrors()) > 0)
+{
     $conflicts = $ReservationSession->getErrors();
     ?>
-    <div id="successReservation">
+    <div id="successReservation" title="Waitlist">
         <div class="alert alert-success">
             Your reservation has been wait listed due to conflicts!
         </div>
-        <div>
-            Reasons for conflict:
-            <br/>
+        <div class="alert alert-danger">
             <?php
+            $msg .= "<ul>";
             foreach ($conflicts as $conflict) {
-                echo $conflict . "<br/>";
+                $msg .= '<li>' . $conflict . '</li>';
             }
+            $msg .= "</ul>";
+            echo $msg;
             ?>
         </div>
+
+
     </div>
     <script>
         $(function () {
@@ -92,7 +111,6 @@ if ($ReservationSession->reserve()) {
             $('#myModal').dialog("destroy");
 
             $('#successReservation').dialog({
-                title: 'Waitlist',
                 width: 400
             });
         })

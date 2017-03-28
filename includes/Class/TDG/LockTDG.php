@@ -4,6 +4,8 @@ namespace Stark\TDG
 {
 
     use Stark\Interfaces\DomainObject;
+    use Stark\Interfaces\TDG;
+    use Stark\Models\LockDomain;
     use Stark\Registry;
 
     /**
@@ -13,75 +15,75 @@ namespace Stark\TDG
     class LockTDG extends TDG
     {
 
-        /**
-         * @return mixed
-         */
-        public function getPk()
-        {
-            return "lid";
-        }
 
         /**
-         * @return mixed
+         * LockTDG constructor.
+         *
+         * @param $table
+         * @param $pk
          */
-        public function getTable()
+        public function __construct($table, $pk)
         {
-            return "roomlocks";
+            parent::__construct($table, $pk);
         }
 
 
-        public function getLockIdForRoom($roomid)
+        /**
+         * @param $roomid
+         *
+         * @return mixed
+         */
+        public function getRoomLockByRoomId($roomid)
         {
             $query = Registry::getConnection()->createQueryBuilder();
             $query->select("*");
             $query->from($this->getTable(), $this->getTable());
-            $query->where($this->getTable() . '.' . 'roomID' . "='" . $roomid . "'");
-            $query->orderBy($this->getPk(), "DESC");
-
+            $query->where($this->getTable() . '.' . 'RoomId' . "='" . $roomid . "'");
+            //$query->andWhere($this->getTable() . '.' . 'LockEndTime' . "<='" . date('Y-m-d H:i:s') . "'");
             $query->setMaxResults(1);
-
             $sth = $query->execute();
             $m = $sth->fetchAll();
+
 
             return $m[0];
         }
 
+
         /**
-         * @param \DomainObject|LockDomain $object
+         * @param \Stark\Interfaces\DomainObject|LockDomain $object
          *
-         * @return int
+         * @return string
          */
         public function insert(DomainObject &$object)
         {
             Registry::getConnection()->insert($this->getTable(),
-                array(
-                    "studentID" => $object->getStudentID(),
-                    "roomID"    => $object->getRoomID(),
-                    "Locktime"  => date("Y-m-d H:i:s")
-                )
+                [
+                    "UserId" => $object->getUserId(),
+                    "RoomId"    => $object->getRoomID(),
+                    "LockStartTime"  => $object->getLockStartTime(),
+                    "LockEndTime" => $object->getLockEndTime()
+                ]
             );
 
             return Registry::getConnection()->lastInsertId();
         }
 
         /**
-         * @param \DomainObject|LockDomain $object
+         * @param \Stark\Interfaces\DomainObject|LockDomain $object
          *
-         * @return mixed
+         * @return int
          */
         public function delete(DomainObject &$object)
         {
             return Registry::getConnection()->delete($this->getTable(),
-                array(
-                    $this->getPk() => $object->getLid()
-                )
+                [
+                    $this->getPk() => $object->getLockId()
+                ]
             );
         }
 
         /**
-         * @param \DomainObject $object
-         *
-         * @return mixed
+         * @param \Stark\Interfaces\DomainObject $object
          */
         public function update(DomainObject &$object)
         {
