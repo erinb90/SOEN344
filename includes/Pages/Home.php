@@ -279,18 +279,13 @@ $RoomDirectory = new \Stark\RoomDirectory();
             // Modify reservation
             $(document).on('click', '#modifyReservation', function () {
 
-                var reservation = userReservations.row($(this).closest('tr')).data();
-                var newDate = $('input#newDate').val();
-                var newStartTime = $('input#newStartTime').val();
-                var newEndTime = $('input#newEndTime').val();
-                var newTitle = $('input#newTitle').val();
-
-
                 // add the date picker
                 $('input#newDate').datepicker({
                     dateFormat: 'yy-mm-dd',
                     minDate   : 0
                 });
+
+                var reservation = userReservations.row($(this).closest('tr')).data();
 
                 $('#modifyReservationModal').dialog({
                     title  : "Modify Reservation",
@@ -298,10 +293,15 @@ $RoomDirectory = new \Stark\RoomDirectory();
                     buttons: {
                         "Modify": function ()
                         {
-                            $(this).dialog('close');
+
                             $('#modifyMessage').html("Modifying reservation...please wait...").dialog({
                                 modal: true
                             });
+
+                            var newDate = $('input#newDate').val();
+                            var newStartTime = $('input#newStartTime').val();
+                            var newEndTime = $('input#newEndTime').val();
+                            var newTitle = $('input#newTitle').val();
 
                             $.ajax({
                                 url    : 'Ajax/Modify.php',

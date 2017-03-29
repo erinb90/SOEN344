@@ -56,10 +56,14 @@ if (!empty($errors)) {
 } else {
     ?>
     <script>
-        $('#modifyReservationModal').modal('hide');
         // Refresh user reservations
-        userReservations.ajax.reload(function (json) {
-        }, false);
+        $(function () {
+            userReservations.ajax.reload(function (json) {
+                $('#modifyMessage').dialog('close');
+                $('#modifyReservationModal').dialog('close');
+            }, false);
+        })
+
     </script>
     <?php
 }
