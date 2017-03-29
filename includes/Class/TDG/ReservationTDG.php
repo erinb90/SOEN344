@@ -71,33 +71,20 @@ namespace Stark\TDG
          */
         public function insert(DomainObject &$object)
         {
-            Registry::getConnection()->beginTransaction();
-            $lastId = -1;
-            try
-            {
-                Registry::getConnection()->insert($this->getTable(),
-                    [
-                        "UserId"     => $object->getUserId(),
-                        "RoomId" => $object->getRoomId(),
-                        "Starttime" => $object->getStartTimeDate(),
-                        "Endtime" => $object->getEndTimeDate(),
-                        "CreatedOn" => date('Y-m-d H:i:s'),
-                        "Title" => $object->getTitle(),
-                        "Waiting" => $object->isIsWaited()
-                    ]
-                );
+            Registry::getConnection()->insert($this->getTable(),
+                [
+                    "UserId"     => $object->getUserId(),
+                    "RoomId" => $object->getRoomId(),
+                    "Starttime" => $object->getStartTimeDate(),
+                    "Endtime" => $object->getEndTimeDate(),
+                    "CreatedOn" => date('Y-m-d H:i:s'),
+                    "Title" => $object->getTitle(),
+                    "Waiting" => $object->isIsWaited()
+                ]
+            );
 
-                $lastId = Registry::getConnection()->lastInsertId();
-                $object->setReservationId($lastId);
-                Registry::getConnection()->commit();
-
-            }
-            catch (\Exception $e)
-            {
-                Registry::getConnection()->rollBack();
-            }
-
-            return $lastId;
+            $lastId = Registry::getConnection()->lastInsertId();
+            $object->setReservationId($lastId);
         }
 
         /**
@@ -108,21 +95,11 @@ namespace Stark\TDG
          */
         public function delete(DomainObject &$object)
         {
-            try
-            {
-                Registry::getConnection()->delete($this->getTable(),
-                    [
-                        $this->getPk() => $object->getReservationID()
-                    ]
-                );
-                return true;
-            }
-            catch(\Exception $e)
-            {
-
-            }
-            return false;
-
+            Registry::getConnection()->delete($this->getTable(),
+                [
+                    $this->getPk() => $object->getReservationID()
+                ]
+            );
         }
 
 
@@ -134,29 +111,18 @@ namespace Stark\TDG
          */
         public function update(DomainObject &$object)
         {
-            try
-            {
-                Registry::getConnection()->update(
-                    $this->getTable(),
-                    [
-                        "UserId"     => $object->getUserId(),
-                        "RoomId" => $object->getRoomId(),
-                        "Starttime" =>$object->getStartTimeDate(),
-                        "Endtime" => $object->getEndTimeDate(),
-                        "Title" => $object->getTitle(),
-                        "Waiting" => $object->isIsWaited()
-                    ],
-                    [$this->getPk() => $object->getReservationID()]
-                );
-
-                return TRUE;
-            }
-            catch (\Exception $e)
-            {
-
-            }
-
-            return FALSE;
+            Registry::getConnection()->update(
+                $this->getTable(),
+                [
+                    "UserId"     => $object->getUserId(),
+                    "RoomId" => $object->getRoomId(),
+                    "Starttime" =>$object->getStartTimeDate(),
+                    "Endtime" => $object->getEndTimeDate(),
+                    "Title" => $object->getTitle(),
+                    "Waiting" => $object->isIsWaited()
+                ],
+                [$this->getPk() => $object->getReservationID()]
+            );
         }
     }
 }

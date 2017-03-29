@@ -64,8 +64,6 @@ namespace Stark\TDG
                     "LockEndTime" => $object->getLockEndTime()
                 ]
             );
-
-            return Registry::getConnection()->lastInsertId();
         }
 
         /**
@@ -75,7 +73,7 @@ namespace Stark\TDG
          */
         public function delete(DomainObject &$object)
         {
-            return Registry::getConnection()->delete($this->getTable(),
+            Registry::getConnection()->delete($this->getTable(),
                 [
                     $this->getPk() => $object->getLockId()
                 ]

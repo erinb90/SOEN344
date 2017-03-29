@@ -41,27 +41,12 @@ namespace Stark\TDG
          */
         public function insert(DomainObject &$object)
         {
-            Registry::getConnection()->beginTransaction();
-            $lastId = -1;
-            try
-            {
-                Registry::getConnection()->insert($this->getTable(),
-                    [
-                        "LoanContractId" => $object->getLoanContractId(),
-                        "EquipmentId" => $object->getEquipmentId()
-                    ]
-                );
-
-                $lastId = Registry::getConnection()->lastInsertId();
-                Registry::getConnection()->commit();
-
-            }
-            catch (\Exception $e)
-            {
-                Registry::getConnection()->rollBack();
-            }
-
-            return $lastId;
+            Registry::getConnection()->insert($this->getTable(),
+                [
+                    "LoanContractId" => $object->getLoanContractId(),
+                    "EquipmentId" => $object->getEquipmentId()
+                ]
+            );
         }
 
         /**
@@ -72,21 +57,11 @@ namespace Stark\TDG
          */
         public function delete(DomainObject &$object)
         {
-            try
-            {
-                Registry::getConnection()->delete($this->getTable(),
-                    [
-                        $this->getPk() => $object->getLoanContractId()
-                    ]
-                );
-                return true;
-            }
-            catch(\Exception $e)
-            {
-
-            }
-            return false;
-
+            Registry::getConnection()->delete($this->getTable(),
+                [
+                    $this->getPk() => $object->getLoanContractId()
+                ]
+            );
         }
 
         /**
@@ -97,25 +72,13 @@ namespace Stark\TDG
          */
         public function update(DomainObject &$object)
         {
-            try
-            {
-                Registry::getConnection()->update(
-                    $this->getTable(),
-                    [
-                        "EquipmentId" => $object->getEquipmentId()
-                    ],
-                    [$this->getPk() => $object->getLoanContractId()]
-                );
-
-                return TRUE;
-            }
-            catch (\Exception $e)
-            {
-
-            }
-
-            return FALSE;
-
+            Registry::getConnection()->update(
+                $this->getTable(),
+                [
+                    "EquipmentId" => $object->getEquipmentId()
+                ],
+                [$this->getPk() => $object->getLoanContractId()]
+            );
         }
     }
 }

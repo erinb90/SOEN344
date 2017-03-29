@@ -44,47 +44,28 @@ namespace Stark\TDG
          */
         public function insert(DomainObject &$computer)
         {
-            Registry::getConnection()->beginTransaction();
-            $lastId = -1;
+            //Common equipment attributes to insert into parent Equipment table
+            Registry::getConnection()->insert($this->getParentTable(),
+                [
+                    "Manufacturer" => $computer->getManufacturer(),
+                    "ProductLine"  => $computer->getProductLine(),
+                    "Description"  => $computer->getDescription(),
+                    "Quantity"     => $computer->getQuantity()
+                ]
+            );
 
-            try
-            {
-                //Common equipment attributes to insert into parent Equipment table
-                Registry::getConnection()->insert($this->getParentTable(),
-                    [
-                        "Manufacturer" => $computer->getManufacturer(),
-                        "ProductLine"  => $computer->getProductLine(),
-                        "Description"  => $computer->getDescription(),
-                        "Quantity"     => $computer->getQuantity()
-                    ]
-                );
-
-                //get the id of the last inserted row
-                $lastId = Registry::getConnection()->lastInsertId();
+            //get the id of the last inserted row
+            $lastId = Registry::getConnection()->lastInsertId();
 
 
-                // Computer-specific attributes to insert into Computer table
-                Registry::getConnection()->insert($this->getTable(),
-                    [
-                        "Ram"         => $computer->getManufacturer(),
-                        "Cpu"         => $computer->getCpu(),
-                        "EquipmentId" => $lastId
-                    ]
-                );
-
-                //commit changes
-                Registry::getConnection()->commit();
-
-            }
-            catch (\Exception $e)
-            {
-                Registry::getConnection()->rollBack();
-
-            }
-
-            return $lastId;
-
-
+            // Computer-specific attributes to insert into Computer table
+            Registry::getConnection()->insert($this->getTable(),
+                [
+                    "Ram"         => $computer->getManufacturer(),
+                    "Cpu"         => $computer->getCpu(),
+                    "EquipmentId" => $lastId
+                ]
+            );
         }
 
         /**
@@ -97,21 +78,12 @@ namespace Stark\TDG
          */
         public function delete(DomainObject &$object)
         {
-            try
-            {
-                // This works under the assumption that CASCADE DELETE is on
-                Registry::getConnection()->delete($this->getParentTable(),
-                    [
-                        $this->getParentPk() => $object->getEquipmentId()
-                    ]
-                );
-                return true;
-            }
-            catch(\Exception $e)
-            {
-
-            }
-            return false;
+            // This works under the assumption that CASCADE DELETE is on
+            Registry::getConnection()->delete($this->getParentTable(),
+                [
+                    $this->getParentPk() => $object->getEquipmentId()
+                ]
+            );
         }
 
         /**
@@ -123,37 +95,27 @@ namespace Stark\TDG
          */
         public function update(DomainObject &$object)
         {
-            try
-            {
-                //update computer-specific attributes in Computer table
-                Registry::getConnection()->update(
-                    $this->getTable(),
-                    [
-                        "Ram" => $object->getRam(),
-                        "Cpu" => $object->getCpu()
-                    ],
-                    [$this->getPk() => $object->getEquipmentId()]
-                );
+            //update computer-specific attributes in Computer table
+            Registry::getConnection()->update(
+                $this->getTable(),
+                [
+                    "Ram" => $object->getRam(),
+                    "Cpu" => $object->getCpu()
+                ],
+                [$this->getPk() => $object->getEquipmentId()]
+            );
 
-                //update common equipment attributes in Equipment table
-                Registry::getConnection()->update(
-                    $this->getParentTable(),
-                    [
-                        "Manufacturer" => $object->getManufacturer(),
-                        "ProductLine"  => $object->getProductLine(),
-                        "Description"  => $object->getDescription(),
-                        "Quantity"     => $object->getQuantity()
-                    ],
-                    [$this->getParentPk() => $object->getEquipmentId()]
-                );
-
-                return true;
-            }
-            catch(\Exception $e)
-            {
-                
-            }
-            return false;
+            //update common equipment attributes in Equipment table
+            Registry::getConnection()->update(
+                $this->getParentTable(),
+                [
+                    "Manufacturer" => $object->getManufacturer(),
+                    "ProductLine"  => $object->getProductLine(),
+                    "Description"  => $object->getDescription(),
+                    "Quantity"     => $object->getQuantity()
+                ],
+                [$this->getParentPk() => $object->getEquipmentId()]
+            );
         }
     }
 }
