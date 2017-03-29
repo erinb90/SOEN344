@@ -93,6 +93,7 @@ namespace Stark {
 
             $currentReservation = $Session->getReservation();
 
+            // Delete the reservation
             $Session->getReservationMapper()->uowDelete($currentReservation);
             $Session->getReservationMapper()->commit();
 
@@ -102,8 +103,13 @@ namespace Stark {
             }
 
             do {
+                // do-while end condition to indicate when no additional wait listed reservations
+                // can be changed to confirmed
                 $reservationWasAccommodated = false;
+
+                // Go through the wait list
                 foreach ($waitList as $waitingReservation) {
+                    // If the current reservation was accommodated
                     $canBeAccommodated = false;
 
                     $equipmentRequests = [];
@@ -123,7 +129,7 @@ namespace Stark {
                     $reservationConflicts = $Session->getReservationManager()
                         ->checkForConflicts($waitingReservation->getRoomId(), $waitingReservation->getStartTimeDate(), $waitingReservation->getEndTimeDate(), $equipmentRequests);
 
-                    // If required
+                    // Will not do anything if reservationConflicts or equipmentRequests is empty
                     $errors = $Session->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
 
                     if (empty($reservationConflicts)) {
@@ -137,6 +143,7 @@ namespace Stark {
                         $canBeAccommodated = true;
                     }
 
+                    // Update the reservation status to active
                     if ($canBeAccommodated) {
                         $reservationWasAccommodated = true;
                         $waitingReservation->setIsWaited(false);
@@ -154,7 +161,7 @@ namespace Stark {
         }
 
         /**
-         * Resolves conflicts into user errors.
+         * Assigns an alternative equipment id (of the same type) for each request if there is one available.
          *
          * @param ReservationConflict[] $reservationConflicts from the attempted reservation booking.
          * @param EquipmentRequest[] $equipmentRequests for the reservation.
@@ -165,8 +172,8 @@ namespace Stark {
         {
             $errors = [];
 
-            // No conflicts, so return
-            if (empty($reservationConflicts)) {
+            // No conflicts or requests, so return
+            if (empty($reservationConflicts) || empty($equipmentRequests)) {
                 return $errors;
             }
 
