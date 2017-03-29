@@ -30,27 +30,12 @@ namespace Stark\TDG
          */
         public function insert(DomainObject &$object)
         {
-            Registry::getConnection()->beginTransaction();
-            $lastId = -1;
-            try
-            {
-                Registry::getConnection()->insert($this->getParentTable(),
-                    [
-                        "Name"     => $object->getName(),
-                        "Location" => $object->getLocation()
-                    ]
-                );
-
-                $lastId = Registry::getConnection()->lastInsertId();
-                Registry::getConnection()->commit();
-
-            }
-            catch (\Exception $e)
-            {
-                Registry::getConnection()->rollBack();
-            }
-
-            return $lastId;
+            Registry::getConnection()->insert($this->getParentTable(),
+                [
+                    "Name"     => $object->getName(),
+                    "Location" => $object->getLocation()
+                ]
+            );
         }
 
         /**
@@ -61,21 +46,11 @@ namespace Stark\TDG
          */
         public function delete(DomainObject &$object)
         {
-            try
-            {
-                Registry::getConnection()->delete($this->getTable(),
-                    [
-                        $this->getPk() => $object->getRoomId()
-                    ]
-                );
-                return true;
-            }
-            catch (\Exception $e)
-            {
-
-            }
-            return false;
-
+            Registry::getConnection()->delete($this->getTable(),
+                [
+                    $this->getPk() => $object->getRoomId()
+                ]
+            );
         }
 
         /**
@@ -86,27 +61,14 @@ namespace Stark\TDG
          */
         public function update(DomainObject &$object)
         {
-
-            try
-            {
-                Registry::getConnection()->update(
-                    $this->getTable(),
-                    [
-                        "Name"     => $object->getName(),
-                        "Location" => $object->getLocation()
-                    ],
-                    [$this->getPk() => $object->getRoomId()]
-                );
-
-                return TRUE;
-            }
-            catch (\Exception $e)
-            {
-
-            }
-
-            return FALSE;
-
+            Registry::getConnection()->update(
+                $this->getTable(),
+                [
+                    "Name"     => $object->getName(),
+                    "Location" => $object->getLocation()
+                ],
+                [$this->getPk() => $object->getRoomId()]
+            );
         }
     }
 }

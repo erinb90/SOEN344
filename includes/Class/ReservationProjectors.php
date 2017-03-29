@@ -13,6 +13,7 @@ namespace Stark
 
     /**
      * Class ReservationProjectors
+     * fetches a list/array of projectors for a particular reservation
      * @package Stark
      */
     class ReservationProjectors extends ReservationEquipment
