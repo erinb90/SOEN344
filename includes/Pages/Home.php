@@ -276,6 +276,60 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 });
             });
 
+            // Modify reservation
+            $(document).on('click', '#modifyReservation', function () {
+
+                var reservation = userReservations.row($(this).closest('tr')).data();
+                var newDate = $('input#newDate').val();
+                var newStartTime = $('input#newStartTime').val();
+                var newEndTime = $('input#newEndTime').val();
+                var newTitle = $('input#newTitle').val();
+
+
+                // add the date picker
+                $('input#newDate').datepicker({
+                    dateFormat: 'yy-mm-dd',
+                    minDate   : 0
+                });
+
+                $('#modifyReservationModal').dialog({
+                    title  : "Modify Reservation",
+                    modal  : true,
+                    buttons: {
+                        "Modify": function ()
+                        {
+                            $(this).dialog('close');
+                            $('#modifyMessage').html("Modifying reservation...please wait...").dialog({
+                                modal: true
+                            });
+
+                            $.ajax({
+                                url    : 'Ajax/Modify.php',
+                                data   : {
+                                    reservationId: reservation.reid,
+                                    date: newDate,
+                                    startTime: newStartTime,
+                                    endTime: newEndTime,
+                                    title: newTitle
+                                },
+                                error  : function ()
+                                {
+                                    alert('An error occurred');
+                                },
+                                success: function (data)
+                                {
+                                    $('#modifyMessage').html(data);
+                                }
+                            });
+                        },
+                        "Cancel" : function ()
+                        {
+                            $(this).dialog("destroy");
+                        }
+                    }
+                });
+            });
+
             //when clicking on View for a user's equipment if he has for his/her reservation
 
             $(document).on('click', '#viewEquipment', function () {
@@ -698,9 +752,9 @@ $RoomDirectory = new \Stark\RoomDirectory();
                                                 name="description"></textarea>
                                         <label for="rDate">Date:</label>
                                         <input type="text" class="form-control" name="rDate" id="rDate" /> <br>
-                                        <label for="startTime">Start Time: (mm:ss)</label>
+                                        <label for="startTime">Start Time: (hh:mm)</label>
                                         <input type="text" class="form-control" id="startTime" name="startTime">
-                                        <label for="endTime">End Time: (mm:ss)</label>
+                                        <label for="endTime">End Time: (hh:mm)</label>
                                         <input type="text" class="form-control" id="endTime" name="endTime">
                                         <input hidden name="roomID" id="roomID">
                                         <br>
@@ -896,6 +950,19 @@ $RoomDirectory = new \Stark\RoomDirectory();
     </p>
 </div>
 
+<!-- Modify Reservation -->
+<div id="modifyReservationModal" style="display: none;" title="Modify Reservation">
+    <label for="newTitle">Title of Reservation</label>
+    <input required type="text" class="form-control" placeholder="Enter a Title"
+           name="title" id="newTitle">
+    <label for="newDate">New Date:</label>
+    <input type="text" class="form-control" name="newDate" id="newDate" /> <br>
+    <label for="newStartTime">New Start Time: (hh:mm)</label>
+    <input type="text" class="form-control" id="newStartTime" name="newStartTime">
+    <label for="newEndTime">New End Time: (hh:mm)</label>
+    <input type="text" class="form-control" id="newEndTime" name="newEndTime">
+</div>
+
 <!-- Lock Message -->
 <div id="lockMessageModal" style="display: none;" title="Reservation">
     <p>
@@ -905,6 +972,9 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
 <!-- Reservation Cancel Message -->
 <div id="cancelMessage" style="display: none;" title="Cancel Reservation">
+
+<!-- Reservation Modify Message -->
+<div id="modifyMessage" style="display: none;" title="Modify Reservation">
 
 </div>
 

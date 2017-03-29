@@ -2,7 +2,6 @@
 
 namespace Stark\Utilities;
 
-use Stark\Enums\EquipmentType;
 use Stark\Interfaces\Equipment;
 use Stark\Mappers\ReservationMapper;
 use Stark\Mappers\UserMapper;
@@ -175,8 +174,8 @@ class ReservationManager
      * Find conflicting active reservations based on a yet to be created reservation.
      *
      * @param int $roomId of the room in the pending reservation
-     * @param \DateTime $startTimeDate of the pendingReservation
-     * @param \DateTime $endTimeDate of the pendingReservation
+     * @param String $startTimeDate of the pendingReservation
+     * @param String $endTimeDate of the pendingReservation
      * @param EquipmentRequest[] $equipmentRequests of the equipment requested (optional)
      *
      * @return ReservationConflict[] of conflicting reservations or empty if none
@@ -236,29 +235,6 @@ class ReservationManager
     }
 
     /**
-     * Add an error that no alternative equipment could be found.
-     *
-     * @param EquipmentRequest $equipmentRequest from the attempted reservation booking.
-     * @param String[] $errors to add.
-     *
-     * @return void
-     */
-    private function noAlternativeError(&$equipmentRequest, &$errors)
-    {
-        $equipmentType = 'Unknown';
-
-        // This is awful, but would require a refactor in the database
-        if ($equipmentRequest->getEquipmentType() == EquipmentType::Computer) {
-            $equipmentType = 'Computer';
-        } else if ($equipmentRequest->getEquipmentType() == EquipmentType::Projector) {
-            $equipmentType = 'Projector';
-        }
-
-        $errors[] = "No alternative " . $equipmentType . " could be found for requested id "
-            . $equipmentRequest->getEquipmentId();
-    }
-
-    /**
      * Find reservation for Id.
      *
      * @param int $reservationId for the reservation
@@ -275,8 +251,8 @@ class ReservationManager
      * Find conflicting active reservations based on startTimeDate and endTimeDate of the pending reservation.
      *
      * @param int $roomId of the room in the pending reservation
-     * @param \DateTime $startTimeDate of the pendingReservation
-     * @param \DateTime $endTimeDate of the pendingReservation
+     * @param String $startTimeDate of the pendingReservation
+     * @param String $endTimeDate of the pendingReservation
      * @param Reservation[] $activeReservations in the system
      * @param EquipmentRequest[] $equipmentRequests of the equipment requested (optional)
      *
@@ -295,8 +271,8 @@ class ReservationManager
             $reservationConflict = new ReservationConflict($activeReservation);
 
             // Is the start of the current reservation contained between the start and end time of an active one?
-            if ($startTimeDate >= $activeReservation->getStartTimeDate()
-                && $startTimeDate <= $activeReservation->getEndTimeDate()
+            if (strtotime($startTimeDate) >= strtotime($activeReservation->getStartTimeDate())
+                && strtotime($startTimeDate) <= strtotime($activeReservation->getEndTimeDate())
             ) {
                 if ($roomId == $activeReservation->getRoomId() && !$activeReservation->isIsWaited()) {
                     $reservationConflict->addDateTime($activeReservation->getStartTimeDate());
@@ -307,8 +283,8 @@ class ReservationManager
                     $this->checkForEquipmentConflicts($equipmentRequests, $activeReservation, $reservationConflict);
                 }
             } // Is the end of the current reservation contained between the start and end time of an active one?
-            else if ($endTimeDate >= $activeReservation->getStartTimeDate()
-                && $endTimeDate <= $activeReservation->getEndTimeDate()
+            else if (strtotime($endTimeDate) >= strtotime($activeReservation->getStartTimeDate())
+                && strtotime($endTimeDate) <= strtotime($activeReservation->getEndTimeDate())
             ) {
                 if ($roomId == $activeReservation->getRoomId() && !$activeReservation->isIsWaited()) {
                     $reservationConflict->addDateTime($activeReservation->getStartTimeDate());
@@ -319,8 +295,8 @@ class ReservationManager
                     $this->checkForEquipmentConflicts($equipmentRequests, $activeReservation, $reservationConflict);
                 }
             } // Does the current reservation contain the start and end of an active one?
-            else if ($startTimeDate <= $activeReservation->getStartTimeDate()
-                && $endTimeDate >= $activeReservation->getEndTimeDate()
+            else if (strtotime($startTimeDate) <= strtotime($activeReservation->getStartTimeDate())
+                && strtotime($endTimeDate) >= strtotime($activeReservation->getEndTimeDate())
             ) {
                 if ($roomId == $activeReservation->getRoomId() && !$activeReservation->isIsWaited()) {
                     $reservationConflict->addDateTime($activeReservation->getStartTimeDate());

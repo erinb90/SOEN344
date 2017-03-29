@@ -36,6 +36,12 @@ class ReservationSanitizer
         $dateAsString = trim($dateAsString);
         $timeAsString = trim($timeAsString);
 
+        $timeHours = substr($timeAsString, 0, 2);
+        if(strpos($timeHours, ":")){
+            // Need to append a 0 to hours since it is single digit
+            $timeAsString = "0" .  $timeAsString;
+        }
+
         $isValidFormat = preg_match(self::TIME_REGEX, $timeAsString);
         if (!$isValidFormat) {
             $timeAsString = $timeAsString . ':00';
@@ -64,7 +70,8 @@ class ReservationSanitizer
     {
         $dateTime = DateTime::createFromFormat(self::DATE_FORMAT, $fullDateAsString);
 
-        if (isset($dateTime) && $dateTime->format(self::DATE_FORMAT) == $fullDateAsString) {
+        $convertedDateTime = $dateTime->format(self::DATE_FORMAT);
+        if (isset($dateTime) && $convertedDateTime == $fullDateAsString) {
             return $fullDateAsString;
         } else {
             return null;

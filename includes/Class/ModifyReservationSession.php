@@ -12,31 +12,6 @@ use Stark\Utilities\ReservationManager;
 class ModifyReservationSession
 {
     /**
-     * @var int
-     */
-    private $_reservationId;
-
-    /**
-     * @var String
-     */
-    private $_newStartTime;
-
-    /**
-     * @var  String
-     */
-    private $_newEndTime;
-
-    /**
-     * @var int
-     */
-    private $_newRoomId;
-
-    /**
-     * @var String
-     */
-    private $_newTitle;
-
-    /**
      * @var LoanedEquipmentMapper
      */
     private $_LoanedEquipmentMapper;
@@ -53,27 +28,17 @@ class ModifyReservationSession
 
     /**
      * ModifyReservationSession constructor.
-     * @param $reservationId
      */
-    private function __construct($reservationId)
+    public function __construct()
     {
-        $this->_reservationId = $reservationId;
         $this->_ReservationMapper = new ReservationMapper();
         $this->_LoanedEquipmentMapper = new LoanedEquipmentMapper();
         $this->_ReservationManager = new ReservationManager();
     }
 
-    public function getReservation()
-    {
-        /**
-         * @var $Reservation Reservation
-         */
-        $Reservation = $this->_ReservationMapper->findByPk($this->_reservationId);
-
-        return $Reservation;
-    }
-
     /**
+     * Returns the internal reservation mapper.
+     *
      * @return \Stark\Mappers\ReservationMapper
      */
     public function getReservationMapper()
@@ -85,12 +50,13 @@ class ModifyReservationSession
      * Attempt to modify an existing reservation.
      *
      * @param int $reservationId of the reservation to modify.
-     * @param String $newStartTime of the reservation to modify.
-     * @param String $newEndTime of the reservation to modify.
+     * @param String $newDate of the reservation to modify.
+     * @param String $newStartTimeDate of the reservation to modify.
+     * @param String $newEndTimeDate of the reservation to modify.
      * @param String $newTitle of the reservation to modify.
      * @return String[] errors to to display if the modification failed, or empty if succeeded.
      */
-    public function modify($reservationId, $newStartTime, $newEndTime, $newTitle)
+    public function modify($reservationId, $newDate, $newStartTimeDate, $newEndTimeDate, $newTitle)
     {
         /**
          * @var Reservation $reservation
@@ -111,7 +77,7 @@ class ModifyReservationSession
 
         $roomId = $reservation->getRoomId();
         $reservationConflicts = $this->_ReservationManager
-            ->checkForConflicts($roomId, $newStartTime, $newEndTime, $equipmentRequests);
+            ->checkForConflicts($roomId, $newStartTimeDate, $newEndTimeDate, $equipmentRequests);
 
         /**
          * @var String[] $displayErrors
@@ -119,7 +85,7 @@ class ModifyReservationSession
         $displayErrors = [];
         $canBeAccommodated = true;
 
-        if (!isEmpty($reservationConflicts)) {
+        if (!empty($reservationConflicts)) {
 
             // Log time conflicts
             foreach ($reservationConflicts as $reservationConflict) {
@@ -130,7 +96,7 @@ class ModifyReservationSession
 
             $errors = $this->_ReservationManager->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
 
-            if (!isEmpty($errors)) {
+            if (!empty($errors)) {
                 foreach ($errors as $error) {
                     $displayErrors[] = $error;
                 }
@@ -145,8 +111,9 @@ class ModifyReservationSession
         }
 
         if ($canBeAccommodated) {
-            $reservation->setStartTimeDate($newStartTime);
-            $reservation->setEndTimeDate($newEndTime);
+            $reservation->setCreatedOn($newDate);
+            $reservation->setStartTimeDate($newStartTimeDate);
+            $reservation->setEndTimeDate($newEndTimeDate);
             $reservation->setTitle($newTitle);
             $this->_ReservationMapper->uowUpdate($reservation);
             $this->_ReservationMapper->commit();

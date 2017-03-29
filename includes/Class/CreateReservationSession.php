@@ -146,10 +146,10 @@ namespace Stark {
         /**
          * Validates that the requested dates cause no time conflicts with other reservations.
          *
-         * @param array $repeatedDates The repeated dates for the reservation.
+         * @param \DateTime[] $repeatedDates The repeated dates for the reservation.
          * @return boolean The validation result.
          */
-        private function validateRepeats(array $repeatedDates)
+        private function validateRepeats($repeatedDates)
         {
             foreach ($repeatedDates as $repeatedDate) {
 
