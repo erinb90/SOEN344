@@ -2,6 +2,7 @@
 
 namespace Stark\Utilities;
 
+use Stark\Enums\EquipmentType;
 use Stark\Interfaces\Equipment;
 use Stark\Mappers\ReservationMapper;
 use Stark\Mappers\UserMapper;
@@ -184,6 +185,77 @@ class ReservationManager
     {
         $reservations = $this->_reservationMapper->findAllActive();
         return $this->checkForTimeConflicts($roomId, $startTimeDate, $endTimeDate, $reservations, $equipmentRequests);
+    }
+
+    /**
+     * Resolves conflicts into user errors.
+     *
+     * @param ReservationConflict[] $reservationConflicts from the attempted reservation booking.
+     * @param EquipmentRequest[] $equipmentRequests for the reservation.
+     *
+     * @return String[] errors from attempt to assign alternate equipment id.
+     */
+    public function assignAlternateEquipmentId($reservationConflicts, &$equipmentRequests)
+    {
+        $errors = [];
+
+        // No conflicts, so return
+        if (empty($reservationConflicts)) {
+            return $errors;
+        }
+
+        // Attempt to resolve equipment conflicts
+        foreach ($reservationConflicts as $reservationConflict) {
+
+            // Log time conflicts
+            foreach ($reservationConflict->getDateTimes() as $timeConflict) {
+                $errors[] = "Conflict with time: " . $timeConflict;
+            }
+
+            // Time conflicts exist, skip equipment conflict checks
+            if (!empty($errors)) {
+                continue;
+            }
+
+            // Attempt re-assignment of equipment ids
+            foreach ($reservationConflict->getEquipments() as $equipmentConflict) {
+                foreach ($equipmentRequests as $equipmentRequest) {
+                    if ($equipmentConflict->getEquipmentId() == $equipmentRequest->getEquipmentId()) {
+                        $availableEquipmentIds = $this->findAvailableEquipmentIds($equipmentRequest->getEquipmentType());
+                        if (count($availableEquipmentIds) >= 1) {
+                            $equipmentRequest->setEquipmentId($availableEquipmentIds[0]);
+                        } else {
+                            $this->noAlternativeError($equipmentRequest, $errors);
+                        }
+                    }
+                }
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Add an error that no alternative equipment could be found.
+     *
+     * @param EquipmentRequest $equipmentRequest from the attempted reservation booking.
+     * @param String[] $errors to add.
+     *
+     * @return void
+     */
+    private function noAlternativeError(&$equipmentRequest, &$errors)
+    {
+        $equipmentType = 'Unknown';
+
+        // This is awful, but would require a refactor in the database
+        if ($equipmentRequest->getEquipmentType() == EquipmentType::Computer) {
+            $equipmentType = 'Computer';
+        } else if ($equipmentRequest->getEquipmentType() == EquipmentType::Projector) {
+            $equipmentType = 'Projector';
+        }
+
+        $errors[] = "No alternative " . $equipmentType . " could be found for requested id "
+            . $equipmentRequest->getEquipmentId();
     }
 
     /**
