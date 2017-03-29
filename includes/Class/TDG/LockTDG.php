@@ -81,11 +81,19 @@ namespace Stark\TDG
         }
 
         /**
-         * @param \Stark\Interfaces\DomainObject $object
+         * @param \Stark\Interfaces\DomainObject|LockDomain $object
          */
         public function update(DomainObject &$object)
         {
-            // TODO: Implement update() method.
+            Registry::getConnection()->update($this->getTable(),
+                [
+                    "UserId" => $object->getUserId(),
+                    "RoomId"    => $object->getRoomID(),
+                    "LockStartTime"  => $object->getLockStartTime(),
+                    "LockEndTime" => $object->getLockEndTime()
+                ],
+                [$this->getPk() => $object->getLockID()]
+            );
         }
 
 
