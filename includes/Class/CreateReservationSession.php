@@ -157,7 +157,7 @@ namespace Stark {
                 $endTimeDate = $repeatedDate['end'];
 
                 $reservationConflicts = $this->_reservationManager
-                    ->checkForConflicts($this->_roomId, $startTimeDate, $endTimeDate, $this->_equipmentRequests);
+                    ->checkForConflicts(-1, $this->_roomId, $startTimeDate, $endTimeDate, $this->_equipmentRequests);
 
                 $this->resolveConflicts($reservationConflicts, $this->_errors);
             }

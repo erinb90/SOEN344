@@ -121,7 +121,7 @@ namespace Stark {
                     }
 
                     $reservationConflicts = $Session->getReservationManager()
-                        ->checkForConflicts($waitingReservation->getRoomId(), $waitingReservation->getStartTimeDate(), $waitingReservation->getEndTimeDate(), $equipmentRequests);
+                        ->checkForConflicts($waitingReservation->getReservationID(), $waitingReservation->getRoomId(), $waitingReservation->getStartTimeDate(), $waitingReservation->getEndTimeDate(), $equipmentRequests);
 
                     // If required
                     $errors = $Session->getReservationManager()

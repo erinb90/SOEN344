@@ -76,8 +76,9 @@ class ModifyReservationSession
         }
 
         $roomId = $reservation->getRoomId();
+        $reservationId = $reservation->getReservationID();
         $reservationConflicts = $this->_ReservationManager
-            ->checkForConflicts($roomId, $newStartTimeDate, $newEndTimeDate, $equipmentRequests);
+            ->checkForConflicts($reservationId, $roomId, $newStartTimeDate, $newEndTimeDate, $equipmentRequests);
 
         /**
          * @var String[] $displayErrors
