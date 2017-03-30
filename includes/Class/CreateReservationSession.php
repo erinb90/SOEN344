@@ -146,10 +146,10 @@ namespace Stark {
         /**
          * Validates that the requested dates cause no time conflicts with other reservations.
          *
-         * @param array $repeatedDates The repeated dates for the reservation.
+         * @param \DateTime[] $repeatedDates The repeated dates for the reservation.
          * @return boolean The validation result.
          */
-        private function validateRepeats(array $repeatedDates)
+        private function validateRepeats($repeatedDates)
         {
             foreach ($repeatedDates as $repeatedDate) {
 
@@ -157,7 +157,7 @@ namespace Stark {
                 $endTimeDate = $repeatedDate['end'];
 
                 $reservationConflicts = $this->_reservationManager
-                    ->checkForConflicts($this->_roomId, $startTimeDate, $endTimeDate, $this->_equipmentRequests);
+                    ->checkForConflicts(-1, $this->_roomId, $startTimeDate, $endTimeDate, $this->_equipmentRequests);
 
                 $this->resolveConflicts($reservationConflicts, $this->_errors);
             }

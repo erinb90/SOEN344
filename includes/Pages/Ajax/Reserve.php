@@ -80,6 +80,10 @@ if ($ReservationSession->reserve()) {
             });
         })
 
+        // Refresh user reservations
+        userReservations.ajax.reload(function (json) {
+        }, false);
+
     </script>
     <?php
 

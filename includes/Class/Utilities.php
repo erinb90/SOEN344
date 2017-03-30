@@ -52,7 +52,6 @@ class Utilities
         $dates = [];
         for($i = 0; $i <= $repeats -1; $i++)
         {
-
             $start = date('Y-m-d H:i:s', strtotime($startTime. ' + ' . $i*7 . ' days'));
             $end = date('Y-m-d H:i:s', strtotime($endTime. ' + ' . $i*7  . ' days'));
             $dates[] = [

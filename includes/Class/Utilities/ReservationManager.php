@@ -2,6 +2,7 @@
 
 namespace Stark\Utilities;
 
+use Stark\Enums\EquipmentType;
 use Stark\Interfaces\Equipment;
 use Stark\Mappers\ReservationMapper;
 use Stark\Mappers\UserMapper;
@@ -173,6 +174,7 @@ class ReservationManager
     /**
      * Find conflicting active reservations based on a yet to be created reservation.
      *
+     * @param int $reservationId of the the reservation
      * @param int $roomId of the room in the pending reservation
      * @param string $startTimeDate of the pendingReservation
      * @param string $endTimeDate of the pendingReservation
@@ -180,10 +182,79 @@ class ReservationManager
      *
      * @return ReservationConflict[] of conflicting reservations or empty if none
      */
-    public function checkForConflicts($roomId, $startTimeDate, $endTimeDate, $equipmentRequests = [])
+    public function checkForConflicts($reservationId, $roomId, $startTimeDate, $endTimeDate, $equipmentRequests = [])
     {
         $reservations = $this->_reservationMapper->findAllActive();
-        return $this->checkForTimeConflicts($roomId, $startTimeDate, $endTimeDate, $reservations, $equipmentRequests);
+        return $this->checkForTimeConflicts($reservationId, $roomId, $startTimeDate, $endTimeDate, $reservations, $equipmentRequests);
+    }
+
+    /**
+     * Resolves conflicts into user errors.
+     *
+     * @param ReservationConflict[] $reservationConflicts from the attempted reservation booking.
+     * @param EquipmentRequest[] $equipmentRequests for the reservation.
+     *
+     * @return String[] errors from attempt to assign alternate equipment id.
+     */
+    public function assignAlternateEquipmentId($reservationConflicts, &$equipmentRequests)
+    {
+        $errors = [];
+
+        // No conflicts, so return
+        if (empty($reservationConflicts)) {
+            return $errors;
+        }
+
+        // Attempt to resolve equipment conflicts
+        foreach ($reservationConflicts as $reservationConflict) {
+
+            // Log time conflicts
+            foreach ($reservationConflict->getDateTimes() as $timeConflict) {
+                $errors[] = "Conflict with time: " . $timeConflict;
+            }
+
+            // Time conflicts exist, skip equipment conflict checks
+            if (!empty($errors)) {
+                continue;
+            }
+
+            // Attempt re-assignment of equipment ids
+            foreach ($reservationConflict->getEquipments() as $equipmentConflict) {
+                foreach ($equipmentRequests as $equipmentRequest) {
+                    if ($equipmentConflict->getEquipmentId() == $equipmentRequest->getEquipmentId()) {
+                        $availableEquipmentIds = $this->findAvailableEquipmentIds($equipmentRequest->getEquipmentType());
+                        if (count($availableEquipmentIds) >= 1) {
+                            $equipmentRequest->setEquipmentId($availableEquipmentIds[0]);
+                        } else {
+                            $this->noAlternativeError($equipmentRequest, $errors);
+                        }
+                    }
+                }
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Add an error that no alternative equipment could be found.
+     *
+     * @param EquipmentRequest $equipmentRequest from the attempted reservation booking.
+     * @param String[] $errors to add.
+     *
+     * @return void
+     */
+    private function noAlternativeError(&$equipmentRequest, &$errors)
+    {
+        $equipmentType = 'Unknown';
+        // This is awful, but would require a refactor in the database
+        if ($equipmentRequest->getEquipmentType() == EquipmentType::Computer) {
+            $equipmentType = 'Computer';
+        } else if ($equipmentRequest->getEquipmentType() == EquipmentType::Projector) {
+            $equipmentType = 'Projector';
+        }
+        $errors[] = "No alternative " . $equipmentType . " could be found for requested id "
+            . $equipmentRequest->getEquipmentId();
     }
 
     /**
@@ -202,6 +273,7 @@ class ReservationManager
     /**
      * Find conflicting active reservations based on startTimeDate and endTimeDate of the pending reservation.
      *
+     * @param int $reservationId of the reservation.
      * @param int $roomId of the room in the pending reservation
      * @param string $startTimeDate of the pendingReservation
      * @param string $endTimeDate of the pendingReservation
@@ -210,9 +282,9 @@ class ReservationManager
      *
      * @return ReservationConflict[] of conflicting reservations or empty if none
      */
-    private function checkForTimeConflicts($roomId, $startTimeDate, $endTimeDate, $activeReservations, $equipmentRequests)
+    private function checkForTimeConflicts($reservationId, $roomId, $startTimeDate, $endTimeDate, $activeReservations, $equipmentRequests)
     {
-        if (empty($activeReservations) || !isset($roomId) || !isset($startTimeDate) || !isset($endTimeDate)) {
+        if (empty($activeReservations) || !isset($reservationId) || !isset($roomId) || !isset($startTimeDate) || !isset($endTimeDate)) {
             return [];
         }
 
@@ -220,6 +292,11 @@ class ReservationManager
         $conflictingReservations = [];
 
         foreach ($activeReservations as $activeReservation) {
+            if($reservationId == $activeReservation->getReservationID()){
+                // Same reservation
+                continue;
+            }
+
             $reservationConflict = new ReservationConflict($activeReservation);
 
             // Check for conflicting dates
