@@ -83,24 +83,14 @@ class ModifyReservationSession
         /**
          * @var String[] $displayErrors
          */
-        $displayErrors = [];
+        $errors = [];
         $canBeAccommodated = true;
 
         if (!empty($reservationConflicts)) {
 
-            // Log time conflicts
-            foreach ($reservationConflicts as $reservationConflict) {
-                foreach ($reservationConflict->getDateTimes() as $timeConflict) {
-                    $displayErrors[] = "Conflict with time: " . $timeConflict;
-                }
-            }
-
             $errors = $this->_ReservationManager->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
 
             if (!empty($errors)) {
-                foreach ($errors as $error) {
-                    $displayErrors[] = $error;
-                }
                 $canBeAccommodated = false;
             } else {
                 // Re-map loaned equipment with new ids
@@ -120,7 +110,7 @@ class ModifyReservationSession
             $this->_ReservationMapper->commit();
             return [];
         } else {
-            return $displayErrors;
+            return $errors;
         }
     }
 }

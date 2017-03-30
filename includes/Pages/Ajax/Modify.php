@@ -59,8 +59,8 @@ if (!empty($errors)) {
         // Refresh user reservations
         $(function () {
             userReservations.ajax.reload(function (json) {
-                //$('#modifyMessage').dialog('close');
-                //$('#modifyReservationModal').dialog('close');
+                $('#modifyMessage').dialog('close');
+                $('#modifyReservationModal').dialog('close');
             }, false);
         })
 
