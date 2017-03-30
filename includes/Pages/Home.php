@@ -29,7 +29,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
     <!-- vendor scripts & fall backs -->
 
     <!-- jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script> window.$ || window.jQuery || document.write('<script src="../../node_modules/jquery/dist/jquery.min.js">\x3C/script>')</script>
 
     <!-- jQuery Cookie-->
@@ -47,7 +47,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
     <link rel="stylesheet" href="../../plugins/jquery-ui/jquery-ui.min.css">
     <!-- All Javascript for Home.php page -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <!-- TODO : Add fallback -->
+    <script src="../../plugins/jquery-ui/jquery-ui.min.js"></script>
     <!-- Google Web Font Format for title -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Abel" rel="stylesheet">
