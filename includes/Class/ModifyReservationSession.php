@@ -2,7 +2,6 @@
 
 namespace Stark;
 
-use Stark\Interfaces\Equipment;
 use Stark\Mappers\LoanContractMapper;
 use Stark\Mappers\LoanedEquipmentMapper;
 use Stark\Models\EquipmentRequest;
@@ -99,7 +98,7 @@ class ModifyReservationSession
 
         if ($canBeAccommodated) {
             $loanContract = $this->_LoanContractMapper->findByReservationId($reservationId);
-            if($loanContract == null){
+            if ($loanContract == null) {
                 $loanContract = new LoanContract();
                 $loanContract->setReservationId($reservationId);
                 $this->_LoanContractMapper->uowInsert($loanContract);
@@ -108,6 +107,12 @@ class ModifyReservationSession
 
             $loanContract = $this->_LoanContractMapper->findByReservationId($reservationId);
 
+            // Schedule remove of currently loaned equipment
+            foreach ($removedLoanedEquipment as $loanedEquipment) {
+                $this->_LoanedEquipmentMapper->uowDelete($loanedEquipment);
+            }
+            $this->_LoanedEquipmentMapper->commit();
+
             // Schedule addition of newly loaned equipment
             foreach ($newEquipmentRequests as $i => $newEquipmentRequest) {
                 $loanedEquipmentEntry = new LoanedEquipment();
@@ -115,19 +120,15 @@ class ModifyReservationSession
                 $loanedEquipmentEntry->setLoanContractId($loanContract->getLoanContractiD());
                 $this->_LoanedEquipmentMapper->uowInsert($loanedEquipmentEntry);
             }
-
-            // Schedule remove of currently loaned equipment
-            foreach ($removedLoanedEquipment as $loanedEquipment) {
-                $this->_LoanedEquipmentMapper->uowDelete($loanedEquipment);
-            }
+            $this->_LoanedEquipmentMapper->commit();
 
             $reservation->setCreatedOn($newDate);
             $reservation->setStartTimeDate($newStartTimeDate);
             $reservation->setEndTimeDate($newEndTimeDate);
             $reservation->setTitle($newTitle);
             $this->_ReservationMapper->uowUpdate($reservation);
-            $this->_LoanedEquipmentMapper->commit();
             $this->_ReservationMapper->commit();
+            $this->_ReservationManager->accommodateReservations();
             return [];
         } else {
             return $errors;

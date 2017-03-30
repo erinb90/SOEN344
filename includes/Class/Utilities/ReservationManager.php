@@ -4,6 +4,7 @@ namespace Stark\Utilities;
 
 use Stark\Enums\EquipmentType;
 use Stark\Interfaces\Equipment;
+use Stark\Mappers\LoanedEquipmentMapper;
 use Stark\Mappers\ReservationMapper;
 use Stark\Mappers\UserMapper;
 use Stark\Models\EquipmentRequest;
@@ -17,6 +18,11 @@ class ReservationManager
      * @var \Stark\Mappers\ReservationMapper $_reservationMapper to retrieve reservations
      */
     private $_reservationMapper;
+
+    /**
+     * @var \Stark\Mappers\LoanedEquipmentMapper $_loanedEquipmentMapper to retrieve loaned equipment
+     */
+    private $_loanedEquipmentMapper;
 
     /**
      * @var \Stark\Utilities\EquipmentManager $_equipmentManager to manage equipment
@@ -34,6 +40,7 @@ class ReservationManager
     public function __construct()
     {
         $this->_reservationMapper = new ReservationMapper();
+        $this->_loanedEquipmentMapper = new LoanedEquipmentMapper();
         $this->_equipmentManager = new EquipmentManager();
         $this->_userMapper = new UserMapper();
     }
@@ -77,6 +84,68 @@ class ReservationManager
         }
 
         return $regularStudentsReservation;
+    }
+
+    /**
+     * Attempts to accommodate wait listed reservations after a change to an active one.
+     */
+    public function accommodateReservations(){
+        $waitList = $this->getOrderedWaitingReservations();
+
+        do {
+            // do-while end condition to indicate when no additional wait listed reservations
+            // can be changed to confirmed
+            $reservationWasAccommodated = false;
+
+            // Go through the wait list
+            foreach ($waitList as $waitingReservation) {
+                // If the current reservation was accommodated
+                $canBeAccommodated = false;
+
+                $equipmentRequests = [];
+                $loanedEquipments = $this->getLoanedEquipmentForReservation($waitingReservation->getReservationID());
+                if (isset($loanedEquipments) && !empty($loanedEquipments)) {
+                    /**
+                     * @var EquipmentRequest[] $equipmentRequests
+                     */
+                    foreach ($loanedEquipments as $loanedEquipment) {
+                        $equipment = $this->getEquipmentForId($loanedEquipment->getEquipmentId());
+                        if ($equipment != null) {
+                            $equipmentRequests[] = new EquipmentRequest($equipment->getEquipmentId(), $equipment->getDiscriminator());
+                        }
+                    }
+                }
+
+                $reservationConflicts = $this->checkForConflicts($waitingReservation->getReservationID(), $waitingReservation->getRoomId(), $waitingReservation->getStartTimeDate(), $waitingReservation->getEndTimeDate(), $equipmentRequests);
+
+                // If required
+                $errors = $this->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
+
+                if (empty($reservationConflicts)) {
+                    $canBeAccommodated = true;
+                } else if (!empty($reservationConflicts) && empty($errors)) {
+                    // Re-map loaned equipment with new ids
+                    foreach ($equipmentRequests as $i => $equipmentRequest) {
+                        $loanedEquipments[$i]->setEquipmentId($equipmentRequest->getEquipmentId());
+                        $this->_loanedEquipmentMapper->uowUpdate($loanedEquipments[$i]);
+                    }
+                    $canBeAccommodated = true;
+                }
+
+                // Update the reservation status to active
+                if ($canBeAccommodated) {
+                    $reservationWasAccommodated = true;
+                    $waitingReservation->setIsWaited(false);
+                    $this->_reservationMapper->uowUpdate($waitingReservation);
+                    $this->_loanedEquipmentMapper->commit();
+                    $this->_reservationMapper->commit();
+                    break;
+                }
+            }
+
+            // Refresh the list
+            $waitList = $this->getOrderedWaitingReservations();
+        } while ($reservationWasAccommodated);
     }
 
     /**
@@ -145,7 +214,6 @@ class ReservationManager
 
         return $availableEquipmentIds;
     }
-
 
     /**
      * Gets all loaned equipment for a reservation id.

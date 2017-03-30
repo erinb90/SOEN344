@@ -391,6 +391,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
                                             var data = this.data();
                                             equipment.push([data.EquipmentId, 'p']);
                                         });
+
+                                        $(this).dialog("destroy");
                                     },
                                     "Cancel": function () {
                                         $(this).dialog("destroy");
