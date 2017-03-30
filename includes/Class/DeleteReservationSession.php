@@ -149,6 +149,7 @@ namespace Stark {
                         $reservationWasAccommodated = true;
                         $waitingReservation->setIsWaited(false);
                         $Session->getReservationMapper()->uowUpdate($waitingReservation);
+                        $Session->getLoanedEquipmentMapper()->commit();
                         $Session->getReservationMapper()->commit();
                         break;
                     }

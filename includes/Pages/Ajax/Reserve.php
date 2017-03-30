@@ -117,6 +117,9 @@ else if (count($ReservationSession->getErrors()) > 0)
             $('#successReservation').dialog({
                 width: 400
             });
+
+            userReservations.ajax.reload(function (json) {
+            }, false);
         })
 
     </script>

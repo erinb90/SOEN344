@@ -1,4 +1,5 @@
 <?php
+use Stark\Models\EquipmentRequest;
 use Stark\ModifyReservationSession;
 use Stark\TimeValidator;
 use Stark\Utilities\ReservationSanitizer;
@@ -12,6 +13,13 @@ $date = $_REQUEST['date'];
 $startTime = $_REQUEST['startTime'];
 $endTime = $_REQUEST['endTime'];
 $title = $_REQUEST['title'];
+$equipments = json_decode($_REQUEST['equipment']);
+
+// Convert to equipment requests
+$equipmentRequests = [];
+foreach ($equipments as $equipment) {
+    $equipmentRequests[] = new EquipmentRequest($equipment[0], $equipment[1]);
+}
 
 // Sanitize input data
 $reservationSanitizer = new ReservationSanitizer();
@@ -38,7 +46,7 @@ if (!empty($timeValidationErrors)) {
 }
 
 $modifyReservationSession = new ModifyReservationSession();
-$errors = $modifyReservationSession->modify($reservationId, $date, $startTimeDate, $endTimeDate, $title);
+$errors = $modifyReservationSession->modify($reservationId, $date, $startTimeDate, $endTimeDate, $title, $equipmentRequests);
 
 if (!empty($errors)) {
     ?>
