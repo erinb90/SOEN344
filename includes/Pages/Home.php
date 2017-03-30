@@ -18,21 +18,36 @@ $RoomDirectory = new \Stark\RoomDirectory();
     <title>Room Reserver</title>
 
     <!-- Bootstrap Core CSS -->
+
+    <!-- TODO: implement CDN bootstrap with local bootstrap as fall back -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"> -->
     <link href="../../CSS/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
     <link href="../../CSS/landing-page-Registration.css" rel="stylesheet">
 
-    <!-- jQuery -->
-    <script src="../../Javascript/jquery.js"></script>
+    <!-- vendor scripts & fall backs -->
 
-    <!-- Bootstrap Core JavaScript -->
-    <script src="../../Javascript/bootstrap.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script> window.$ || window.jQuery || document.write('<script src="../../node_modules/jquery/dist/jquery.min.js">\x3C/script>')</script>
+
+    <!-- jQuery Cookie-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script> $.cookie || document.write('<script src="../../node_modules/jquery.cookie/jquery.cookie.js">\x3C/script>')</script>
+
+    <!-- bootstrap js -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script> window.$.fn || document.write('<script src="../../node_modules/bootstrap/dist/js/bootstrap.min.js">\x3C/script>')</script>
+
+    <!-- Google Web Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
 
     <!--Try to update to new jquery, doesn't seem to work with jquery 3.1.1-->
     <link rel="stylesheet" href="../../plugins/jquery-ui/jquery-ui.min.css">
     <!-- All Javascript for Home.php page -->
-    <script src="../../plugins/jquery-ui/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <!-- TODO : Add fallback -->
     <!-- Google Web Font Format for title -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Abel" rel="stylesheet">
