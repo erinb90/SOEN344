@@ -63,6 +63,17 @@ namespace Stark\TDG
             return $m;
         }
 
+
+        public function findAll()
+        {
+            $query = Registry::getConnection()->createQueryBuilder();
+            $query->select("*");
+            $query->from($this->getTable());
+            $sth = $query->execute();
+            $m = $sth->fetchAll();
+            return $m;
+        }
+
         /**
          * Inserts a Reservation object into DB
          * @param \Stark\Interfaces\DomainObject|\Stark\Models\Reservation $object

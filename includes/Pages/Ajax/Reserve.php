@@ -117,6 +117,8 @@ else if (count($ReservationSession->getErrors()) > 0)
             $('#successReservation').dialog({
                 width: 400
             });
+
+            $('#calendar').fullCalendar('refetchEvents'  );
         })
 
     </script>
@@ -160,7 +162,9 @@ else if (count($ReservationSession->getErrors()) > 0)
                 Close: function () {
                     $('#reservationContainerMessage').dialog('destroy');
                 }
-            })
+            });
+
+            $('#calendar').fullCalendar('refetchEvents'  );
         })
     </script>
 

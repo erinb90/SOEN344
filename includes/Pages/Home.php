@@ -28,29 +28,9 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
     <!-- vendor scripts & fall backs -->
 
-    <!-- jQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-    <script> window.$ || window.jQuery || document.write('<script src="../../node_modules/jquery/dist/jquery.min.js">\x3C/script>')</script>
+    <!-- jQuery UI CSS -->
+    <link href="../../plugins/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css">
 
-    <!-- jQuery Cookie-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
-    <script> $.cookie || document.write('<script src="../../node_modules/jquery.cookie/jquery.cookie.js">\x3C/script>')</script>
-
-    <!-- bootstrap js -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script> window.$.fn || document.write('<script src="../../node_modules/bootstrap/dist/js/bootstrap.min.js">\x3C/script>')</script>
-
-    <!-- Google Web Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
-
-    <!--Try to update to new jquery, doesn't seem to work with jquery 3.1.1-->
-    <link rel="stylesheet" href="../../plugins/jquery-ui/jquery-ui.min.css">
-    <!-- All Javascript for Home.php page -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="../../plugins/jquery-ui/jquery-ui.min.js"></script>
-    <!-- Google Web Font Format for title -->
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Abel" rel="stylesheet">
 
     <!-- DataTables CSS -->
     <link href="../../plugins/datatables/media/css/dataTables.bootstrap4.min.css" rel="stylesheet">
@@ -59,6 +39,14 @@ $RoomDirectory = new \Stark\RoomDirectory();
     <link href="../../plugins/datatables/extensions/Buttons/css/buttons.bootstrap.min.css" rel="stylesheet">
     <!-- DataTable Select Extension -->
     <link href="../../plugins/datatables/extensions/Select/css/select.dataTables.min.css" rel="stylesheet">
+    <!-- FUll calendar CSS-->
+    <link href='../../plugins/fullcalendar/fullcalendar.css' rel='stylesheet' />
+    <link href='../../plugins/fullcalendar/scheduler.min.css' rel="stylesheet">
+    <link href='../../plugins/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />
+    <!-- jQuery -->
+    <script src="../../plugins/jquery/dist/jquery.min.js"></script>
+    <!-- jQuery UI -->
+    <script src="../../plugins/jquery-ui/jquery-ui.min.js"></script>
     <!-- DataTables JavaScript -->
     <script src="../../plugins/datatables/media/js/jquery.dataTables.min.js"></script>
     <script src="../../plugins/datatables/media/js/dataTables.bootstrap.min.js"></script>
@@ -67,6 +55,18 @@ $RoomDirectory = new \Stark\RoomDirectory();
     <script src="../../plugins/datatables/extensions/Buttons/js/buttons.bootstrap.min.js"></script>
     <script src="../../plugins/datatables/extensions/Select/js/dataTables.select.min.js"></script>
     <script src="../../plugins/datatables/extensions/Buttons/js/buttons.flash.js"></script>
+
+    <!-- Moment -->
+    <script src='../../plugins/fullcalendar/moment.min.js'></script>
+
+
+    <script src='../../plugins/fullcalendar/fullcalendar.min.js'></script>
+
+
+    <script src="../../js/calendar.js"></script>
+
+
+
 
     <script>
 
@@ -670,6 +670,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
         })
     </script>
+
 </head>
 <body>
 
@@ -688,17 +689,6 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
     <div class="container">
         <div class="row">
-            <!-- Id space to confirm if the data was saved or not -->
-            <div>
-                <?php
-
-                ?>
-            </div>
-
-            <!-- class greeting -->
-            <div class="greeting">
-            </div>
-
             <!-- Div for datepicker -->
             <div id="datepickerContainer" style="width:1200px;">
                 <h1 class="title">BLADE RUNNER 344</h1>
@@ -733,6 +723,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 </div>
                 <br>
             </div>
+            <!-- Calendar -->
+            <div id="calendar"></div>
 
             <!-- Reservation Modal -->
             <div id="myModal" role="dialog" style="display: none;">

@@ -26,6 +26,8 @@ if(\Stark\DeleteReservationSession::delete($_REQUEST['reid']))
                 });
             }, false);
 
+
+            $('#calendar').fullCalendar('refetchEvents'  );
         });
     </script>
     <?php
