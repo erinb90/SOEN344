@@ -176,8 +176,8 @@ class ReservationManager
      *
      * @param int $reservationId of the the reservation
      * @param int $roomId of the room in the pending reservation
-     * @param String $startTimeDate of the pendingReservation
-     * @param String $endTimeDate of the pendingReservation
+     * @param string $startTimeDate of the pendingReservation
+     * @param string $endTimeDate of the pendingReservation
      * @param EquipmentRequest[] $equipmentRequests of the equipment requested (optional)
      *
      * @return ReservationConflict[] of conflicting reservations or empty if none
@@ -275,8 +275,8 @@ class ReservationManager
      *
      * @param int $reservationId of the reservation.
      * @param int $roomId of the room in the pending reservation
-     * @param String $startTimeDate of the pendingReservation
-     * @param String $endTimeDate of the pendingReservation
+     * @param string $startTimeDate of the pendingReservation
+     * @param string $endTimeDate of the pendingReservation
      * @param Reservation[] $activeReservations in the system
      * @param EquipmentRequest[] $equipmentRequests of the equipment requested (optional)
      *
@@ -299,42 +299,31 @@ class ReservationManager
 
             $reservationConflict = new ReservationConflict($activeReservation);
 
-            // Is the start of the current reservation contained between the start and end time of an active one?
-            if (strtotime($startTimeDate) >= strtotime($activeReservation->getStartTimeDate())
-                && strtotime($startTimeDate) <= strtotime($activeReservation->getEndTimeDate())
-            ) {
-                if ($roomId == $activeReservation->getRoomId() && !$activeReservation->isIsWaited()) {
+            // Check for conflicting dates
+            if ($roomId == $activeReservation->getRoomId() && !$activeReservation->isIsWaited()) {
+
+                // Is the start of the current reservation contained between the start and end time of an active one?
+                $conflictingStart = $startTimeDate >= $activeReservation->getStartTimeDate()
+                    && $startTimeDate <= $activeReservation->getEndTimeDate();
+
+                // Is the end of the current reservation contained between the start and end time of an active one?
+                $conflictingEnd = $endTimeDate >= $activeReservation->getStartTimeDate()
+                    && $endTimeDate <= $activeReservation->getEndTimeDate();
+
+                // Does the current reservation contain the start and end of an active one?
+                $overlapping = $startTimeDate <= $activeReservation->getStartTimeDate()
+                    && $endTimeDate >= $activeReservation->getEndTimeDate();
+
+                $hasTimeConflict = $conflictingStart || $conflictingEnd || $overlapping;
+
+                if ($hasTimeConflict) {
                     $reservationConflict->addDateTime($activeReservation->getStartTimeDate());
                     $reservationConflict->addDateTime($activeReservation->getEndTimeDate());
                 }
+            }
 
-                if ($hasEquipment) {
-                    $this->checkForEquipmentConflicts($equipmentRequests, $activeReservation, $reservationConflict);
-                }
-            } // Is the end of the current reservation contained between the start and end time of an active one?
-            else if (strtotime($endTimeDate) >= strtotime($activeReservation->getStartTimeDate())
-                && strtotime($endTimeDate) <= strtotime($activeReservation->getEndTimeDate())
-            ) {
-                if ($roomId == $activeReservation->getRoomId() && !$activeReservation->isIsWaited() && $activeReservation->getRoomId()) {
-                    $reservationConflict->addDateTime($activeReservation->getStartTimeDate());
-                    $reservationConflict->addDateTime($activeReservation->getEndTimeDate());
-                }
-
-                if ($hasEquipment) {
-                    $this->checkForEquipmentConflicts($equipmentRequests, $activeReservation, $reservationConflict);
-                }
-            } // Does the current reservation contain the start and end of an active one?
-            else if (strtotime($startTimeDate) <= strtotime($activeReservation->getStartTimeDate())
-                && strtotime($endTimeDate) >= strtotime($activeReservation->getEndTimeDate())
-            ) {
-                if ($roomId == $activeReservation->getRoomId() && !$activeReservation->isIsWaited()) {
-                    $reservationConflict->addDateTime($activeReservation->getStartTimeDate());
-                    $reservationConflict->addDateTime($activeReservation->getEndTimeDate());
-                }
-
-                if ($hasEquipment) {
-                    $this->checkForEquipmentConflicts($equipmentRequests, $activeReservation, $reservationConflict);
-                }
+            if ($hasEquipment) {
+                $this->checkForEquipmentConflicts($equipmentRequests, $activeReservation, $reservationConflict);
             }
 
             if (!empty($reservationConflict->getDateTimes()) || !empty($reservationConflict->getEquipments())) {
@@ -365,11 +354,15 @@ class ReservationManager
             return;
         }
 
+        $requestedEquipmentIds = [];
+        foreach ($equipmentRequests as $equipmentRequest) {
+            $requestedEquipmentIds[] = $equipmentRequest->getEquipmentId();
+        }
+
         foreach ($equipmentsForActiveReservation as $equipmentForActiveReservation) {
-            foreach ($equipmentRequests as $equipmentRequest) {
-                if ($equipmentRequest->getEquipmentId() == $equipmentForActiveReservation->getEquipmentId()) {
-                    $reservationConflict->addEquipment($equipmentForActiveReservation);
-                }
+            $isAlreadyAssigned = in_array($equipmentForActiveReservation->getEquipmentId(), $requestedEquipmentIds);
+            if ($isAlreadyAssigned) {
+                $reservationConflict->addEquipment($equipmentForActiveReservation);
             }
         }
     }

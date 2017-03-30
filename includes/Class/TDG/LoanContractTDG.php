@@ -39,27 +39,14 @@ namespace Stark\TDG
          */
         public function insert(DomainObject &$object)
         {
-            Registry::getConnection()->beginTransaction();
-            $lastId = -1;
-            try
-            {
-                Registry::getConnection()->insert($this->getTable(),
-                    [
-                        "ReservationId" => $object->getReservationId()
-                    ]
-                );
+            Registry::getConnection()->insert($this->getTable(),
+                [
+                    "ReservationId" => $object->getReservationId()
+                ]
+            );
 
-                $lastId = Registry::getConnection()->lastInsertId();
-                $object->setLoanContractiD($lastId);
-                Registry::getConnection()->commit();
-
-            }
-            catch (\Exception $e)
-            {
-                Registry::getConnection()->rollBack();
-            }
-
-            return $lastId;
+            $lastId = Registry::getConnection()->lastInsertId();
+            $object->setLoanContractiD($lastId);
         }
 
         /**
@@ -70,20 +57,11 @@ namespace Stark\TDG
          */
         public function delete(DomainObject &$object)
         {
-            try
-            {
-                Registry::getConnection()->delete($this->getTable(),
-                    [
-                        $this->getPk() => $object->getLoanContractiD()
-                    ]
-                );
-                return true;
-            }
-            catch(\Exception $e)
-            {
-
-            }
-            return false;
+            Registry::getConnection()->delete($this->getTable(),
+                [
+                    $this->getPk() => $object->getLoanContractiD()
+                ]
+            );
         }
 
         /**
@@ -94,25 +72,14 @@ namespace Stark\TDG
          */
         public function update(DomainObject &$object)
         {
-            try
-            {
-                Registry::getConnection()->update(
-                    $this->getTable(),
-                    [
+            Registry::getConnection()->update(
+                $this->getTable(),
+                [
 
-                        "ReservationId" => $object->getReservationId()
-                    ],
-                    [$this->getPk() => $object->getLoanContractiD()]
-                );
-
-                return TRUE;
-            }
-            catch (\Exception $e)
-            {
-
-            }
-
-            return FALSE;
+                    "ReservationId" => $object->getReservationId()
+                ],
+                [$this->getPk() => $object->getLoanContractiD()]
+            );
         }
     }
 }

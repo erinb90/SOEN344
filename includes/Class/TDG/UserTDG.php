@@ -42,34 +42,15 @@ namespace Stark\TDG
          */
         public function insert(DomainObject &$object)
         {
-            Registry::getConnection()->beginTransaction();
-            $lastId = -1;
-
-            try
-            {
-                Registry::getConnection()->insert($this->getParentTable(),
-                    [
-                        "FirstName"       => $object->getFirstName(),
-                        "LastName"        => $object->getLastName(),
-                        "Password"        => $object->getPassword(),
-                        "StudentId"       => $object->getStudentId(),
-                        "CapstoneStudent" => $object->isCapstoneStudent()
-                    ]
-                );
-
-                $lastId = Registry::getConnection()->lastInsertId();
-
-                Registry::getConnection()->commit();
-
-            }
-            catch (\Exception $e)
-            {
-                Registry::getConnection()->rollBack();
-
-            }
-
-            return $lastId;
-
+            Registry::getConnection()->insert($this->getParentTable(),
+                [
+                    "FirstName"       => $object->getFirstName(),
+                    "LastName"        => $object->getLastName(),
+                    "Password"        => $object->getPassword(),
+                    "StudentId"       => $object->getStudentId(),
+                    "CapstoneStudent" => $object->isCapstoneStudent()
+                ]
+            );
         }
 
         /**
@@ -80,21 +61,11 @@ namespace Stark\TDG
          */
         public function delete(DomainObject &$object)
         {
-            try
-            {
-                Registry::getConnection()->delete($this->getTable(),
-                    [
-                        $this->getPk() => $object->getUserId()
-                    ]
-                );
-                return true;
-            }
-            catch(\Exception $e)
-            {
-
-            }
-            return false;
-
+            Registry::getConnection()->delete($this->getTable(),
+                [
+                    $this->getPk() => $object->getUserId()
+                ]
+            );
         }
 
         /**
@@ -105,27 +76,17 @@ namespace Stark\TDG
          */
         public function update(DomainObject &$object)
         {
-            try
-            {
-                Registry::getConnection()->update(
-                    $this->getTable(),
-                    [
-                        "FirstName"       => $object->getFirstName(),
-                        "LastName"        => $object->getLastName(),
-                        "Password"        => $object->getPassword(),
-                        "StudentId"       => $object->getStudentId(),
-                        "CapstoneStudent" => $object->isCapstoneStudent()
-                    ],
-                    [$this->getPk() => $object->getUserId()]
-                );
-                return true;
-            }
-            catch(\Exception $e)
-            {
-
-            }
-            return false;
-
+            Registry::getConnection()->update(
+                $this->getTable(),
+                [
+                    "FirstName"       => $object->getFirstName(),
+                    "LastName"        => $object->getLastName(),
+                    "Password"        => $object->getPassword(),
+                    "StudentId"       => $object->getStudentId(),
+                    "CapstoneStudent" => $object->isCapstoneStudent()
+                ],
+                [$this->getPk() => $object->getUserId()]
+            );
         }
     }
 }

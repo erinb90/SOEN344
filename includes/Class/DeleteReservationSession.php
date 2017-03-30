@@ -93,6 +93,7 @@ namespace Stark {
 
             $currentReservation = $Session->getReservation();
 
+            // Delete the reservation
             $Session->getReservationMapper()->uowDelete($currentReservation);
             $Session->getReservationMapper()->commit();
 
@@ -102,8 +103,13 @@ namespace Stark {
             }
 
             do {
+                // do-while end condition to indicate when no additional wait listed reservations
+                // can be changed to confirmed
                 $reservationWasAccommodated = false;
+
+                // Go through the wait list
                 foreach ($waitList as $waitingReservation) {
+                    // If the current reservation was accommodated
                     $canBeAccommodated = false;
 
                     $equipmentRequests = [];
@@ -138,6 +144,7 @@ namespace Stark {
                         $canBeAccommodated = true;
                     }
 
+                    // Update the reservation status to active
                     if ($canBeAccommodated) {
                         $reservationWasAccommodated = true;
                         $waitingReservation->setIsWaited(false);

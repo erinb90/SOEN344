@@ -12,7 +12,7 @@ use DateTime;
 class ReservationSanitizer
 {
     /**
-     * @var string TIME_REGEX for valid time format.
+     * @var string TIME_REGEX for valid time format (H:i:s)
      */
     const TIME_REGEX = "/([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]/";
 
@@ -33,6 +33,7 @@ class ReservationSanitizer
      */
     public function convertToDateTime($dateAsString, $timeAsString)
     {
+        $timeAppend = ':00';
         $dateAsString = trim($dateAsString);
         $timeAsString = trim($timeAsString);
 
@@ -44,12 +45,12 @@ class ReservationSanitizer
 
         $isValidFormat = preg_match(self::TIME_REGEX, $timeAsString);
         if (!$isValidFormat) {
-            $timeAsString = $timeAsString . ':00';
+            $timeAsString = $timeAsString . $timeAppend;
         }
 
         $isValidFormat = preg_match(self::TIME_REGEX, $timeAsString);
         if (!$isValidFormat) {
-            $timeAsString = $timeAsString . ':00';
+            $timeAsString = $timeAsString . $timeAppend;
         }
 
         $isValidFormat = preg_match(self::TIME_REGEX, $timeAsString);

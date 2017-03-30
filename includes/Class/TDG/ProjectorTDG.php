@@ -30,44 +30,26 @@ namespace Stark\TDG
          */
         public function insert(DomainObject &$object)
         {
-            Registry::getConnection()->beginTransaction();
-            $lastId = -1;
+            //Common equipment attributes to insert into parent Equipment table
+            Registry::getConnection()->insert($this->getParentTable(),
+                [
+                    "Manufacturer" => $object->getManufacturer(),
+                    "ProductLine"  => $object->getProductLine(),
+                    "Description"  => $object->getDescription(),
+                    "Quantity"     => $object->getQuantity()
+                ]
+            );
 
-            try
-            {
-                //Common equipment attributes to insert into parent Equipment table
-                Registry::getConnection()->insert($this->getParentTable(),
-                    [
-                        "Manufacturer" => $object->getManufacturer(),
-                        "ProductLine"  => $object->getProductLine(),
-                        "Description"  => $object->getDescription(),
-                        "Quantity"     => $object->getQuantity()
-                    ]
-                );
+            $lastId = Registry::getConnection()->lastInsertId();
 
-                $lastId = Registry::getConnection()->lastInsertId();
-
-
-                // Projector-specific attributes to insert into Projector table
-                Registry::getConnection()->insert($this->getTable(),
-                    [
-                        "Display"     => $object->getManufacturer(),
-                        "Resolution"  => $object->getResolution(),
-                        "EquipmentId" => $lastId
-                    ]
-                );
-
-
-                Registry::getConnection()->commit();
-
-            }
-            catch (\Exception $e)
-            {
-                Registry::getConnection()->rollBack();
-
-            }
-
-            return $lastId;
+            // Projector-specific attributes to insert into Projector table
+            Registry::getConnection()->insert($this->getTable(),
+                [
+                    "Display"     => $object->getManufacturer(),
+                    "Resolution"  => $object->getResolution(),
+                    "EquipmentId" => $lastId
+                ]
+            );
         }
 
         /**
@@ -80,22 +62,12 @@ namespace Stark\TDG
          */
         public function delete(DomainObject &$object)
         {
-            try
-            {
-                // This works under the assumption that CASCADE DELETE is on
-                Registry::getConnection()->delete($this->getParentTable(),
-                    [
-                        $this->getParentPk() => $object->getEquipmentId()
-                    ]
-                );
-                return true;
-            }
-            catch(\Exception $e)
-            {
-
-            }
-            return false;
-
+            // This works under the assumption that CASCADE DELETE is on
+            Registry::getConnection()->delete($this->getParentTable(),
+                [
+                    $this->getParentPk() => $object->getEquipmentId()
+                ]
+            );
         }
 
         /**
@@ -106,38 +78,27 @@ namespace Stark\TDG
          */
         public function update(DomainObject &$object)
         {
-            try
-            {
-                //update projector-specific attributes in Projector table
-                Registry::getConnection()->update(
-                    $this->getTable(),
-                    [
-                        "Display"    => $object->getDisplay(),
-                        "Resolution" => $object->getResolution()
-                    ],
-                    [$this->getPk() => $object->getEquipmentId()]
-                );
+            //update projector-specific attributes in Projector table
+            Registry::getConnection()->update(
+                $this->getTable(),
+                [
+                    "Display"    => $object->getDisplay(),
+                    "Resolution" => $object->getResolution()
+                ],
+                [$this->getPk() => $object->getEquipmentId()]
+            );
 
-                //update common equipment attributes in Equipment table
-                Registry::getConnection()->update(
-                    $this->getParentTable(),
-                    [
-                        "Manufacturer" => $object->getManufacturer(),
-                        "ProductLine"  => $object->getProductLine(),
-                        "Description"  => $object->getDescription(),
-                        "Quantity"     => $object->getQuantity()
-                    ],
-                    [$this->getParentPk() => $object->getEquipmentId()]
-                );
-
-                return true;
-            }
-            catch(\Exception $e)
-            {
-
-            }
-            return false;
-
+            //update common equipment attributes in Equipment table
+            Registry::getConnection()->update(
+                $this->getParentTable(),
+                [
+                    "Manufacturer" => $object->getManufacturer(),
+                    "ProductLine"  => $object->getProductLine(),
+                    "Description"  => $object->getDescription(),
+                    "Quantity"     => $object->getQuantity()
+                ],
+                [$this->getParentPk() => $object->getEquipmentId()]
+            );
         }
     }
 }
