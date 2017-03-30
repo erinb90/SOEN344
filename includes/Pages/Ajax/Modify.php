@@ -1,5 +1,7 @@
 <?php
+use Stark\Mappers\ReservationMapper;
 use Stark\Models\EquipmentRequest;
+use Stark\Models\Reservation;
 use Stark\ModifyReservationSession;
 use Stark\TimeValidator;
 use Stark\Utilities\ReservationSanitizer;
@@ -21,10 +23,35 @@ foreach ($equipments as $equipment) {
     $equipmentRequests[] = new EquipmentRequest($equipment[0], $equipment[1]);
 }
 
+$reservationMapper = new ReservationMapper();
+
 // Sanitize input data
 $reservationSanitizer = new ReservationSanitizer();
-$startTimeDate = $reservationSanitizer->convertToDateTime($date, $startTime);
-$endTimeDate = $reservationSanitizer->convertToDateTime($date, $endTime);
+
+/**
+ * @var Reservation $reservation
+ */
+$reservation = $reservationMapper->findByPk($reservationId);
+
+$startTimeDate = "";
+$endTimeDate = "";
+
+if ($date == "" || $startTime == "") {
+    $startTimeDate = $reservation->getStartTimeDate();
+} else {
+    $startTimeDate = $reservationSanitizer->convertToDateTime($date, $startTime);
+}
+
+if ($date == "" || $endTime == "") {
+    $endTimeDate = $reservation->getEndTimeDate();
+} else {
+    $endTimeDate = $reservationSanitizer->convertToDateTime($date, $endTime);
+}
+
+if ($title == "") {
+    $title = $reservation->getTitle();
+}
+
 $timeValidationErrors = TimeValidator::validate($startTimeDate, $endTimeDate)->getErrors();
 
 if (!empty($timeValidationErrors)) {

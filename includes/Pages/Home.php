@@ -282,6 +282,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
                 var reservation = userReservations.row($(this).closest('tr')).data();
                 var reservationId = reservation.reid;
+                // capture any equipment selected
+                var equipment = [];
 
                 $('#modifyReservationModal').dialog({
                     title: "Modify Reservation",
@@ -376,8 +378,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
                                 height: 500,
                                 buttons: {
                                     "Save Changes": function () {
-                                        // capture any equipment selected
-                                        var equipment = [];
+
+                                        equipment = [];
 
                                         projectorsListTableModify.rows('.selected').every(function (rowIdx, tableLoop, rowLoop) {
                                             var data = this.data();
@@ -428,7 +430,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
                     "serverSide": false,
                     "displayLength": 5,
                     "ajax": {
-                        "url": 'Ajax/projectorList.php',
+                        "url": 'Ajax/myProjectorList.php',
                         "type": "POST",
                         "data": {
                             id: reservationId
@@ -456,7 +458,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
                     "serverSide": false,
                     "displayLength": 5,
                     "ajax": {
-                        "url": 'Ajax/computerList.php',
+                        "url": 'Ajax/myComputerList.php',
                         "type": "POST",
                         "data": {
                             id: reservationId
