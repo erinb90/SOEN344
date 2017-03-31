@@ -288,6 +288,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 $('#newRoomOptions').val(roomId.toString());
 
                 $('#modifyReservationModal').dialog({
+                    width: 600,
                     title: "Modify Reservation",
                     modal: true,
                     buttons: {
@@ -503,7 +504,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
             $(document).on('click', '#third-r', function () {
 
                 $('#myReservationsModal').dialog({
-                    width : 1300,
+                    width : 1000,
                     height: 800,
                     modal : true,
                     title : 'My Reservations'
@@ -663,7 +664,6 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 "columns": [
                     {"data": "reid"},
                     {"data": "title"},
-                    {"data": "rid"},
                     {"data": "roomName"},
                     {"data": "Date"},
                     {"data": "StartTime"},
@@ -697,8 +697,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
                     {
                         'render': function (data, type, row) {
                             if (row.canModify) {
-                                return '<button id="modifyReservation" name="modifyReservation" type="button" class="btn btn-outline btn-primary btn-square btn-sm">Modify</button>' +
-                                    ' <button id="cancelReservation" name="cancelReservation" type="button" class="btn btn-outline btn-danger btn-square btn-sm">Cancel</button>';
+                                return '<button id="modifyReservation" name="modifyReservation" type="button" class="btn btn-primary">Modify</button>' +
+                                    ' <button id="cancelReservation" name="cancelReservation" type="button" class="btn btn-danger">Cancel</button>';
                             }
                             else {
                                 return "-";
@@ -950,9 +950,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
     <table class="table" id="reservationsTable" width="100%">
         <thead>
         <tr>
-            <th>Reservation ID</th>
+            <th>#</th>
             <th>Name</th>
-            <th>Room ID</th>
             <th>Room Name</th>
             <th>Date</th>
             <th>Start Time</th>
