@@ -433,8 +433,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
             {
 
                 $('#myReservationsModal').dialog({
-                    width : 1200,
-                    height: 500,
+                    width : 1300,
+                    height: 800,
                     modal : true,
                     title : 'My Reservations'
                 });

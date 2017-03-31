@@ -16,8 +16,8 @@ $(function(){
         editable: false,
         theme: true,
         default: 'h(:mm)a',
-        aspectRatio: 1,
 
+        eventLimit: true, // allow "more" link when too many events
         header: {
             left: 'prev,next today',
             center: 'title',
@@ -38,12 +38,12 @@ $(function(){
             {
                 if (event.waitlisted)
                 {
-                    element.css({ "background-color" : "orange" });
+                    element.css({ "background-color" : "#AC2925" });
                     element.css({ "color" : "black" });
                 }
                 else
                 {
-                    element.css({ "background-color" : "green" });
+                    element.css({ "background-color" : "#2A9800" });
                 }
 
 
