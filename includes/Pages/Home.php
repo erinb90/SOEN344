@@ -287,6 +287,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 //var roomName = $('#newRoomOptions option[value=' + roomId + ']').select = 'true';
                 $('#newRoomOptions').val(roomId.toString());
 
+
+
                 $('#modifyReservationModal').dialog({
                     width: 600,
                     title: "Modify Reservation",
@@ -302,6 +304,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
                             var newStartTime = $('input#newStartTime').val();
                             var newEndTime = $('input#newEndTime').val();
                             var newTitle = $('input#newTitle').val();
+                            var newRoomId = $('#newRoomOptions').val();
                             var newRoomId = $('#newRoomOptions').val();
 
                             $.ajax({
@@ -738,7 +741,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
         <div class="row">
             <!-- Div for datepicker -->
             <div id="datepickerContainer" style="width:1200px;">
-                <h1 class="title">BLADE RUNNER 344</h1>
+                <h1 class="title">THE FORCE AWAKENS</h1>
                 <h3 class="subtitle">Room Reserver</h3>
                 <div id="datepickerInline"></div>
                 <br><br>
