@@ -287,6 +287,10 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 // Capture any change in equipment
                 var changedEquipment = false;
 
+                var roomId = reservation.rid;
+                //var roomName = $('#newRoomOptions option[value=' + roomId + ']').select = 'true';
+                $('#newRoomOptions').val(roomId.toString());
+
                 $('#modifyReservationModal').dialog({
                     title: "Modify Reservation",
                     modal: true,
@@ -301,6 +305,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
                             var newStartTime = $('input#newStartTime').val();
                             var newEndTime = $('input#newEndTime').val();
                             var newTitle = $('input#newTitle').val();
+                            var newRoomId = $('#newRoomOptions').val();
 
                             $.ajax({
                                 url: 'Ajax/Modify.php',
@@ -311,7 +316,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
                                     endTime: newEndTime,
                                     title: newTitle,
                                     equipment: JSON.stringify(equipment),
-                                    changedEquipment: changedEquipment
+                                    changedEquipment: changedEquipment,
+                                    roomId: newRoomId
                                 },
                                 error: function () {
                                     alert('An error occurred');
@@ -1024,6 +1030,21 @@ $RoomDirectory = new \Stark\RoomDirectory();
     <label for="newTitle">Title of Reservation</label>
     <input required type="text" class="form-control" placeholder="Enter a Title"
            name="title" id="newTitle">
+    <div style="margin-top: 10px;">
+        <label for="newRoomOptions">New Room:</label>
+        <select id="newRoomOptions" class="btn btn-default btn-lg network-name" name="newRoomOptions">
+            <?php
+            /**
+             * @var \Stark\Models\Room $RoomDomain
+             */
+            foreach ($RoomDirectory->getRooms() as $RoomDomain) {
+                ?>
+                <option value="<?php echo $RoomDomain->getRoomId(); ?>"><?php echo $RoomDomain->getName(); ?></option>
+                <?php
+            }
+            ?>
+        </select>
+    </div>
     <label for="newDate">New Date:</label>
     <input type="text" class="form-control" name="newDate" id="newDate"/> <br>
     <label for="newStartTime">New Start Time: (hh:mm)</label>

@@ -296,7 +296,7 @@ class ReservationManager
 
             // Log time conflicts
             foreach ($reservationConflict->getDateTimes() as $timeConflict) {
-                $errors[] = "Conflict with time: " . $timeConflict;
+                $errors[] = "Reservation ID " . $reservationConflict->getReservation()->getReservationID() . ": Conflict with time: " . $timeConflict;
             }
 
             // Attempt re-assignment of equipment ids
@@ -307,6 +307,7 @@ class ReservationManager
                         if (count($availableEquipmentIds) >= 1) {
                             $equipmentRequest->setEquipmentId($availableEquipmentIds[0]);
                         } else {
+                            $errors[] = "Reservation ID " . $reservationConflict->getReservation()->getReservationID() . ": Conflict with equipment ID " . $equipmentRequest->getEquipmentId();
                             $this->noAlternativeError($equipmentRequest, $errors);
                         }
                     }

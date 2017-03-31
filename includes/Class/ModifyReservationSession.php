@@ -58,6 +58,7 @@ class ModifyReservationSession
      * Attempt to modify an existing reservation.
      *
      * @param int $reservationId of the reservation to modify.
+     * @param int $roomId of the reservation to modify
      * @param String $newDate of the reservation to modify.
      * @param String $newStartTimeDate of the reservation to modify.
      * @param String $newEndTimeDate of the reservation to modify.
@@ -66,7 +67,7 @@ class ModifyReservationSession
      * @param EquipmentRequest[] $equipmentRequests for the modification.
      * @return String[] errors to to display if the modification failed, or empty if succeeded.
      */
-    public function modify($reservationId, $newDate, $newStartTimeDate, $newEndTimeDate, $newTitle, $changedEquipment, $equipmentRequests)
+    public function modify($reservationId, $roomId, $newDate, $newStartTimeDate, $newEndTimeDate, $newTitle, $changedEquipment, $equipmentRequests)
     {
         /**
          * @var Reservation $reservation
@@ -80,7 +81,6 @@ class ModifyReservationSession
             $removedLoanedEquipment = $this->filterRemovedLoanedEquipment($loanedEquipments, $equipmentRequests);
         }
 
-        $roomId = $reservation->getRoomId();
         $reservationId = $reservation->getReservationID();
         $reservationConflicts = $this->_ReservationManager
             ->checkForConflicts($reservationId, $roomId, $newStartTimeDate, $newEndTimeDate, $newEquipmentRequests);
@@ -130,10 +130,10 @@ class ModifyReservationSession
                 $this->_LoanedEquipmentMapper->commit();
             }
 
-            $reservation->setCreatedOn($newDate);
             $reservation->setStartTimeDate($newStartTimeDate);
             $reservation->setEndTimeDate($newEndTimeDate);
             $reservation->setTitle($newTitle);
+            $reservation->setRoomId($roomId);
             $this->_ReservationMapper->uowUpdate($reservation);
             $this->_ReservationMapper->commit();
             $this->_ReservationManager->accommodateReservations();
