@@ -13,12 +13,13 @@ $(function(){
 
     CALENDAR = $('#calendar').fullCalendar({
         editable: false,
+        theme: true,
         aspectRatio: 1,
         default: false,
         header: {
             left: 'prev,next today',
             center: 'title',
-            right: 'agendaDay,agendaWeek,month'
+            right: 'agendaDay,agendaWeek,month, listMonth'
         },
         views: {
             agendaTwoDay: {
@@ -26,7 +27,7 @@ $(function(){
                 groupByResource: true
             }
         },
-        minTime: "6:00:00",
+        minTime: "0:00:00",
         maxTime: "23:59:59",
         eventOverlap: false, // will cause the event to take up entire resource height
         defaultView: 'agendaWeek',

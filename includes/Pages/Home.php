@@ -29,7 +29,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
     <!-- vendor scripts & fall backs -->
 
     <!-- jQuery UI CSS -->
-    <link href="../../plugins/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css">
+    <link href="../../vendor/components/jqueryui/themes/hot-sneaks/jquery-ui.min.css" rel="stylesheet" type="text/css">
 
 
     <!-- DataTables CSS -->
@@ -44,9 +44,9 @@ $RoomDirectory = new \Stark\RoomDirectory();
     <link href='../../plugins/fullcalendar/scheduler.min.css' rel="stylesheet">
     <link href='../../plugins/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />
     <!-- jQuery -->
-    <script src="../../plugins/jquery/dist/jquery.min.js"></script>
+    <script src="../../vendor/components/jquery/jquery.min.js"></script>
     <!-- jQuery UI -->
-    <script src="../../plugins/jquery-ui/jquery-ui.min.js"></script>
+    <script src="../../vendor/components/jqueryui/jquery-ui.min.js"></script>
     <!-- DataTables JavaScript -->
     <script src="../../plugins/datatables/media/js/jquery.dataTables.min.js"></script>
     <script src="../../plugins/datatables/media/js/dataTables.bootstrap.min.js"></script>
