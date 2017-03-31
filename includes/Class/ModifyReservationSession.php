@@ -2,9 +2,11 @@
 
 namespace Stark;
 
-use Stark\Interfaces\Equipment;
+use Stark\Mappers\LoanContractMapper;
 use Stark\Mappers\LoanedEquipmentMapper;
 use Stark\Models\EquipmentRequest;
+use Stark\Models\LoanContract;
+use Stark\Models\LoanedEquipment;
 use Stark\Models\Reservation;
 use Stark\Mappers\ReservationMapper;
 use Stark\Utilities\ReservationManager;
@@ -27,6 +29,11 @@ class ModifyReservationSession
     private $_ReservationManager;
 
     /**
+     * @var LoanContractMapper
+     */
+    private $_LoanContractMapper;
+
+    /**
      * ModifyReservationSession constructor.
      */
     public function __construct()
@@ -34,6 +41,7 @@ class ModifyReservationSession
         $this->_ReservationMapper = new ReservationMapper();
         $this->_LoanedEquipmentMapper = new LoanedEquipmentMapper();
         $this->_ReservationManager = new ReservationManager();
+        $this->_LoanContractMapper = new LoanContractMapper();
     }
 
     /**
@@ -50,35 +58,32 @@ class ModifyReservationSession
      * Attempt to modify an existing reservation.
      *
      * @param int $reservationId of the reservation to modify.
+     * @param int $roomId of the reservation to modify
      * @param String $newDate of the reservation to modify.
      * @param String $newStartTimeDate of the reservation to modify.
      * @param String $newEndTimeDate of the reservation to modify.
      * @param String $newTitle of the reservation to modify.
+     * @param boolean $changedEquipment if the user made an equipment change.
+     * @param EquipmentRequest[] $equipmentRequests for the modification.
      * @return String[] errors to to display if the modification failed, or empty if succeeded.
      */
-    public function modify($reservationId, $newDate, $newStartTimeDate, $newEndTimeDate, $newTitle)
+    public function modify($reservationId, $roomId, $newDate, $newStartTimeDate, $newEndTimeDate, $newTitle, $changedEquipment, $equipmentRequests)
     {
         /**
          * @var Reservation $reservation
          */
         $reservation = $this->_ReservationMapper->findByPk($reservationId);
         $loanedEquipments = $this->_ReservationManager->getLoanedEquipmentForReservation($reservationId);
-        /**
-         * @var EquipmentRequest[] $equipmentRequests
-         */
-        $equipmentRequests = [];
-        foreach ($loanedEquipments as $loanedEquipment) {
-            /**
-             * @var Equipment $equipment
-             */
-            $equipment = $this->_ReservationManager->getEquipmentForId($loanedEquipment->getEquipmentId());
-            $equipmentRequests[] = new EquipmentRequest($equipment->getEquipmentId(), $equipment->getDiscriminator());
+
+        $newEquipmentRequests = $this->filterNewEquipmentRequests($loanedEquipments, $equipmentRequests);
+        $removedLoanedEquipment = [];
+        if ($changedEquipment) {
+            $removedLoanedEquipment = $this->filterRemovedLoanedEquipment($loanedEquipments, $equipmentRequests);
         }
 
-        $roomId = $reservation->getRoomId();
         $reservationId = $reservation->getReservationID();
         $reservationConflicts = $this->_ReservationManager
-            ->checkForConflicts($reservationId, $roomId, $newStartTimeDate, $newEndTimeDate, $equipmentRequests);
+            ->checkForConflicts($reservationId, $roomId, $newStartTimeDate, $newEndTimeDate, $newEquipmentRequests);
 
         /**
          * @var String[] $displayErrors
@@ -92,25 +97,103 @@ class ModifyReservationSession
 
             if (!empty($errors)) {
                 $canBeAccommodated = false;
-            } else {
-                // Re-map loaned equipment with new ids
-                foreach ($equipmentRequests as $i => $equipmentRequest) {
-                    $loanedEquipments[$i]->setEquipmentId($equipmentRequest->getEquipmentId());
-                    $this->_LoanedEquipmentMapper->uowUpdate($loanedEquipments[$i]);
-                }
             }
         }
 
         if ($canBeAccommodated) {
-            $reservation->setCreatedOn($newDate);
+            $loanContract = $this->_LoanContractMapper->findByReservationId($reservationId);
+            if ($loanContract == null) {
+                $loanContract = new LoanContract();
+                $loanContract->setReservationId($reservationId);
+                $this->_LoanContractMapper->uowInsert($loanContract);
+                $this->_LoanContractMapper->commit();
+            }
+
+            $loanContract = $this->_LoanContractMapper->findByReservationId($reservationId);
+
+            // Schedule remove of currently loaned equipment
+            foreach ($removedLoanedEquipment as $loanedEquipment) {
+                $this->_LoanedEquipmentMapper->uowDelete($loanedEquipment);
+            }
+            if ($changedEquipment) {
+                $this->_LoanedEquipmentMapper->commit();
+            }
+
+            // Schedule addition of newly loaned equipment
+            foreach ($newEquipmentRequests as $i => $newEquipmentRequest) {
+                $loanedEquipmentEntry = new LoanedEquipment();
+                $loanedEquipmentEntry->setEquipmentId($newEquipmentRequest->getEquipmentId());
+                $loanedEquipmentEntry->setLoanContractId($loanContract->getLoanContractiD());
+                $this->_LoanedEquipmentMapper->uowInsert($loanedEquipmentEntry);
+            }
+            if ($changedEquipment) {
+                $this->_LoanedEquipmentMapper->commit();
+            }
+
             $reservation->setStartTimeDate($newStartTimeDate);
             $reservation->setEndTimeDate($newEndTimeDate);
             $reservation->setTitle($newTitle);
+            $reservation->setRoomId($roomId);
             $this->_ReservationMapper->uowUpdate($reservation);
             $this->_ReservationMapper->commit();
+            $this->_ReservationManager->accommodateReservations();
             return [];
         } else {
             return $errors;
         }
+    }
+
+    /**
+     * Resolves new equipment requests.
+     *
+     * @param LoanedEquipment[] $loanedEquipments of the existing reservation.
+     * @param EquipmentRequest[] $equipmentRequests for the reservation including existing.
+     * @return EquipmentRequest[] that will be added to the reservation.
+     */
+    private function filterNewEquipmentRequests($loanedEquipments, $equipmentRequests)
+    {
+        /**
+         * @var EquipmentRequest[] $newEquipmentRequests
+         */
+        $newEquipmentRequests = [];
+
+        $takenEquipmentIds = [];
+        foreach ($loanedEquipments as $loanedEquipment) {
+            $takenEquipmentIds[] = $loanedEquipment->getEquipmentId();
+        }
+        foreach ($equipmentRequests as $equipmentRequest) {
+            $isFound = in_array($equipmentRequest->getEquipmentId(), $takenEquipmentIds);
+            if (!$isFound) {
+                $newEquipmentRequests[] = $equipmentRequest;
+            }
+        }
+        return $newEquipmentRequests;
+    }
+
+    /**
+     * Resolves removed equipment requests.
+     *
+     * @param LoanedEquipment[] $loanedEquipments of the existing reservation.
+     * @param EquipmentRequest[] $equipmentRequests for the reservation including existing.
+     * @return LoanedEquipment[] that will be removed from the reservation.
+     */
+    private function filterRemovedLoanedEquipment($loanedEquipments, $equipmentRequests)
+    {
+        /**
+         * @var LoanedEquipment[] $removedLoanedEquipment
+         */
+        $removedLoanedEquipment = [];
+
+        $chosenEquipmentIds = [];
+        foreach ($equipmentRequests as $equipmentRequest) {
+            $chosenEquipmentIds[] = $equipmentRequest->getEquipmentId();
+        }
+        foreach ($loanedEquipments as $loanedEquipment) {
+            $isFound = in_array($loanedEquipment->getEquipmentId(), $chosenEquipmentIds);
+            if (!$isFound) {
+                $removedLoanedEquipment[] = $loanedEquipment;
+            }
+        }
+        return $removedLoanedEquipment;
     }
 }

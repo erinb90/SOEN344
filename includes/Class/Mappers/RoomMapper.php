@@ -60,6 +60,7 @@ namespace Stark\Mappers
             $Room->setLocation($data['Location']);
             $Room->setName($data['Name']);
             $Room->setRoomID($data['RoomId']);
+            $Room->setColor($data['Color']);
 
             return $Room;
         }
