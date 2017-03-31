@@ -58,6 +58,11 @@ namespace Stark {
         private $_errors;
 
         /**
+         * @var int $_waitListPosition of the user's reservation.
+         */
+        private $_waitListPosition;
+
+        /**
          * Creates a new reservation session for the user with the supplied parameters.
          *
          * @param \Stark\Models\User $user The user that the session belongs to.
@@ -79,6 +84,7 @@ namespace Stark {
             $this->_repeats = $repeats;
             $this->_errors = [];
             $this->_reservationManager = new ReservationManager();
+            $this->_waitListPosition = -1;
         }
 
         public function getErrors()
@@ -89,6 +95,14 @@ namespace Stark {
         public function setError($error)
         {
             $this->_errors[] = $error;
+        }
+
+        /**
+         * @return int position in wait list, or -1 if not in wait list.
+         */
+        public function getWaitListPosition()
+        {
+            return $this->_waitListPosition;
         }
 
         /**
@@ -135,6 +149,10 @@ namespace Stark {
                         $this->associateLoanedEquipment($loanContractId, $this->_equipmentRequests);
                     }
 
+                    if ($isWaiting) {
+                        $this->_waitListPosition = $this->_reservationManager->getWaitListPosition($reservation->getReservationID());
+                    }
+
                 } catch (\Exception $e) {
                     $this->setError($e->getMessage());
                 }
@@ -159,77 +177,13 @@ namespace Stark {
                 $reservationConflicts = $this->_reservationManager
                     ->checkForConflicts(-1, $this->_roomId, $startTimeDate, $endTimeDate, $this->_equipmentRequests);
 
-                $this->resolveConflicts($reservationConflicts, $this->_errors);
+                $errors = $this->_reservationManager->assignAlternateEquipmentId($reservationConflicts, $this->_equipmentRequests);
+                foreach ($errors as $error) {
+                    $this->_errors[] = $error;
+                }
             }
 
             return empty($this->getErrors());
-        }
-
-        /**
-         * Resolves conflicts into user errors.
-         *
-         * @param ReservationConflict[] $reservationConflicts from the attempted reservation booking.
-         * @param String[] $errors to add.
-         *
-         * @return void
-         */
-        private function resolveConflicts($reservationConflicts, &$errors)
-        {
-            // No conflicts, so return
-            if (empty($reservationConflicts)) {
-                return;
-            }
-
-            // Attempt to resolve equipment conflicts
-            foreach ($reservationConflicts as $reservationConflict) {
-
-                // Log time conflicts
-                foreach ($reservationConflict->getDateTimes() as $timeConflict) {
-                    $errors[] = "Conflict with time: " . $timeConflict;
-                }
-
-                // Time conflicts exist, skip equipment conflict checks
-                if (!empty($errors)) {
-                    continue;
-                }
-
-                // Attempt re-assignment of equipment ids
-                foreach ($reservationConflict->getEquipments() as $equipmentConflict) {
-                    foreach ($this->_equipmentRequests as $equipmentRequest) {
-                        if ($equipmentConflict->getEquipmentId() == $equipmentRequest->getEquipmentId()) {
-                            $availableEquipmentIds = $this->_reservationManager->findAvailableEquipmentIds($equipmentRequest->getEquipmentType());
-                            if (count($availableEquipmentIds) >= 1) {
-                                $equipmentRequest->setEquipmentId($availableEquipmentIds[0]);
-                            } else {
-                                $this->noAlternativeError($equipmentRequest, $errors);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        /**
-         * Add an error that no alternative equipment could be found.
-         *
-         * @param EquipmentRequest $equipmentRequest from the attempted reservation booking.
-         * @param String[] $errors to add.
-         *
-         * @return void
-         */
-        private function noAlternativeError(&$equipmentRequest, &$errors)
-        {
-            $equipmentType = 'Unknown';
-
-            // This is awful, but would require a refactor in the database
-            if ($equipmentRequest->getEquipmentType() == EquipmentType::Computer) {
-                $equipmentType = 'Computer';
-            } else if ($equipmentRequest->getEquipmentType() == EquipmentType::Projector) {
-                $equipmentType = 'Projector';
-            }
-
-            $errors[] = "No alternative " . $equipmentType . " could be found for requested id "
-                . $equipmentRequest->getEquipmentId();
         }
 
         /**

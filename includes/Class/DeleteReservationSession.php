@@ -1,12 +1,9 @@
 <?php
 namespace Stark {
 
-    use Stark\Enums\EquipmentType;
     use Stark\Mappers\LoanedEquipmentMapper;
     use Stark\Mappers\ReservationMapper;
-    use Stark\Models\EquipmentRequest;
     use Stark\Models\Reservation;
-    use Stark\Utilities\ReservationConflict;
     use Stark\Utilities\ReservationManager;
 
 
@@ -88,75 +85,13 @@ namespace Stark {
         public static function delete($reservationId)
         {
             $Session = new DeleteReservationSession($reservationId);
-
-            $waitList = $Session->getReservationManager()->getOrderedWaitingReservations();
-
             $currentReservation = $Session->getReservation();
 
             // Delete the reservation
             $Session->getReservationMapper()->uowDelete($currentReservation);
             $Session->getReservationMapper()->commit();
 
-            // No next reservation
-            if (empty($waitList)) {
-                return false;
-            }
-
-            do {
-                // do-while end condition to indicate when no additional wait listed reservations
-                // can be changed to confirmed
-                $reservationWasAccommodated = false;
-
-                // Go through the wait list
-                foreach ($waitList as $waitingReservation) {
-                    // If the current reservation was accommodated
-                    $canBeAccommodated = false;
-
-                    $equipmentRequests = [];
-                    $loanedEquipments = $Session->getReservationManager()->getLoanedEquipmentForReservation($waitingReservation->getReservationID());
-                    if (isset($loanedEquipments) && !empty($loanedEquipments)) {
-                        /**
-                         * @var EquipmentRequest[] $equipmentRequests
-                         */
-                        foreach ($loanedEquipments as $loanedEquipment) {
-                            $equipment = $Session->getReservationManager()->getEquipmentForId($loanedEquipment->getEquipmentId());
-                            if ($equipment != null) {
-                                $equipmentRequests[] = new EquipmentRequest($equipment->getEquipmentId(), $equipment->getDiscriminator());
-                            }
-                        }
-                    }
-
-                    $reservationConflicts = $Session->getReservationManager()
-                        ->checkForConflicts($waitingReservation->getReservationID(), $waitingReservation->getRoomId(), $waitingReservation->getStartTimeDate(), $waitingReservation->getEndTimeDate(), $equipmentRequests);
-
-                    // If required
-                    $errors = $Session->getReservationManager()
-                        ->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
-
-                    if (empty($reservationConflicts)) {
-                        $canBeAccommodated = true;
-                    } else if (!empty($reservationConflicts) && empty($errors)) {
-                        // Re-map loaned equipment with new ids
-                        foreach ($equipmentRequests as $i => $equipmentRequest) {
-                            $loanedEquipments[$i]->setEquipmentId($equipmentRequest->getEquipmentId());
-                            $Session->getLoanedEquipmentMapper()->uowUpdate($loanedEquipments[$i]);
-                        }
-                        $canBeAccommodated = true;
-                    }
-
-                    // Update the reservation status to active
-                    if ($canBeAccommodated) {
-                        $reservationWasAccommodated = true;
-                        $waitingReservation->setIsWaited(false);
-                        $Session->getReservationMapper()->uowUpdate($waitingReservation);
-                        $Session->getReservationMapper()->commit();
-                        break;
-                    }
-                }
-
-                // Refresh the list
-                $waitList = $Session->getReservationManager()->getOrderedWaitingReservations();
-            } while ($reservationWasAccommodated);
+            $Session->getReservationManager()->accommodateReservations();
 
             return true;
         }

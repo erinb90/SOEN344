@@ -1,7 +1,7 @@
 <?php
 
-namespace Stark
-{
+namespace Stark {
+
     use Stark\Mappers\LoanContractMapper;
     use Stark\Mappers\LoanedEquipmentMapper;
     use Stark\Mappers\ProjectorMapper;
@@ -92,6 +92,7 @@ namespace Stark
         {
             return $this->_LoanContract;
         }
+
         /**
          * @return Reservation|null
          */
@@ -114,9 +115,9 @@ namespace Stark
          *
          * @return mixed
          */
-        public abstract static function find($reservationId);
-
-
-
+        public static function find($reservationId)
+        {
+            return null;
+        }
     }
 }

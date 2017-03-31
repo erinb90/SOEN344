@@ -3,6 +3,7 @@ session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php';
 Stark\WebUser::isLoggedIn(TRUE);
 use Stark\WebUser;
+
 $RoomDirectory = new \Stark\RoomDirectory();
 ?>
 <!DOCTYPE html>
@@ -70,45 +71,39 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
     <script>
 
-        //todo: needs some refactoring
+        //todo: needs some refactoring (yeah no kidding...)
 
         CCOUNT = "<?php echo \Stark\CoreConfig::settings()['reservations']['lock']; ?>";
 
         var t, count;
 
-        function cddisplay()
-        {
+        function cddisplay() {
             // displays time in span
             console.log(count);
             $('#timer').html(count);
         }
         ;
 
-        function countdown()
-        {
+        function countdown() {
             // starts countdown
             cddisplay();
-            if (count == 0)
-            {
+            if (count == 0) {
                 $('#myModal').dialog("close");
             }
-            else
-            {
+            else {
                 count--;
                 t = setTimeout("countdown()", 1000);
             }
         }
         ;
 
-        function cdpause()
-        {
+        function cdpause() {
             // pauses countdown
             clearTimeout(t);
         }
         ;
 
-        function cdreset()
-        {
+        function cdreset() {
             // resets countdown
             cdpause();
             count = CCOUNT;
@@ -116,52 +111,45 @@ $RoomDirectory = new \Stark\RoomDirectory();
         }
         ;
 
-        function openReservation(roomid)
-        {
+        function openReservation(roomid) {
             // open modal
             $('#myModal').dialog({
-                width      : 1200,
-                modal      : true,
-                height     : 700,
-                show       : 'fade',
-                title      : 'Make Reservation',
-                buttons    : {
-                    "Close" : function ()
-                    {
+                width: 1200,
+                modal: true,
+                height: 700,
+                show: 'fade',
+                title: 'Make Reservation',
+                buttons: {
+                    "Close": function () {
                         $(this).dialog('destroy');
                     }
                 },
-                Close : function()
-                {
+                Close: function () {
                     // erase any error messages that might have been created
                     $('#resultsReservation').html("");
                 },
-                beforeClose: function (event, ui)
-                {
+                beforeClose: function (event, ui) {
                     //unlock room
                     $.ajax({
-                        type    : "POST",
-                        url     : "Lock.php", //file name
+                        type: "POST",
+                        url: "Lock.php", //file name
                         dataType: "json",
-                        data    : {
+                        data: {
                             action: "unlock",
                             roomID: roomid
                         },
-                        success : function (data)
-                        {
+                        success: function (data) {
 
                             console.log(data);
-                            if (data.success)
-                            {
+                            if (data.success) {
                                 // stop timer
                                 CCOUNT = data.secondsDefault;
                                 cdpause();
                             }
-                            else
-                            {
+                            else {
                                 $('#lockMessageModal').dialog({
 
-                                    width : 300,
+                                    width: 300,
                                     height: 200
                                 });
 
@@ -187,7 +175,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
             // add the date picker
             $('input#rDate').datepicker({
                 dateFormat: 'yy-mm-dd',
-                minDate   : 0
+                minDate: 0
             });
 
 
@@ -208,31 +196,28 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
                 $('#lockMessageModal').dialog({
 
-                    width : 300,
+                    width: 300,
                     height: 200,
-                    modal : true
+                    modal: true
 
                 });
                 $('#lockMessage').html("Please wait...");
 
                 // lock room
                 $.ajax({
-                    type    : "POST",
-                    url     : "Lock.php", //file name
+                    type: "POST",
+                    url: "Lock.php", //file name
                     dataType: "json",
-                    data    : {
+                    data: {
                         action: "lock",
                         roomID: roomid
                     },
-                    success : function (data)
-                    {
+                    success: function (data) {
                         // start countdown
 
                         console.log(data);
-                        if (data.success)
-                        {
-                            if (data.remaining !== undefined)
-                            {
+                        if (data.success) {
+                            if (data.remaining !== undefined) {
                                 //let the timer start where it left off for the user
                                 CCOUNT = data.remaining;
                             }
@@ -241,8 +226,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
                             cdreset();
                             countdown();
                         }
-                        else
-                        {
+                        else {
 
                             $('#lockMessage').html(data.error);
                         }
@@ -258,33 +242,29 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 var reservation = userReservations.row($(this).closest('tr')).data();
 
                 $('#cancelReservationModal').dialog({
-                    title  : "Cancel Reservation",
-                    modal  : true,
+                    title: "Cancel Reservation",
+                    modal: true,
                     buttons: {
-                        "Yes": function ()
-                        {
+                        "Yes": function () {
                             $(this).dialog('close');
                             $('#cancelMessage').html("Canceling reservation...please wait...").dialog({
                                 modal: true
                             });
 
                             $.ajax({
-                                url    : 'Ajax/delete.php',
-                                data   : {
+                                url: 'Ajax/delete.php',
+                                data: {
                                     reid: reservation.reid
                                 },
-                                error  : function ()
-                                {
+                                error: function () {
                                     alert('An error occurred');
                                 },
-                                success: function (data)
-                                {
+                                success: function (data) {
                                     $('#cancelMessage').html(data);
                                 }
                             });
                         },
-                        "No" : function ()
-                        {
+                        "No": function () {
                             $(this).dialog("destroy");
                         }
                     }
@@ -297,17 +277,25 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 // add the date picker
                 $('input#newDate').datepicker({
                     dateFormat: 'yy-mm-dd',
-                    minDate   : 0
+                    minDate: 0
                 });
 
                 var reservation = userReservations.row($(this).closest('tr')).data();
+                var reservationId = reservation.reid;
+                // Capture any equipment selected
+                var equipment = [];
+                // Capture any change in equipment
+                var changedEquipment = false;
+
+                var roomId = reservation.rid;
+                //var roomName = $('#newRoomOptions option[value=' + roomId + ']').select = 'true';
+                $('#newRoomOptions').val(roomId.toString());
 
                 $('#modifyReservationModal').dialog({
-                    title  : "Modify Reservation",
-                    modal  : true,
+                    title: "Modify Reservation",
+                    modal: true,
                     buttons: {
-                        "Modify": function ()
-                        {
+                        "Submit": function () {
 
                             $('#modifyMessage').html("Modifying reservation...please wait...").dialog({
                                 modal: true
@@ -317,28 +305,112 @@ $RoomDirectory = new \Stark\RoomDirectory();
                             var newStartTime = $('input#newStartTime').val();
                             var newEndTime = $('input#newEndTime').val();
                             var newTitle = $('input#newTitle').val();
+                            var newRoomId = $('#newRoomOptions').val();
 
                             $.ajax({
-                                url    : 'Ajax/Modify.php',
-                                data   : {
-                                    reservationId: reservation.reid,
+                                url: 'Ajax/Modify.php',
+                                data: {
+                                    reservationId: reservationId,
                                     date: newDate,
                                     startTime: newStartTime,
                                     endTime: newEndTime,
-                                    title: newTitle
+                                    title: newTitle,
+                                    equipment: JSON.stringify(equipment),
+                                    changedEquipment: changedEquipment,
+                                    roomId: newRoomId
                                 },
-                                error  : function ()
-                                {
+                                error: function () {
                                     alert('An error occurred');
                                 },
-                                success: function (data)
-                                {
+                                success: function (data) {
                                     $('#modifyMessage').html(data);
                                 }
                             });
                         },
-                        "Cancel" : function ()
-                        {
+                        "Change Equipment": function () {
+
+                            // list of database equipment
+                            var computersListTableModify = $('#computersListTableModify').DataTable({
+                                "processing": true,
+                                "destroy": true,
+                                "serverSide": false,
+                                "select": true,
+                                "displayLength": 25,
+                                "ajax": {
+                                    "url": 'Ajax/computerList.php',
+                                    "type": "POST",
+                                },
+                                "columns": [
+                                    {"data": "EquipmentId"},
+                                    {"data": "Manufacturer"},
+                                    {"data": "ProductLine"},
+                                    {"data": "Description"},
+                                    {"data": "Cpu"},
+                                    {"data": "Ram"}
+                                ],
+                                'order': [[0, "asc"]],
+                                columnDefs: [{
+                                    orderable: false,
+                                    targets: [5]
+                                }],
+                            });
+
+                            var projectorsListTableModify = $('#projectorsListTableModify').DataTable({
+                                "processing": true,
+                                "destroy": true,
+                                "serverSide": false,
+                                "select": true,
+                                "displayLength": 25,
+                                "ajax": {
+                                    "url": 'Ajax/projectorList.php',
+                                    "type": "POST",
+                                },
+                                "columns": [
+                                    {"data": "EquipmentId"},
+                                    {"data": "Manufacturer"},
+                                    {"data": "ProductLine"},
+                                    {"data": "Description"},
+                                    {"data": "Display"},
+                                    {"data": "Resolution"}
+                                ],
+                                'order': [[0, "asc"]],
+                                columnDefs: [{
+                                    orderable: false,
+                                    targets: [5]
+                                }],
+                            });
+
+                            $('#modifyEquipmentModal').dialog({
+                                title: "Modify Equipment",
+                                modal: true,
+                                width: 1200,
+                                height: 500,
+                                buttons: {
+                                    "Save Changes": function () {
+
+                                        equipment = [];
+                                        changedEquipment = true;
+
+                                        projectorsListTableModify.rows('.selected').every(function (rowIdx, tableLoop, rowLoop) {
+                                            var data = this.data();
+                                            equipment.push([data.EquipmentId, 'c']);
+
+                                        });
+
+                                        computersListTableModify.rows('.selected').every(function (rowIdx, tableLoop, rowLoop) {
+                                            var data = this.data();
+                                            equipment.push([data.EquipmentId, 'p']);
+                                        });
+
+                                        $(this).dialog("destroy");
+                                    },
+                                    "Cancel": function () {
+                                        $(this).dialog("destroy");
+                                    }
+                                }
+                            });
+                        },
+                        "Cancel": function () {
                             $(this).dialog("destroy");
                         }
                     }
@@ -352,32 +424,31 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 var reservation = userReservations.row($row).data();
                 var reservationId = reservation.reid;
 
-                if (!reservationId)
-                {
+                if (!reservationId) {
                     return;
                 }
 
 
                 $('#myEquipmentModal').dialog({
-                    width : 1000,
+                    width: 1000,
                     height: 500,
-                    title : 'Loaned Equipment for Reservation #' + reservationId
+                    title: 'Loaned Equipment for Reservation #' + reservationId
                 });
 
                 // get the reservation's project list
                 myProjectorsListTable = $('#myProjectorsListTable').DataTable({
-                    "processing"   : true,
-                    "destroy"      : true,
-                    "serverSide"   : false,
+                    "processing": true,
+                    "destroy": true,
+                    "serverSide": false,
                     "displayLength": 5,
-                    "ajax"         : {
-                        "url" : 'Ajax/myProjectorList.php',
+                    "ajax": {
+                        "url": 'Ajax/myProjectorList.php',
                         "type": "POST",
                         "data": {
                             id: reservationId
                         }
                     },
-                    "columns"      : [
+                    "columns": [
                         {"data": "EquipmentId"},
                         {"data": "Manufacturer"},
                         {"data": "ProductLine"},
@@ -385,27 +456,27 @@ $RoomDirectory = new \Stark\RoomDirectory();
                         {"data": "Display"},
                         {"data": "Resolution"}
                     ],
-                    'order'        : [[0, "asc"]],
-                    columnDefs     : [{
+                    'order': [[0, "asc"]],
+                    columnDefs: [{
                         orderable: false,
-                        targets  : [5]
+                        targets: [5]
                     }],
                 });
 
                 // get the reservation's computer list
                 myComputersListTable = $('#myComputersListTable').DataTable({
-                    "processing"   : true,
-                    "destroy"      : true,
-                    "serverSide"   : false,
+                    "processing": true,
+                    "destroy": true,
+                    "serverSide": false,
                     "displayLength": 5,
-                    "ajax"         : {
-                        "url" : 'Ajax/myComputerList.php',
+                    "ajax": {
+                        "url": 'Ajax/myComputerList.php',
                         "type": "POST",
                         "data": {
                             id: reservationId
                         }
                     },
-                    "columns"      : [
+                    "columns": [
                         {"data": "EquipmentId"},
                         {"data": "Manufacturer"},
                         {"data": "ProductLine"},
@@ -413,18 +484,17 @@ $RoomDirectory = new \Stark\RoomDirectory();
                         {"data": "Ram"},
                         {"data": "Cpu"}
                     ],
-                    'order'        : [[0, "asc"]],
-                    columnDefs     : [{
+                    'order': [[0, "asc"]],
+                    columnDefs: [{
                         orderable: false,
-                        targets  : [5]
+                        targets: [5]
                     }],
                 });
 
             });
 
             // when clicking on profile link
-            $(document).on('click', '#second-r', function ()
-            {
+            $(document).on('click', '#second-r', function () {
 
                 $('#profilemyModal').dialog({
                     width: 800,
@@ -434,21 +504,19 @@ $RoomDirectory = new \Stark\RoomDirectory();
             });
 
             // when click on the My Reservations Button
-            $(document).on('click', '#third-r', function ()
-            {
+            $(document).on('click', '#third-r', function () {
 
                 $('#myReservationsModal').dialog({
-                    width : 1200,
+                    width: 1300,
                     height: 500,
-                    modal : true,
-                    title : 'My Reservations'
+                    modal: true,
+                    title: 'My Reservations'
                 });
 
             });
 
             // when saving profile information
-            $(document).on('click', '#submitProfile', function ()
-            {
+            $(document).on('click', '#submitProfile', function () {
 
                 $clicker = $(this);
                 var originalText = $clicker.text();
@@ -461,42 +529,36 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 console.log(ser);
 
                 $.ajax({
-                    type    : "POST",
-                    url     : "UpdateProfile.php", //file name
-                    data    : ser,
-                    success : function (data)
-                    {
+                    type: "POST",
+                    url: "UpdateProfile.php", //file name
+                    data: ser,
+                    success: function (data) {
                         $clicker.text(originalText);
                         $('#resultsProfile').html(data);
                     },
-                    complete: function ()
-                    {
+                    complete: function () {
                         $clicker.text(originalText);
                         $clicker.removeClass('disabled');
                     },
-                    error   : function ()
-                    {
+                    error: function () {
                         $clicker.text(originalText);
                     }
                 });
             });
 
             // when click on the big reserve button to create  a reservation
-            $(document).on('click', '#createReservation', function ()
-            {
+            $(document).on('click', '#createReservation', function () {
 
                 // capture any equipment selected
                 var equipment = [];
 
-                computersListTable.rows('.selected').every(function (rowIdx, tableLoop, rowLoop)
-                {
+                computersListTable.rows('.selected').every(function (rowIdx, tableLoop, rowLoop) {
                     var data = this.data();
                     equipment.push([data.EquipmentId, 'c']);
 
                 });
 
-                projectorsListTable.rows('.selected').every(function (rowIdx, tableLoop, rowLoop)
-                {
+                projectorsListTable.rows('.selected').every(function (rowIdx, tableLoop, rowLoop) {
                     var data = this.data();
                     equipment.push([data.EquipmentId, 'p']);
 
@@ -517,24 +579,21 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 console.log(equipment);
 
                 $.ajax({
-                    type    : "POST",
-                    url     : "Ajax/Reserve.php", //file name
-                    data    : {
-                        formData : ser,
+                    type: "POST",
+                    url: "Ajax/Reserve.php", //file name
+                    data: {
+                        formData: ser,
                         equipment: JSON.stringify(equipment)
                     },
-                    success : function (data)
-                    {
+                    success: function (data) {
                         $clicker.text(originalText);
                         $('#resultsReservation').html(data);
                     },
-                    complete: function ()
-                    {
+                    complete: function () {
                         $clicker.text(originalText);
                         $clicker.removeClass('disabled');
                     },
-                    error   : function ()
-                    {
+                    error: function () {
                         $clicker.text(originalText);
                     }
                 });
@@ -544,16 +603,16 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
             // list of static computeres
             computersListTable = $('#computersListTable').DataTable({
-                "processing"   : true,
-                "destroy"      : true,
-                "serverSide"   : false,
-                "select"       : true,
+                "processing": true,
+                "destroy": true,
+                "serverSide": false,
+                "select": true,
                 "displayLength": 25,
-                "ajax"         : {
-                    "url" : 'Ajax/computerList.php',
+                "ajax": {
+                    "url": 'Ajax/computerList.php',
                     "type": "POST",
                 },
-                "columns"      : [
+                "columns": [
                     {"data": "EquipmentId"},
                     {"data": "Manufacturer"},
                     {"data": "ProductLine"},
@@ -561,25 +620,25 @@ $RoomDirectory = new \Stark\RoomDirectory();
                     {"data": "Cpu"},
                     {"data": "Ram"}
                 ],
-                'order'        : [[0, "asc"]],
-                columnDefs     : [{
+                'order': [[0, "asc"]],
+                columnDefs: [{
                     orderable: false,
-                    targets  : [5]
+                    targets: [5]
                 }],
             });
 
             // list of static projects
             projectorsListTable = $('#projectorsListTable').DataTable({
-                "processing"   : true,
-                "destroy"      : true,
-                "serverSide"   : false,
-                "select"       : true,
+                "processing": true,
+                "destroy": true,
+                "serverSide": false,
+                "select": true,
                 "displayLength": 25,
-                "ajax"         : {
-                    "url" : 'Ajax/projectorList.php',
+                "ajax": {
+                    "url": 'Ajax/projectorList.php',
                     "type": "POST",
                 },
-                "columns"      : [
+                "columns": [
                     {"data": "EquipmentId"},
                     {"data": "Manufacturer"},
                     {"data": "ProductLine"},
@@ -587,25 +646,25 @@ $RoomDirectory = new \Stark\RoomDirectory();
                     {"data": "Display"},
                     {"data": "Resolution"}
                 ],
-                'order'        : [[0, "asc"]],
-                columnDefs     : [{
+                'order': [[0, "asc"]],
+                columnDefs: [{
                     orderable: false,
-                    targets  : [5]
+                    targets: [5]
                 }],
             });
 
 
             // variable that holds the user's reservations
             userReservations = $('#reservationsTable').DataTable({
-                "processing"   : true,
-                "destroy"      : true,
-                "serverSide"   : false,
+                "processing": true,
+                "destroy": true,
+                "serverSide": false,
                 "displayLength": 25,
-                "ajax"         : {
-                    "url" : 'Ajax/StudentReservations.php',
+                "ajax": {
+                    "url": 'Ajax/StudentReservations.php',
                     "type": "POST",
                 },
-                "columns"      : [
+                "columns": [
                     {"data": "reid"},
                     {"data": "title"},
                     {"data": "rid"},
@@ -615,29 +674,24 @@ $RoomDirectory = new \Stark\RoomDirectory();
                     {"data": "EndTime"},
                     {
 
-                        'render' : function (data, type, row)
-                        {
-                            if (row.Waiting)
-                            {
+                        'render': function (data, type, row) {
+                            if (row.Waiting) {
                                 return 'Waiting';
                             }
-                            else
-                            {
+                            else {
                                 return "<span class='confirmed'>Confirmed</span>";
                             }
                         },
                         className: "dt-center"
                     },
+                    {"data": "WaitListPosition"},
                     {
                         //hasEquipment
-                        'render' : function (data, type, row)
-                        {
-                            if (row.hasEquipment)
-                            {
+                        'render': function (data, type, row) {
+                            if (row.hasEquipment) {
                                 return '<button id="viewEquipment" name="viewEquipment" type="button" class="btn btn-outline btn-primary btn-square btn-sm">View</button>';
                             }
-                            else
-                            {
+                            else {
                                 return "--";
                             }
                         },
@@ -645,25 +699,22 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
                     },
                     {
-                        'render' : function (data, type, row)
-                        {
-                            if (row.canModify)
-                            {
+                        'render': function (data, type, row) {
+                            if (row.canModify) {
                                 return '<button id="modifyReservation" name="modifyReservation" type="button" class="btn btn-outline btn-primary btn-square btn-sm">Modify</button>' +
                                     ' <button id="cancelReservation" name="cancelReservation" type="button" class="btn btn-outline btn-danger btn-square btn-sm">Cancel</button>';
                             }
-                            else
-                            {
+                            else {
                                 return "-";
                             }
                         },
                         className: "dt-center"
                     }
                 ],
-                'order'        : [[0, "asc"]],
-                columnDefs     : [{
+                'order': [[0, "asc"]],
+                columnDefs: [{
                     orderable: false,
-                    targets  : [5]
+                    targets: [5]
                 }],
             });
 
@@ -713,8 +764,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
                             /**
                              * @var \Stark\Models\Room $RoomDomain
                              */
-                            foreach ($RoomDirectory->getRooms() as $RoomDomain)
-                            {
+                            foreach ($RoomDirectory->getRooms() as $RoomDomain) {
                                 ?>
                                 <option value="<?php echo $RoomDomain->getRoomId(); ?>"><?php echo $RoomDomain->getName(); ?></option>
                                 <?php
@@ -723,7 +773,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
                         </select>
                         <!-- Hidden input for temporary datepicker fix-->
                         <input type="hidden" readonly="readonly" type="text" class="form-control" name="dateDrop"
-                                id="dateDrop" placeholder="Nothing" />
+                               id="dateDrop" placeholder="Nothing"/>
                         <button type="button" class="btn btn-default btn-lg" id="makeReserve"><span
                                     class="network-name">Make a Reservation</span></button>
 
@@ -757,16 +807,16 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
                                     <div id="tabs-1" class="form-group">
                                         <label for="roomName">Room:</label>
-                                        <input readonly="readonly" class="form-control" id="roomName" name="roomName" />
+                                        <input readonly="readonly" class="form-control" id="roomName" name="roomName"/>
                                         <label>Title of Reservation</label>
                                         <input required type="text" class="form-control" placeholder="Enter a Title"
-                                                name="title">
+                                               name="title">
                                         <label>Description of Reservation</label>
                                         <textarea style="resize:none;" rows="3" cols="50"
-                                                placeholder="Describe the Reservation here..." class="form-control"
-                                                name="description"></textarea>
+                                                  placeholder="Describe the Reservation here..." class="form-control"
+                                                  name="description"></textarea>
                                         <label for="rDate">Date:</label>
-                                        <input type="text" class="form-control" name="rDate" id="rDate" /> <br>
+                                        <input type="text" class="form-control" name="rDate" id="rDate"/> <br>
                                         <label for="startTime">Start Time: (hh:mm)</label>
                                         <input type="text" class="form-control" id="startTime" name="startTime">
                                         <label for="endTime">End Time: (hh:mm)</label>
@@ -809,7 +859,9 @@ $RoomDirectory = new \Stark\RoomDirectory();
                                         </table>
                                     </div>
                                 </div>
-                                <button type="button" id="createReservation" class="btn btn-default btn-success btn-block">Create Reservation</button>
+                                <button type="button" id="createReservation"
+                                        class="btn btn-default btn-success btn-block">Create Reservation
+                                </button>
                             </div>
                         </form>
                         <div id="resultsReservation"></div>
@@ -828,38 +880,44 @@ $RoomDirectory = new \Stark\RoomDirectory();
                             <form id="profileForm">
                                 <div class="form-group">
                                     <label>First name</label>
-                                    <input readonly="readonly" type="text" class="form-control" name="firstName" id="firstName"
-                                            placeholder="First Name"
-                                            value="<?php echo WebUser::getUser()->getFirstName(); ?>" />
+                                    <input readonly="readonly" type="text" class="form-control" name="firstName"
+                                           id="firstName"
+                                           placeholder="First Name"
+                                           value="<?php echo WebUser::getUser()->getFirstName(); ?>"/>
                                 </div>
                                 <div class="form-group">
                                     <label>Last name</label>
-                                    <input readonly="readonly" type="text" class="form-control" name="lastName" id="lastName"
-                                            placeholder="Last Name"
-                                            value="<?php echo WebUser::getUser()->getLastName(); ?>" />
+                                    <input readonly="readonly" type="text" class="form-control" name="lastName"
+                                           id="lastName"
+                                           placeholder="Last Name"
+                                           value="<?php echo WebUser::getUser()->getLastName(); ?>"/>
                                 </div>
                                 <div class="form-group">
                                     <label>Student ID</label>
                                     <input readonly="readonly" type="text" class="form-control" name="studentID"
-                                            placeholder="Student ID" value="<?php echo WebUser::getUser()->getStudentId(); ?>" />
+                                           placeholder="Student ID"
+                                           value="<?php echo WebUser::getUser()->getStudentId(); ?>"/>
                                 </div>
 
                                 <div class="form-group">
                                     <label>Old Password</label>
                                     <input type="password" class="form-control" name="oldPass"
-                                            placeholder="Old Password" />
+                                           placeholder="Old Password"/>
                                 </div>
                                 <div class="form-group">
                                     <label>New Password</label>
                                     <input type="password" class="form-control" name="newPass"
-                                            placeholder="New Password" />
+                                           placeholder="New Password"/>
                                 </div>
                                 <div class="form-group">
                                     <label>Email Address</label>
                                     <input type="text" class="form-control" name="uEmail" id="uEmail"
-                                            placeholder="Email Address" value="<?php echo WebUser::getUser()->getUserName(); ?>" />
+                                           placeholder="Email Address"
+                                           value="<?php echo WebUser::getUser()->getUserName(); ?>"/>
                                 </div>
-                                <button type="button" id="submitProfile" class="btn btn-default btn-success btn-block">Submit</button>
+                                <button type="button" id="submitProfile" class="btn btn-default btn-success btn-block">
+                                    Submit
+                                </button>
                             </form>
                             <br>
                             <div id="resultsProfile"></div>
@@ -912,6 +970,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
             <th>Start Time</th>
             <th>End Time</th>
             <th>Status</th>
+            <th>Waitlist Position</th>
             <th>Equipment</th>
             <th>Action</th>
         </tr>
@@ -961,7 +1020,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
 <!-- Cancel Reservation -->
 <div id="cancelReservationModal" style="display: none;" title="Delete Reservation?">
     <p>
-        <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>You are about to delete this reservation. Are you sure?
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>You are about to delete
+        this reservation. Are you sure?
     </p>
 </div>
 
@@ -970,28 +1030,74 @@ $RoomDirectory = new \Stark\RoomDirectory();
     <label for="newTitle">Title of Reservation</label>
     <input required type="text" class="form-control" placeholder="Enter a Title"
            name="title" id="newTitle">
+    <div style="margin-top: 10px;">
+        <label for="newRoomOptions">New Room:</label>
+        <select id="newRoomOptions" class="btn btn-default btn-lg network-name" name="newRoomOptions">
+            <?php
+            /**
+             * @var \Stark\Models\Room $RoomDomain
+             */
+            foreach ($RoomDirectory->getRooms() as $RoomDomain) {
+                ?>
+                <option value="<?php echo $RoomDomain->getRoomId(); ?>"><?php echo $RoomDomain->getName(); ?></option>
+                <?php
+            }
+            ?>
+        </select>
+    </div>
     <label for="newDate">New Date:</label>
-    <input type="text" class="form-control" name="newDate" id="newDate" /> <br>
+    <input type="text" class="form-control" name="newDate" id="newDate"/> <br>
     <label for="newStartTime">New Start Time: (hh:mm)</label>
     <input type="text" class="form-control" id="newStartTime" name="newStartTime">
     <label for="newEndTime">New End Time: (hh:mm)</label>
     <input type="text" class="form-control" id="newEndTime" name="newEndTime">
 </div>
 
+<!-- Modify Equipment -->
+<div id="modifyEquipmentModal" style="display: none;" title="Modify Equipment">
+    <div class="text-center h1">Computers</div>
+    <table id="computersListTableModify" width="100%" class="table table-responsive">
+        <thead>
+        <tr>
+            <th>Equipment ID</th>
+            <th>Manufacturer</th>
+            <th>Product Line</th>
+            <th>Description</th>
+            <th>CPU</th>
+            <th>RAM</th>
+        </tr>
+        </thead>
+    </table>
+    <div class="text-center h1">Projectors</div>
+    <table id="projectorsListTableModify" width="100%" class="table table-responsive">
+        <thead>
+        <tr>
+            <th>Equipment ID</th>
+            <th>Manufacturer</th>
+            <th>Product Line</th>
+            <th>Description</th>
+            <th>Display</th>
+            <th>Resolution</th>
+        </tr>
+        </thead>
+    </table>
+</div>
+
 <!-- Lock Message -->
 <div id="lockMessageModal" style="display: none;" title="Reservation">
     <p>
-        <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><span id="lockMessage"></span>
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><span
+                id="lockMessage"></span>
     </p>
 </div>
 
 <!-- Reservation Cancel Message -->
 <div id="cancelMessage" style="display: none;" title="Cancel Reservation">
 
-<!-- Reservation Modify Message -->
-<div id="modifyMessage" style="display: none;" title="Modify Reservation">
+    <!-- Reservation Modify Message -->
+    <div id="modifyMessage" style="display: none;" title="Modify Reservation">
 
-</div>
+    </div>
 
 </body>
 
