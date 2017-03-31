@@ -18,22 +18,14 @@ $RoomDirectory = new \Stark\RoomDirectory();
     <title>Room Reserver</title>
 
     <!-- Bootstrap Core CSS -->
-
-    <!-- TODO: implement CDN bootstrap with local bootstrap as fall back -->
-    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"> -->
-    <link href="../../CSS/bootstrap.min.css" rel="stylesheet">
-
+    <link href="../../vendor/components/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <!-- Custom CSS -->
     <link href="../../CSS/landing-page-Registration.css" rel="stylesheet">
-
-    <!-- vendor scripts & fall backs -->
-
     <!-- jQuery UI CSS -->
     <link href="../../vendor/components/jqueryui/themes/hot-sneaks/jquery-ui.min.css" rel="stylesheet" type="text/css">
 
-
     <!-- DataTables CSS -->
-    <link href="../../plugins/datatables/media/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <link href="../../vendor/datatables/datatables/media/css/dataTables.bootstrap4.min.css" rel="stylesheet">
     <!-- DataTables Buttons Extension -->
     <link href="../../plugins/datatables/extensions/Buttons/css/buttons.dataTables.min.css" rel="stylesheet">
     <link href="../../plugins/datatables/extensions/Buttons/css/buttons.bootstrap.min.css" rel="stylesheet">
@@ -43,34 +35,37 @@ $RoomDirectory = new \Stark\RoomDirectory();
     <link href='../../plugins/fullcalendar/fullcalendar.css' rel='stylesheet' />
     <link href='../../plugins/fullcalendar/scheduler.min.css' rel="stylesheet">
     <link href='../../plugins/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />
+
+
+
     <!-- jQuery -->
     <script src="../../vendor/components/jquery/jquery.min.js"></script>
     <!-- jQuery UI -->
     <script src="../../vendor/components/jqueryui/jquery-ui.min.js"></script>
+    <!-- bootstrap js -->
+    <script src="../../vendor/components/bootstrap/js/bootstrap.min.js"></script>
     <!-- DataTables JavaScript -->
-    <script src="../../plugins/datatables/media/js/jquery.dataTables.min.js"></script>
-    <script src="../../plugins/datatables/media/js/dataTables.bootstrap.min.js"></script>
+    <script src="../../vendor/datatables/datatables/media/js/jquery.dataTables.min.js"></script>
+    <script src="../../vendor/datatables/datatables/media/js/dataTables.bootstrap4.min.js"></script>
     <!-- DataTable extensions -->
     <script src="../../plugins/datatables/extensions/Buttons/js/dataTables.buttons.js"></script>
     <script src="../../plugins/datatables/extensions/Buttons/js/buttons.bootstrap.min.js"></script>
     <script src="../../plugins/datatables/extensions/Select/js/dataTables.select.min.js"></script>
     <script src="../../plugins/datatables/extensions/Buttons/js/buttons.flash.js"></script>
-
     <!-- Moment -->
     <script src='../../plugins/fullcalendar/moment.min.js'></script>
-
-
+    <!-- FullCalendar Io -->
     <script src='../../plugins/fullcalendar/fullcalendar.min.js'></script>
-
-
+    <script src='../../plugins/fullcalendar/scheduler.js'></script>
+    <script src="../../plugins/jquerysession/session.js"></script>
     <script src="../../js/calendar.js"></script>
-
 
 
 
     <script>
 
         //todo: needs some refactoring
+        USER_ID = '<?php echo WebUser::getUser()->getUserId()?>';;
 
         CCOUNT = "<?php echo \Stark\CoreConfig::settings()['reservations']['lock']; ?>";
 

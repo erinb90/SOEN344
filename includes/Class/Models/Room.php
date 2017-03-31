@@ -24,6 +24,8 @@ class Room implements DomainObject
      */
     private $_roomID;
 
+    private $_Color;
+
 
     /**
      * @return string
@@ -39,6 +41,15 @@ class Room implements DomainObject
     public function getLocation()
     {
         return $this->_location;
+    }
+
+
+    /**
+     * @param mixed $Color
+     */
+    public function setColor($Color)
+    {
+        $this->_Color = $Color;
     }
 
     /**
@@ -75,4 +86,8 @@ class Room implements DomainObject
     }
 
 
+    public function getColor()
+    {
+        return $this->_Color;
+    }
 }

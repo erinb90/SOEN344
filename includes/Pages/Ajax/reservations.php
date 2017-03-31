@@ -24,6 +24,7 @@ foreach($reservations as $Reservation)
         "roomLocation" => $RoomMapper->findByPk($Reservation->getRoomId())->getLocation(),
         "uid" => $Reservation->getUserId(),
         "reservedOn" => $Reservation->getCreatedOn(),
+        "waitlisted" => $Reservation->isIsWaited()
     );
 }
 echo json_encode($output);

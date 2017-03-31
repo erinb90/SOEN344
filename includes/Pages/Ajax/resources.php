@@ -18,8 +18,8 @@ foreach($rooms as $Room)
 {
     $output[] = array(
         "id"=> $Room->getRoomId(),
-        "title" => $Room->getLocation(),
-        "eventColor" => getColor()
+        "title" => $Room->getName(),
+        "color" => $Room->getColor()
     );
 }
 echo json_encode($output);

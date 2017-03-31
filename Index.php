@@ -26,11 +26,9 @@ $Test->test();
     <title>Room Reserver</title>
 
     <!-- Bootstrap Core CSS -->
-
-    <!-- TODO: implement CDN bootstrap with local bootstrap as fall back -->
-    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"> -->
-    <link href="CSS/bootstrap.min.css" rel="stylesheet">
-
+    <link href="vendor/components/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <!-- jQuery UI CSS -->
+    <link href="vendor/components/jqueryui/themes/hot-sneaks/jquery-ui.min.css" rel="stylesheet" type="text/css">
     <!-- Custom CSS -->
     <link href="CSS/landing-page.css" rel="stylesheet">
 </head>
@@ -100,22 +98,14 @@ $Test->test();
 <!-- vendor scripts & fall backs -->
 
 <!-- jQuery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-<script> window.$ || window.jQuery || document.write('<script src="node_modules/jquery/dist/jquery.min.js">\x3C/script>')</script>
-
+<script src="vendor/components/jquery/jquery.min.js"></script>
 <!-- jQuery Cookie-->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
-<script> $.cookie || document.write('<script src="node_modules/jquery.cookie/jquery.cookie.js">\x3C/script>')</script>
-
+<script src="vendor/components/jquery-cookie/jquery.cookie.js"></script>
 <!-- bootstrap js -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script> window.$.fn || document.write('<script src="node_modules/bootstrap/dist/js/bootstrap.min.js">\x3C/script>')</script>
-
+<script src="vendor/components/bootstrap/js/bootstrap.min.js"></script>
 <!-- Google Web Fonts -->
 <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
-
 <!-- local scripts -->
-
 <!-- index.js -->
 <script src="js/index.js"></script>
 

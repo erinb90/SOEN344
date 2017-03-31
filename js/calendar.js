@@ -12,40 +12,50 @@ var TOMORROW = todayDate.clone().add(1, 'day').format('YYYY-MM-DD');
 $(function(){
 
     CALENDAR = $('#calendar').fullCalendar({
+        schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
         editable: false,
         theme: true,
+        default: 'h(:mm)a',
         aspectRatio: 1,
-        default: false,
+
         header: {
             left: 'prev,next today',
             center: 'title',
-            right: 'agendaDay,agendaWeek,month, listMonth'
+            right: 'timelineDay,agendaWeek,month, listMonth'
         },
-        views: {
-            agendaTwoDay: {
-                type: 'agenda',
-                groupByResource: true
-            }
-        },
+        defaultView: 'timelineDay',
+
+        resourceLabelText: 'Rooms',
         minTime: "0:00:00",
         maxTime: "23:59:59",
-        eventOverlap: false, // will cause the event to take up entire resource height
-        defaultView: 'agendaWeek',
+        eventOverlap: true, // will cause the event to take up entire resource height
+
         eventRender: function(event, element, view)
         {
 
+            element.css({ "color" : "white" });
+            if(USER_ID == event.uid )
+            {
+                if (event.waitlisted)
+                {
+                    element.css({ "background-color" : "orange" });
+                    element.css({ "color" : "black" });
+                }
+                else
+                {
+                    element.css({ "background-color" : "green" });
+                }
 
-            element.css({ "backgroundColor" : "red" });
+
+            }
+
 
 
             //$(this)'updateEvent', event);
         },
         resourceLabelText: 'Rooms',
-        resources:
-            {
-                url: '../Pages/Ajax/resources.php',
-                type: 'POST'
-            },
+        resources: '../Pages/Ajax/resources.php',
+
         events: {
             url: '../Pages/Ajax/reservations.php',
             type: 'POST',
