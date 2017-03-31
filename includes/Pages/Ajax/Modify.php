@@ -16,6 +16,7 @@ $startTime = $_REQUEST['startTime'];
 $endTime = $_REQUEST['endTime'];
 $title = $_REQUEST['title'];
 $equipments = json_decode($_REQUEST['equipment']);
+$changedEquipment = $_REQUEST['changedEquipment'] === 'true' ? true : false;
 
 // Convert to equipment requests
 $equipmentRequests = [];
@@ -73,11 +74,13 @@ if (!empty($timeValidationErrors)) {
 }
 
 $modifyReservationSession = new ModifyReservationSession();
-$errors = $modifyReservationSession->modify($reservationId, $date, $startTimeDate, $endTimeDate, $title, $equipmentRequests);
-
+$errors = $modifyReservationSession->modify($reservationId, $date, $startTimeDate, $endTimeDate, $title, $changedEquipment, $equipmentRequests);
 if (!empty($errors)) {
     ?>
     <div class="alert alert-danger">
+        Could not modify reservation due to conflicts!
+    </div>
+    <div class="alert alert-info">
         <?php
         $msg .= "<ul>";
         foreach ($errors as $error) {
@@ -98,7 +101,6 @@ if (!empty($errors)) {
                 $('#modifyReservationModal').dialog('close');
             }, false);
         })
-
     </script>
     <?php
 }

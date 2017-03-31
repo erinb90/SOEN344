@@ -71,7 +71,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
     <script>
 
-        //todo: needs some refactoring
+        //todo: needs some refactoring (yeah no kidding...)
 
         CCOUNT = "<?php echo \Stark\CoreConfig::settings()['reservations']['lock']; ?>";
 
@@ -282,8 +282,10 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
                 var reservation = userReservations.row($(this).closest('tr')).data();
                 var reservationId = reservation.reid;
-                // capture any equipment selected
+                // Capture any equipment selected
                 var equipment = [];
+                // Capture any change in equipment
+                var changedEquipment = false;
 
                 $('#modifyReservationModal').dialog({
                     title: "Modify Reservation",
@@ -308,7 +310,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
                                     startTime: newStartTime,
                                     endTime: newEndTime,
                                     title: newTitle,
-                                    equipment: JSON.stringify(equipment)
+                                    equipment: JSON.stringify(equipment),
+                                    changedEquipment: changedEquipment
                                 },
                                 error: function () {
                                     alert('An error occurred');
@@ -380,6 +383,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
                                     "Save Changes": function () {
 
                                         equipment = [];
+                                        changedEquipment = true;
 
                                         projectorsListTableModify.rows('.selected').every(function (rowIdx, tableLoop, rowLoop) {
                                             var data = this.data();
@@ -497,7 +501,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
             $(document).on('click', '#third-r', function () {
 
                 $('#myReservationsModal').dialog({
-                    width: 1200,
+                    width: 1300,
                     height: 500,
                     modal: true,
                     title: 'My Reservations'
@@ -674,6 +678,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
                         },
                         className: "dt-center"
                     },
+                    {"data": "WaitListPosition"},
                     {
                         //hasEquipment
                         'render': function (data, type, row) {
@@ -959,6 +964,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
             <th>Start Time</th>
             <th>End Time</th>
             <th>Status</th>
+            <th>Waitlist Position</th>
             <th>Equipment</th>
             <th>Action</th>
         </tr>

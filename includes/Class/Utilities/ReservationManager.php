@@ -46,6 +46,23 @@ class ReservationManager
     }
 
     /**
+     * Queries the position of the reservation in the wait list.
+     *
+     * @param int $reservationId of the reservation to query in the wait list.
+     * @return int the reservation position.
+     */
+    public function getWaitListPosition($reservationId)
+    {
+        $reservations = $this->getOrderedWaitingReservations();
+        foreach ($reservations as $i => $reservation) {
+            if ($reservation->getReservationID() == $reservationId) {
+                return $i + 1;
+            }
+        }
+        return -1;
+    }
+
+    /**
      * Gets all wait list reservations sorted in order.
      *
      * @return Reservation[] of waitlisted reservations or empty if none
@@ -89,7 +106,8 @@ class ReservationManager
     /**
      * Attempts to accommodate wait listed reservations after a change to an active one.
      */
-    public function accommodateReservations(){
+    public function accommodateReservations()
+    {
         $waitList = $this->getOrderedWaitingReservations();
 
         do {
@@ -281,11 +299,6 @@ class ReservationManager
                 $errors[] = "Conflict with time: " . $timeConflict;
             }
 
-            // Time conflicts exist, skip equipment conflict checks
-            if (!empty($errors)) {
-                continue;
-            }
-
             // Attempt re-assignment of equipment ids
             foreach ($reservationConflict->getEquipments() as $equipmentConflict) {
                 foreach ($equipmentRequests as $equipmentRequest) {
@@ -300,7 +313,6 @@ class ReservationManager
                 }
             }
         }
-
         return $errors;
     }
 
@@ -314,6 +326,8 @@ class ReservationManager
      */
     private function noAlternativeError(&$equipmentRequest, &$errors)
     {
+        $equipment = $this->_equipmentManager->getEquipmentForId($equipmentRequest->getEquipmentId());
+
         $equipmentType = 'Unknown';
         // This is awful, but would require a refactor in the database
         if ($equipmentRequest->getEquipmentType() == EquipmentType::Computer) {
@@ -321,8 +335,8 @@ class ReservationManager
         } else if ($equipmentRequest->getEquipmentType() == EquipmentType::Projector) {
             $equipmentType = 'Projector';
         }
-        $errors[] = "No alternative " . $equipmentType . " could be found for requested id "
-            . $equipmentRequest->getEquipmentId();
+        $errors[] = "No alternative " . $equipmentType . " could be found for "
+            . $equipment->getManufacturer() . " - " . $equipment->getProductLine();
     }
 
     /**
@@ -360,37 +374,50 @@ class ReservationManager
         $conflictingReservations = [];
 
         foreach ($activeReservations as $activeReservation) {
-            if($reservationId == $activeReservation->getReservationID()){
+            if ($reservationId == $activeReservation->getReservationID()) {
                 // Same reservation
                 continue;
             }
 
             $reservationConflict = new ReservationConflict($activeReservation);
 
+            // Does the current reservation conflict with the start time of an active reservation?
+            $conflictingStart = $startTimeDate <= $activeReservation->getStartTimeDate()
+                && $endTimeDate >= $activeReservation->getStartTimeDate()
+                && $endTimeDate <= $activeReservation->getEndTimeDate();
+
+            // Does the current reservation conflict with the end time of an active reservation?
+            $conflictingEnd = $startTimeDate >= $activeReservation->getStartTimeDate()
+                && $startTimeDate <= $activeReservation->getEndTimeDate()
+                && $endTimeDate >= $activeReservation->getEndTimeDate();
+
+            // Does the current reservation contain the start and end of an active one?
+            $containsActive = $startTimeDate <= $activeReservation->getStartTimeDate()
+                && $endTimeDate >= $activeReservation->getEndTimeDate();
+
+            // Does the current reservation contain the start and end of an active one?
+            $isContainedInActive = $startTimeDate > $activeReservation->getStartTimeDate()
+                && $endTimeDate < $activeReservation->getEndTimeDate();
+
             // Check for conflicting dates
             if ($roomId == $activeReservation->getRoomId() && !$activeReservation->isIsWaited()) {
-
-                // Is the start of the current reservation contained between the start and end time of an active one?
-                $conflictingStart = $startTimeDate >= $activeReservation->getStartTimeDate()
-                    && $startTimeDate <= $activeReservation->getEndTimeDate();
-
-                // Is the end of the current reservation contained between the start and end time of an active one?
-                $conflictingEnd = $endTimeDate >= $activeReservation->getStartTimeDate()
-                    && $endTimeDate <= $activeReservation->getEndTimeDate();
-
-                // Does the current reservation contain the start and end of an active one?
-                $overlapping = $startTimeDate <= $activeReservation->getStartTimeDate()
-                    && $endTimeDate >= $activeReservation->getEndTimeDate();
-
-                $hasTimeConflict = $conflictingStart || $conflictingEnd || $overlapping;
-
-                if ($hasTimeConflict) {
+                // Log error based on time that caused the conflict
+                if ($containsActive || $isContainedInActive) {
                     $reservationConflict->addDateTime($activeReservation->getStartTimeDate());
                     $reservationConflict->addDateTime($activeReservation->getEndTimeDate());
+                } else {
+                    if ($conflictingStart) {
+                        $reservationConflict->addDateTime($activeReservation->getStartTimeDate());
+                    }
+
+                    if ($conflictingEnd) {
+                        $reservationConflict->addDateTime($activeReservation->getEndTimeDate());
+                    }
                 }
             }
 
-            if ($hasEquipment) {
+            $hasTimeConflict = $containsActive || $conflictingStart || $conflictingEnd;
+            if ($hasEquipment && $hasTimeConflict) {
                 $this->checkForEquipmentConflicts($equipmentRequests, $activeReservation, $reservationConflict);
             }
 

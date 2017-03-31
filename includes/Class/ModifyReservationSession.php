@@ -62,10 +62,11 @@ class ModifyReservationSession
      * @param String $newStartTimeDate of the reservation to modify.
      * @param String $newEndTimeDate of the reservation to modify.
      * @param String $newTitle of the reservation to modify.
+     * @param boolean $changedEquipment if the user made an equipment change.
      * @param EquipmentRequest[] $equipmentRequests for the modification.
      * @return String[] errors to to display if the modification failed, or empty if succeeded.
      */
-    public function modify($reservationId, $newDate, $newStartTimeDate, $newEndTimeDate, $newTitle, $equipmentRequests)
+    public function modify($reservationId, $newDate, $newStartTimeDate, $newEndTimeDate, $newTitle, $changedEquipment, $equipmentRequests)
     {
         /**
          * @var Reservation $reservation
@@ -74,7 +75,10 @@ class ModifyReservationSession
         $loanedEquipments = $this->_ReservationManager->getLoanedEquipmentForReservation($reservationId);
 
         $newEquipmentRequests = $this->filterNewEquipmentRequests($loanedEquipments, $equipmentRequests);
-        $removedLoanedEquipment = $this->filterRemovedLoanedEquipment($loanedEquipments, $equipmentRequests);
+        $removedLoanedEquipment = [];
+        if ($changedEquipment) {
+            $removedLoanedEquipment = $this->filterRemovedLoanedEquipment($loanedEquipments, $equipmentRequests);
+        }
 
         $roomId = $reservation->getRoomId();
         $reservationId = $reservation->getReservationID();
@@ -111,7 +115,9 @@ class ModifyReservationSession
             foreach ($removedLoanedEquipment as $loanedEquipment) {
                 $this->_LoanedEquipmentMapper->uowDelete($loanedEquipment);
             }
-            $this->_LoanedEquipmentMapper->commit();
+            if ($changedEquipment) {
+                $this->_LoanedEquipmentMapper->commit();
+            }
 
             // Schedule addition of newly loaned equipment
             foreach ($newEquipmentRequests as $i => $newEquipmentRequest) {
@@ -120,7 +126,9 @@ class ModifyReservationSession
                 $loanedEquipmentEntry->setLoanContractId($loanContract->getLoanContractiD());
                 $this->_LoanedEquipmentMapper->uowInsert($loanedEquipmentEntry);
             }
-            $this->_LoanedEquipmentMapper->commit();
+            if ($changedEquipment) {
+                $this->_LoanedEquipmentMapper->commit();
+            }
 
             $reservation->setCreatedOn($newDate);
             $reservation->setStartTimeDate($newStartTimeDate);
