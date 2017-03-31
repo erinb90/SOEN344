@@ -59,7 +59,6 @@ class ModifyReservationSession
      *
      * @param int $reservationId of the reservation to modify.
      * @param int $roomId of the reservation to modify
-     * @param String $newDate of the reservation to modify.
      * @param String $newStartTimeDate of the reservation to modify.
      * @param String $newEndTimeDate of the reservation to modify.
      * @param String $newTitle of the reservation to modify.
@@ -67,7 +66,7 @@ class ModifyReservationSession
      * @param EquipmentRequest[] $equipmentRequests for the modification.
      * @return String[] errors to to display if the modification failed, or empty if succeeded.
      */
-    public function modify($reservationId, $roomId, $newDate, $newStartTimeDate, $newEndTimeDate, $newTitle, $changedEquipment, $equipmentRequests)
+    public function modify($reservationId, $roomId, $newStartTimeDate, $newEndTimeDate, $newTitle, $changedEquipment, $equipmentRequests)
     {
         /**
          * @var Reservation $reservation
