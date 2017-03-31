@@ -4,8 +4,9 @@ namespace Stark\Models;
 
 
 use Stark\Enums\EquipmentType;
+use Stark\Interfaces\DomainObject;
 
-class EquipmentRequest
+class EquipmentRequest implements DomainObject
 {
     /**
      * @var int id of the requested equipment.
