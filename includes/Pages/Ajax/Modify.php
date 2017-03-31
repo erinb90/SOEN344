@@ -18,6 +18,8 @@ $title = $_REQUEST['title'];
 $equipments = json_decode($_REQUEST['equipment']);
 $changedEquipment = $_REQUEST['changedEquipment'] === 'true' ? true : false;
 $roomId = intval($_REQUEST['roomId']);
+$computerAlt = $_REQUEST['computerAlt'] === 'true' ? true : false;
+$projectorAlt = $_REQUEST['projectorAlt'] === 'true' ? true : false;
 
 // Convert to equipment requests
 $equipmentRequests = [];
@@ -77,7 +79,7 @@ if (!empty($timeValidationErrors)) {
 }
 
 $modifyReservationSession = new ModifyReservationSession();
-$errors = $modifyReservationSession->modify($reservationId, $roomId, $date, $startTimeDate, $endTimeDate, $title, $changedEquipment, $equipmentRequests);
+$errors = $modifyReservationSession->modify($reservationId, $roomId, $startTimeDate, $endTimeDate, $title, $changedEquipment, $computerAlt, $projectorAlt, $equipmentRequests);
 if (!empty($errors)) {
     ?>
     <div class="alert alert-danger">

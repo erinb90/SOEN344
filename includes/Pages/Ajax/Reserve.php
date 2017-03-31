@@ -12,6 +12,8 @@ use Stark\WebUser;
 $requestParameters = [];
 parse_str($_REQUEST['formData'], $requestParameters);
 $equipments = json_decode($_REQUEST['equipment']);
+$computerAlt = $_REQUEST['computerAlt'] === 'true' ? true : false;
+$projectorAlt = $_REQUEST['projectorAlt'] === 'true' ? true : false;
 
 // Convert to equipment requests
 $equipmentRequests = [];
@@ -53,6 +55,8 @@ $ReservationSession = new CreateReservationSession(
     $endTimeDate,
     $requestParameters['title'],
     $requestParameters['repeatReservation'],
+    $computerAlt,
+    $projectorAlt,
     $equipmentRequests);
 
 if ($ReservationSession->reserve()) {

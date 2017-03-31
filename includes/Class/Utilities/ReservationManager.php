@@ -137,7 +137,7 @@ class ReservationManager
                 $reservationConflicts = $this->checkForConflicts($waitingReservation->getReservationID(), $waitingReservation->getRoomId(), $waitingReservation->getStartTimeDate(), $waitingReservation->getEndTimeDate(), $equipmentRequests);
 
                 // If required
-                $errors = $this->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
+                $errors = $this->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests, true, true);
 
                 if (empty($reservationConflicts)) {
                     $canBeAccommodated = true;
@@ -279,10 +279,12 @@ class ReservationManager
      *
      * @param ReservationConflict[] $reservationConflicts from the attempted reservation booking.
      * @param EquipmentRequest[] $equipmentRequests for the reservation.
+     * @param boolean $computerAlt if the user allowed alternatives for computers.
+     * @param boolean $projectorAlt if the user allowed alternatives for projectors.
      *
      * @return String[] errors from attempt to assign alternate equipment id.
      */
-    public function assignAlternateEquipmentId($reservationConflicts, &$equipmentRequests)
+    public function assignAlternateEquipmentId($reservationConflicts, &$equipmentRequests, $computerAlt, $projectorAlt)
     {
         $errors = [];
 
@@ -304,11 +306,15 @@ class ReservationManager
                 foreach ($equipmentRequests as $equipmentRequest) {
                     if ($equipmentConflict->getEquipmentId() == $equipmentRequest->getEquipmentId()) {
                         $availableEquipmentIds = $this->findAvailableEquipmentIds($equipmentRequest->getEquipmentType());
-                        if (count($availableEquipmentIds) >= 1) {
+                        $skipAlternative = (!$computerAlt && $equipmentRequest->getEquipmentType() == EquipmentType::Computer)
+                            || (!$projectorAlt && $equipmentRequest->getEquipmentType() == EquipmentType::Projector);
+                        if (count($availableEquipmentIds) >= 1 && !$skipAlternative) {
                             $equipmentRequest->setEquipmentId($availableEquipmentIds[0]);
                         } else {
                             $errors[] = "Reservation ID " . $reservationConflict->getReservation()->getReservationID() . ": Conflict with equipment ID " . $equipmentRequest->getEquipmentId();
-                            $this->noAlternativeError($equipmentRequest, $errors);
+                            if (!$skipAlternative) {
+                                $this->noAlternativeError($equipmentRequest, $errors);
+                            }
                         }
                     }
                 }

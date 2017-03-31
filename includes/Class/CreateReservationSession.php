@@ -63,6 +63,16 @@ namespace Stark {
         private $_waitListPosition;
 
         /**
+         * @var boolean $_computerAlt if the user allows alternative computers.
+         */
+        private $_computerAlt;
+
+        /**
+         * @var boolean $_projectorAlt if the user allows alternative projectors.
+         */
+        private $_projectorAlt;
+
+        /**
          * Creates a new reservation session for the user with the supplied parameters.
          *
          * @param \Stark\Models\User $user The user that the session belongs to.
@@ -71,9 +81,11 @@ namespace Stark {
          * @param string $endTimeDate The end time for the room reservation.
          * @param string $title The title of the reservation.
          * @param int $repeats The number of times to repeat the reservation.
+         * @param boolean $computerAlt if alternatives for computers allowed.
+         * @param boolean $projectorAlt if alternatives for projectors allowed.
          * @param EquipmentRequest[] $equipmentRequests (optional) The equipment requests for the reservation.
          */
-        public function __construct(User $user, $roomId, $startTimeDate, $endTimeDate, $title, $repeats, $equipmentRequests = [])
+        public function __construct(User $user, $roomId, $startTimeDate, $endTimeDate, $title, $repeats, $computerAlt, $projectorAlt, $equipmentRequests = [])
         {
             $this->_user = $user;
             $this->_roomId = $roomId;
@@ -85,6 +97,8 @@ namespace Stark {
             $this->_errors = [];
             $this->_reservationManager = new ReservationManager();
             $this->_waitListPosition = -1;
+            $this->_computerAlt = $computerAlt;
+            $this->_projectorAlt = $projectorAlt;
         }
 
         public function getErrors()
@@ -177,7 +191,7 @@ namespace Stark {
                 $reservationConflicts = $this->_reservationManager
                     ->checkForConflicts(-1, $this->_roomId, $startTimeDate, $endTimeDate, $this->_equipmentRequests);
 
-                $errors = $this->_reservationManager->assignAlternateEquipmentId($reservationConflicts, $this->_equipmentRequests);
+                $errors = $this->_reservationManager->assignAlternateEquipmentId($reservationConflicts, $this->_equipmentRequests, $this->_computerAlt, $this->_projectorAlt);
                 foreach ($errors as $error) {
                     $this->_errors[] = $error;
                 }
