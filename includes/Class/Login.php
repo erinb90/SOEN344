@@ -120,6 +120,7 @@ namespace Stark {
                 @session_regenerate_id(true);
                 $_SESSION['email'] = $user->getUserName();
                 $_SESSION['sid'] = $user->getStudentId();
+                $_SESSION['uid'] = $user->getUserId();
 
                 return true;
             }

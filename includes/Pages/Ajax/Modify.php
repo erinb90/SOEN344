@@ -103,7 +103,10 @@ if (!empty($errors)) {
                 $('#modifyMessage').dialog('close');
                 $('#modifyReservationModal').dialog('close');
             }, false);
-        })
+
+            $('#calendar').fullCalendar('refetchEvents'  );
+        });
+
     </script>
     <?php
 }

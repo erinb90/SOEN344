@@ -19,58 +19,54 @@ $RoomDirectory = new \Stark\RoomDirectory();
     <title>Room Reserver</title>
 
     <!-- Bootstrap Core CSS -->
-
-    <!-- TODO: implement CDN bootstrap with local bootstrap as fall back -->
-    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"> -->
-    <link href="../../CSS/bootstrap.min.css" rel="stylesheet">
-
+    <link href="../../vendor/components/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <!-- Custom CSS -->
     <link href="../../CSS/landing-page-Registration.css" rel="stylesheet">
-
-    <!-- vendor scripts & fall backs -->
-
-    <!-- jQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-    <script> window.$ || window.jQuery || document.write('<script src="../../node_modules/jquery/dist/jquery.min.js">\x3C/script>')</script>
-
-    <!-- jQuery Cookie-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
-    <script> $.cookie || document.write('<script src="../../node_modules/jquery.cookie/jquery.cookie.js">\x3C/script>')</script>
-
-    <!-- bootstrap js -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script> window.$.fn || document.write('<script src="../../node_modules/bootstrap/dist/js/bootstrap.min.js">\x3C/script>')</script>
-
-    <!-- Google Web Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
-
-    <!--Try to update to new jquery, doesn't seem to work with jquery 3.1.1-->
-    <link rel="stylesheet" href="../../plugins/jquery-ui/jquery-ui.min.css">
-    <!-- All Javascript for Home.php page -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="../../plugins/jquery-ui/jquery-ui.min.js"></script>
-    <!-- Google Web Font Format for title -->
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Abel" rel="stylesheet">
+    <!-- jQuery UI CSS -->
+    <link href="../../vendor/components/jqueryui/themes/hot-sneaks/jquery-ui.min.css" rel="stylesheet" type="text/css">
 
     <!-- DataTables CSS -->
-    <link href="../../plugins/datatables/media/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <link href="../../vendor/datatables/datatables/media/css/dataTables.bootstrap4.min.css" rel="stylesheet">
     <!-- DataTables Buttons Extension -->
     <link href="../../plugins/datatables/extensions/Buttons/css/buttons.dataTables.min.css" rel="stylesheet">
     <link href="../../plugins/datatables/extensions/Buttons/css/buttons.bootstrap.min.css" rel="stylesheet">
     <!-- DataTable Select Extension -->
     <link href="../../plugins/datatables/extensions/Select/css/select.dataTables.min.css" rel="stylesheet">
+    <!-- FUll calendar CSS-->
+    <link href='../../plugins/fullcalendar/fullcalendar.css' rel='stylesheet' />
+    <link href='../../plugins/fullcalendar/scheduler.min.css' rel="stylesheet">
+    <link href='../../plugins/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />
+
+
+
+    <!-- jQuery -->
+    <script src="../../vendor/components/jquery/jquery.min.js"></script>
+    <!-- jQuery UI -->
+    <script src="../../vendor/components/jqueryui/jquery-ui.min.js"></script>
+    <!-- bootstrap js -->
+    <script src="../../vendor/components/bootstrap/js/bootstrap.min.js"></script>
     <!-- DataTables JavaScript -->
-    <script src="../../plugins/datatables/media/js/jquery.dataTables.min.js"></script>
-    <script src="../../plugins/datatables/media/js/dataTables.bootstrap.min.js"></script>
+    <script src="../../vendor/datatables/datatables/media/js/jquery.dataTables.min.js"></script>
+    <script src="../../vendor/datatables/datatables/media/js/dataTables.bootstrap4.min.js"></script>
     <!-- DataTable extensions -->
     <script src="../../plugins/datatables/extensions/Buttons/js/dataTables.buttons.js"></script>
     <script src="../../plugins/datatables/extensions/Buttons/js/buttons.bootstrap.min.js"></script>
     <script src="../../plugins/datatables/extensions/Select/js/dataTables.select.min.js"></script>
     <script src="../../plugins/datatables/extensions/Buttons/js/buttons.flash.js"></script>
+    <!-- Moment -->
+    <script src='../../plugins/fullcalendar/moment.min.js'></script>
+    <!-- FullCalendar Io -->
+    <script src='../../plugins/fullcalendar/fullcalendar.min.js'></script>
+    <script src='../../plugins/fullcalendar/scheduler.js'></script>
+    <script src="../../plugins/jquerysession/session.js"></script>
+    <script src="../../js/calendar.js"></script>
+
+
 
     <script>
 
+        //todo: needs some refactoring
+        USER_ID = '<?php echo WebUser::getUser()->getUserId()?>';;
         //todo: needs some refactoring (yeah no kidding...)
 
         CCOUNT = "<?php echo \Stark\CoreConfig::settings()['reservations']['lock']; ?>";
@@ -291,7 +287,10 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 //var roomName = $('#newRoomOptions option[value=' + roomId + ']').select = 'true';
                 $('#newRoomOptions').val(roomId.toString());
 
+
+
                 $('#modifyReservationModal').dialog({
+                    width: 600,
                     title: "Modify Reservation",
                     modal: true,
                     buttons: {
@@ -305,6 +304,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
                             var newStartTime = $('input#newStartTime').val();
                             var newEndTime = $('input#newEndTime').val();
                             var newTitle = $('input#newTitle').val();
+                            var newRoomId = $('#newRoomOptions').val();
                             var newRoomId = $('#newRoomOptions').val();
 
                             $.ajax({
@@ -507,10 +507,10 @@ $RoomDirectory = new \Stark\RoomDirectory();
             $(document).on('click', '#third-r', function () {
 
                 $('#myReservationsModal').dialog({
-                    width: 1300,
-                    height: 500,
-                    modal: true,
-                    title: 'My Reservations'
+                    width : 1000,
+                    height: 800,
+                    modal : true,
+                    title : 'My Reservations'
                 });
 
             });
@@ -667,7 +667,6 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 "columns": [
                     {"data": "reid"},
                     {"data": "title"},
-                    {"data": "rid"},
                     {"data": "roomName"},
                     {"data": "Date"},
                     {"data": "StartTime"},
@@ -701,8 +700,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
                     {
                         'render': function (data, type, row) {
                             if (row.canModify) {
-                                return '<button id="modifyReservation" name="modifyReservation" type="button" class="btn btn-outline btn-primary btn-square btn-sm">Modify</button>' +
-                                    ' <button id="cancelReservation" name="cancelReservation" type="button" class="btn btn-outline btn-danger btn-square btn-sm">Cancel</button>';
+                                return '<button id="modifyReservation" name="modifyReservation" type="button" class="btn btn-primary">Modify</button>' +
+                                    ' <button id="cancelReservation" name="cancelReservation" type="button" class="btn btn-danger">Cancel</button>';
                             }
                             else {
                                 return "-";
@@ -721,6 +720,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
         })
     </script>
+
 </head>
 <body>
 
@@ -739,20 +739,9 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
     <div class="container">
         <div class="row">
-            <!-- Id space to confirm if the data was saved or not -->
-            <div>
-                <?php
-
-                ?>
-            </div>
-
-            <!-- class greeting -->
-            <div class="greeting">
-            </div>
-
             <!-- Div for datepicker -->
             <div id="datepickerContainer" style="width:1200px;">
-                <h1 class="title">BLADE RUNNER 344</h1>
+                <h1 class="title">THE FORCE AWAKENS</h1>
                 <h3 class="subtitle">Room Reserver</h3>
                 <div id="datepickerInline"></div>
                 <br><br>
@@ -783,6 +772,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 </div>
                 <br>
             </div>
+            <!-- Calendar -->
+            <div id="calendar"></div>
 
             <!-- Reservation Modal -->
             <div id="myModal" role="dialog" style="display: none;">
@@ -962,9 +953,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
     <table class="table" id="reservationsTable" width="100%">
         <thead>
         <tr>
-            <th>Reservation ID</th>
+            <th>#</th>
             <th>Name</th>
-            <th>Room ID</th>
             <th>Room Name</th>
             <th>Date</th>
             <th>Start Time</th>

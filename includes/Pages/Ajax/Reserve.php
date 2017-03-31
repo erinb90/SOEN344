@@ -104,6 +104,8 @@ if ($ReservationSession->reserve()) {
             });
             userReservations.ajax.reload(function (json) {
             }, false);
+
+            $('#calendar').fullCalendar('refetchEvents'  );
         })
     </script>
     <?php

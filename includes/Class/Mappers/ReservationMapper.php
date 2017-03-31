@@ -92,6 +92,18 @@ namespace Stark\Mappers
         }
 
 
+        public function getReservations()
+        {
+            $dbEntries = $this->getTdg()->findAll();
+            $activeReservations = [];
+            foreach ($dbEntries as $row)
+            {
+                $activeReservations[] = $this->getModel($row);
+            }
+
+            return $activeReservations;
+        }
+
         /**
          * Creates a new Reservation object
          *
