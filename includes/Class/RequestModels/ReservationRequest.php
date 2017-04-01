@@ -1,11 +1,19 @@
 <?php
 namespace Stark\RequestModels;
+
+use Stark\CoreConfig;
+
 /**
  * Class ReservationRequest
  * @package Stark\RequestModels
  */
 class ReservationRequest
 {
+    /**
+     * @var int $maxRecurrences for a reservation.
+     */
+    private $maxRecurrences;
+
     /**
      * @var string $title of the reservation.
      */
@@ -32,10 +40,31 @@ class ReservationRequest
     private $endTimeDate;
 
     /**
+     * @var int $recurrences of the reservation.
+     */
+    private $recurrences;
+
+    /**
+     * @var EquipmentRequest[] $equipmentRequests for the reservation.
+     */
+    private $equipmentRequests;
+
+    /**
      * ReservationRequest constructor.
      */
     public function __construct()
     {
+        $this->maxRecurrences = CoreConfig::settings()['reservations']['max_per_week'];
+    }
+
+    /**
+     * Gets the max recurrences for a single reservation.
+     *
+     * @return int max recurrences for a single reservation.
+     */
+    public function getMaxRecurrences()
+    {
+        return $this->maxRecurrences;
     }
 
     /**
@@ -138,5 +167,45 @@ class ReservationRequest
     public function setEndTimeDate($endTimeDate)
     {
         $this->endTimeDate = $endTimeDate;
+    }
+
+    /**
+     * Gets the recurrences of the reservation.
+     *
+     * @return int recurrences of the reservation.
+     */
+    public function getRecurrences()
+    {
+        return $this->recurrences;
+    }
+
+    /**
+     * Sets the recurrences of the reservation.
+     *
+     * @param int $recurrences of the reservation.
+     */
+    public function setRecurrences($recurrences)
+    {
+        $this->recurrences = $recurrences;
+    }
+
+    /**
+     * Gets the equipment requests for the reservation.
+     *
+     * @return EquipmentRequest[] for the reservation.
+     */
+    public function getEquipmentRequests()
+    {
+        return $this->equipmentRequests;
+    }
+
+    /**
+     * Sets the equipment requests for the reservation.
+     *
+     * @param EquipmentRequest[] $equipmentRequests for the reservation.
+     */
+    public function setEquipmentRequests($equipmentRequests)
+    {
+        $this->equipmentRequests = $equipmentRequests;
     }
 }

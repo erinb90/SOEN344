@@ -3,22 +3,21 @@ session_start();
 require_once($_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php');
 
 use Stark\CreateReservationSession;
-use Stark\Models\EquipmentRequest;
+use Stark\RequestModels\EquipmentRequest;
 use Stark\TimeValidator;
 use Stark\Utilities\ReservationSanitizer;
 use Stark\WebUser;
+use Stark\RequestModels\ReservationRequestBuilder;
 
 // Parse incoming request and extract query parameters
 $requestParameters = [];
 parse_str($_REQUEST['formData'], $requestParameters);
 $equipments = json_decode($_REQUEST['equipment']);
-$computerAlt = $_REQUEST['computerAlt'] === 'true' ? true : false;
-$projectorAlt = $_REQUEST['projectorAlt'] === 'true' ? true : false;
 
 // Convert to equipment requests
 $equipmentRequests = [];
 foreach ($equipments as $equipment) {
-    $equipmentRequests[] = new EquipmentRequest($equipment[0], $equipment[1]);
+    $equipmentRequests[] = new EquipmentRequest($equipment[0], $equipment[1], $equipment[2]);
 }
 
 $user = WebUser::getUser();
@@ -46,18 +45,20 @@ if (!empty($timeValidationErrors)) {
     return;
 }
 
+$reservationRequestBuilder = new ReservationRequestBuilder();
+$reservationRequestBuilder
+    ->title($requestParameters['title'])
+    ->userId($user->getUserId())
+    ->roomId($requestParameters['roomID'])
+    ->startTimeDate($startTimeDate)
+    ->endTimeDate($endTimeDate)
+    ->recurrences($requestParameters['repeatReservation'])
+    ->equipmentRequests($equipmentRequests);
+$reservationRequest = $reservationRequestBuilder->build();
+
 // TODO : Prevent user from creating duplicate reservations (even if waitlisted)
 // Create reservation session
-$ReservationSession = new CreateReservationSession(
-    $user,
-    $requestParameters['roomID'],
-    $startTimeDate,
-    $endTimeDate,
-    $requestParameters['title'],
-    $requestParameters['repeatReservation'],
-    $computerAlt,
-    $projectorAlt,
-    $equipmentRequests);
+$ReservationSession = new CreateReservationSession($reservationRequest);
 
 if ($ReservationSession->reserve()) {
     ?>

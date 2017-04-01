@@ -9,6 +9,7 @@ use Stark\Models\LoanContract;
 use Stark\Models\LoanedEquipment;
 use Stark\Models\Reservation;
 use Stark\Mappers\ReservationMapper;
+use Stark\RequestModels\ReservationRequest;
 use Stark\Utilities\ReservationManager;
 
 class ModifyReservationSession
@@ -58,77 +59,58 @@ class ModifyReservationSession
      * Attempt to modify an existing reservation.
      *
      * @param int $reservationId of the reservation to modify.
-     * @param int $roomId of the reservation to modify
-     * @param String $newStartTimeDate of the reservation to modify.
-     * @param String $newEndTimeDate of the reservation to modify.
-     * @param String $newTitle of the reservation to modify.
      * @param boolean $changedEquipment if the user made an equipment change.
-     * @param boolean $computerAlt if the user allowed alternative computers.
-     * @param boolean $projectorAlt if the user allowed alternative projectors.
-     * @param EquipmentRequest[] $equipmentRequests for the modification.
+     * @param ReservationRequest $reservationRequest for the modification.
      * @return String[] errors to to display if the modification failed, or empty if succeeded.
      */
-    public function modify($reservationId, $roomId, $newStartTimeDate, $newEndTimeDate, $newTitle, $changedEquipment, $computerAlt, $projectorAlt, $equipmentRequests)
+    public function modify($reservationId, $changedEquipment, $reservationRequest)
     {
+        $equipmentRequests = $reservationRequest->getEquipmentRequests();
+        $roomId = $reservationRequest->getRoomId();
+        $newStartTimeDate = $reservationRequest->getStartTimeDate();
+        $newEndTimeDate = $reservationRequest->getEndTimeDate();
+        $newTitle = $reservationRequest->getTitle();
+
+        // Current reservation
         /**
          * @var Reservation $reservation
          */
         $reservation = $this->_ReservationMapper->findByPk($reservationId);
-        $loanedEquipments = $this->_ReservationManager->getLoanedEquipmentForReservation($reservationId);
 
+        // Loaned equipment for the reservation
+        $loanedEquipments = $this->getExistingLoanedEquipment($reservationId);
+
+        // Filter new equipment requests
         $newEquipmentRequests = $this->filterNewEquipmentRequests($loanedEquipments, $equipmentRequests);
+
+        // Filter equipment to remove, if the user made a modification to equipment
         $removedLoanedEquipment = [];
         if ($changedEquipment) {
             $removedLoanedEquipment = $this->filterRemovedLoanedEquipment($loanedEquipments, $equipmentRequests);
         }
 
-        $reservationId = $reservation->getReservationID();
+        // Check for conflicts
         $reservationConflicts = $this->_ReservationManager
             ->checkForConflicts($reservationId, $roomId, $newStartTimeDate, $newEndTimeDate, $newEquipmentRequests);
 
-        /**
-         * @var String[] $displayErrors
-         */
-        $errors = [];
+        // Get errors
+        $errors = $this->_ReservationManager->convertConflictsToErrors($reservationConflicts);
+        $equipmentReassignmentErrors = $this->_ReservationManager->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
+
+        // Merge errors to display to user
+        $displayErrors = $this->mergeErrors($errors, $equipmentReassignmentErrors);
+
         $canBeAccommodated = true;
 
-        if (!empty($reservationConflicts)) {
-
-            $errors = $this->_ReservationManager->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests, $computerAlt, $projectorAlt);
-
-            if (!empty($errors)) {
-                $canBeAccommodated = false;
-            }
+        // There were conflicts and re-assignment also caused errors
+        if (!empty($reservationConflicts) && !empty($equipmentReassignmentErrors)) {
+            $canBeAccommodated = false;
         }
 
         if ($canBeAccommodated) {
-            $loanContract = $this->_LoanContractMapper->findByReservationId($reservationId);
-            if ($loanContract == null) {
-                $loanContract = new LoanContract();
-                $loanContract->setReservationId($reservationId);
-                $this->_LoanContractMapper->uowInsert($loanContract);
-                $this->_LoanContractMapper->commit();
-            }
-
-            $loanContract = $this->_LoanContractMapper->findByReservationId($reservationId);
-
-            // Schedule remove of currently loaned equipment
-            foreach ($removedLoanedEquipment as $loanedEquipment) {
-                $this->_LoanedEquipmentMapper->uowDelete($loanedEquipment);
-            }
-            if ($changedEquipment) {
-                $this->_LoanedEquipmentMapper->commit();
-            }
-
-            // Schedule addition of newly loaned equipment
-            foreach ($newEquipmentRequests as $i => $newEquipmentRequest) {
-                $loanedEquipmentEntry = new LoanedEquipment();
-                $loanedEquipmentEntry->setEquipmentId($newEquipmentRequest->getEquipmentId());
-                $loanedEquipmentEntry->setLoanContractId($loanContract->getLoanContractiD());
-                $this->_LoanedEquipmentMapper->uowInsert($loanedEquipmentEntry);
-            }
-            if ($changedEquipment) {
-                $this->_LoanedEquipmentMapper->commit();
+            if($changedEquipment){
+                $this->addNewEquipment($reservationId, $newEquipmentRequests);
+                $this->removeLoanedEquipment($removedLoanedEquipment);
             }
 
             $reservation->setStartTimeDate($newStartTimeDate);
@@ -140,8 +122,88 @@ class ModifyReservationSession
             $this->_ReservationManager->accommodateReservations();
             return [];
         } else {
-            return $errors;
+            return $displayErrors;
         }
+    }
+
+    /**
+     * Gets existing loaned equipment for the user.
+     *
+     * @param int $reservationId for the current reservation.
+     * @return LoanedEquipment[] for the current reservation.
+     */
+    private function getExistingLoanedEquipment($reservationId)
+    {
+        /**
+         * @var Reservation $reservation
+         */
+        return $this->_ReservationManager->getLoanedEquipmentForReservation($reservationId);
+    }
+
+    /**
+     * Merges errors.
+     *
+     * @param string[] $errors
+     * @param string[] $equipmentReassignmentErrors
+     * @return string[] merged errors.
+     */
+    private function mergeErrors($errors, $equipmentReassignmentErrors)
+    {
+        /**
+         * @var $string [] mergedErrors
+         */
+        $mergedErrors = [];
+        foreach ($errors as $error) {
+            $mergedErrors[] = $error;
+        }
+
+        foreach ($equipmentReassignmentErrors as $error) {
+            $mergedErrors[] = $error;
+        }
+
+        return $mergedErrors;
+    }
+
+    /**
+     * Perform remove of currently loaned equipment.
+     *
+     * @param LoanedEquipment[] $removedLoanedEquipment to remove.
+     */
+    private function removeLoanedEquipment($removedLoanedEquipment)
+    {
+        foreach ($removedLoanedEquipment as $loanedEquipment) {
+            $this->_LoanedEquipmentMapper->uowDelete($loanedEquipment);
+        }
+
+        $this->_LoanedEquipmentMapper->commit();
+    }
+
+    /**
+     * Perform addition of new equipment.
+     *
+     * @param int $reservationId of the current reservation.
+     * @param EquipmentRequest[] $newEquipmentRequests for the reservation.
+     */
+    private function addNewEquipment($reservationId, $newEquipmentRequests)
+    {
+        // Search for existing loan contract
+        $loanContract = $this->_LoanContractMapper->findByReservationId($reservationId);
+        if ($loanContract == null) {
+            // Create new loan contract if none
+            $loanContract = new LoanContract();
+            $loanContract->setReservationId($reservationId);
+            $this->_LoanContractMapper->uowInsert($loanContract);
+            $this->_LoanContractMapper->commit();
+        }
+
+        foreach ($newEquipmentRequests as $i => $newEquipmentRequest) {
+            $loanedEquipmentEntry = new LoanedEquipment();
+            $loanedEquipmentEntry->setEquipmentId($newEquipmentRequest->getEquipmentId());
+            $loanedEquipmentEntry->setLoanContractId($loanContract->getLoanContractiD());
+            $this->_LoanedEquipmentMapper->uowInsert($loanedEquipmentEntry);
+        }
+
+        $this->_LoanedEquipmentMapper->commit();
     }
 
     /**

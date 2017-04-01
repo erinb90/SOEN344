@@ -304,9 +304,6 @@ $RoomDirectory = new \Stark\RoomDirectory();
                             var newTitle = $('input#newTitle').val();
                             var newRoomId = $('#newRoomOptions').val();
 
-                            var computerAlt = true;
-                            var projectorAlt = true;
-
                             $.ajax({
                                 url: 'Ajax/Modify.php',
                                 data: {
@@ -315,11 +312,9 @@ $RoomDirectory = new \Stark\RoomDirectory();
                                     startTime: newStartTime,
                                     endTime: newEndTime,
                                     title: newTitle,
-                                    equipment: JSON.stringify(equipment),
-                                    changedEquipment: changedEquipment,
                                     roomId: newRoomId,
-                                    computerAlt: computerAlt,
-                                    projectorAlt: projectorAlt
+                                    equipment: JSON.stringify(equipment),
+                                    changedEquipment: changedEquipment
                                 },
                                 error: function () {
                                     alert('An error occurred');
@@ -392,18 +387,17 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
                                         equipment = [];
                                         changedEquipment = true;
-                                        computerAlt = $('#computerAltModify').is(':checked');
-                                        projectorAlt = $('#projectorAltModify').is(':checked');
+                                        var computerAlt = $('#computerAltModify').is(':checked');
+                                        var projectorAlt = $('#projectorAltModify').is(':checked');
 
                                         projectorsListTableModify.rows('.selected').every(function (rowIdx, tableLoop, rowLoop) {
                                             var data = this.data();
-                                            equipment.push([data.EquipmentId, 'c']);
-
+                                            equipment.push([data.EquipmentId, 'c', computerAlt]);
                                         });
 
                                         computersListTableModify.rows('.selected').every(function (rowIdx, tableLoop, rowLoop) {
                                             var data = this.data();
-                                            equipment.push([data.EquipmentId, 'p']);
+                                            equipment.push([data.EquipmentId, 'p', projectorAlt]);
                                         });
 
                                         $(this).dialog("destroy");
@@ -553,19 +547,20 @@ $RoomDirectory = new \Stark\RoomDirectory();
             // when click on the big reserve button to create  a reservation
             $(document).on('click', '#createReservation', function () {
 
+                var computerAlt = $('#computerAltReserve').is(':checked');
+                var projectorAlt = $('#projectorAltReserve').is(':checked');
+
                 // capture any equipment selected
                 var equipment = [];
 
                 computersListTable.rows('.selected').every(function (rowIdx, tableLoop, rowLoop) {
                     var data = this.data();
-                    equipment.push([data.EquipmentId, 'c']);
-
+                    equipment.push([data.EquipmentId, 'c', computerAlt]);
                 });
 
                 projectorsListTable.rows('.selected').every(function (rowIdx, tableLoop, rowLoop) {
                     var data = this.data();
-                    equipment.push([data.EquipmentId, 'p']);
-
+                    equipment.push([data.EquipmentId, 'p', projectorAlt]);
                 });
 
 
@@ -576,8 +571,6 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 $clicker.text('Submitting...');
                 $clicker.addClass('disabled');
                 var ser = $form.serialize();
-                var computerAlt = $('#computerAltReserve').is(':checked');
-                var projectorAlt = $('#projectorAltReserve').is(':checked');
 
                 $('#resultsReservation').html("");
 
@@ -589,9 +582,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
                     url: "Ajax/Reserve.php", //file name
                     data: {
                         formData: ser,
-                        equipment: JSON.stringify(equipment),
-                        computerAlt: computerAlt,
-                        projectorAlt: projectorAlt
+                        equipment: JSON.stringify(equipment)
                     },
                     success: function (data) {
                         $clicker.text(originalText);
@@ -831,7 +822,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
                                     </div>
                                     <div id="tabs-2">
                                         <div class="text-center h1">Computers</div>
-                                        <label for="computerAltReserve">Allow alternative computers to be assigned</label>
+                                        <label for="computerAltReserve">Allow alternative computers to be
+                                            assigned</label>
                                         <input id="computerAltReserve" type="checkbox" checked="checked"/>
                                         <table id="computersListTable" width="100%" class="table table-responsive">
                                             <thead>
@@ -846,7 +838,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
                                             </thead>
                                         </table>
                                         <div class="text-center h1">Projectors</div>
-                                        <label for="projectorAltReserve">Allow alternative projectors to be assigned</label>
+                                        <label for="projectorAltReserve">Allow alternative projectors to be
+                                            assigned</label>
                                         <input id="projectorAltReserve" type="checkbox" checked="checked"/>
                                         <table id="projectorsListTable" width="100%" class="table table-responsive">
                                             <thead>

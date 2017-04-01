@@ -1,6 +1,7 @@
 <?php
 
 namespace Stark\RequestModels;
+
 /**
  * Class ReservationRequestBuilder
  * @package Stark\RequestModels
@@ -77,6 +78,30 @@ class ReservationRequestBuilder implements Builder
     public function endTimeDate($endTimeDate)
     {
         $this->reservationRequest->setEndTimeDate($endTimeDate);
+        return $this;
+    }
+
+    /**
+     * Builds the equipment requests for the reservation.
+     *
+     * @param EquipmentRequest[] $equipmentRequests for the reservation.
+     * @return ReservationRequestBuilder for the reservation.
+     */
+    public function equipmentRequests($equipmentRequests)
+    {
+        $this->reservationRequest->setEquipmentRequests($equipmentRequests);
+        return $this;
+    }
+
+    /**
+     * Builds the recurrences for the reservation request.
+     *
+     * @param int $recurrences for the reservation.
+     * @return ReservationRequestBuilder for the reservation.
+     */
+    public function recurrences($recurrences)
+    {
+        $this->reservationRequest->setRecurrences($recurrences);
         return $this;
     }
 

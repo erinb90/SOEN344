@@ -1,8 +1,9 @@
 <?php
 use Stark\Mappers\ReservationMapper;
-use Stark\Models\EquipmentRequest;
+use Stark\RequestModels\EquipmentRequest;
 use Stark\Models\Reservation;
 use Stark\ModifyReservationSession;
+use Stark\RequestModels\ReservationRequestBuilder;
 use Stark\TimeValidator;
 use Stark\Utilities\ReservationSanitizer;
 
@@ -18,13 +19,11 @@ $title = $_REQUEST['title'];
 $equipments = json_decode($_REQUEST['equipment']);
 $changedEquipment = $_REQUEST['changedEquipment'] === 'true' ? true : false;
 $roomId = intval($_REQUEST['roomId']);
-$computerAlt = $_REQUEST['computerAlt'] === 'true' ? true : false;
-$projectorAlt = $_REQUEST['projectorAlt'] === 'true' ? true : false;
 
 // Convert to equipment requests
 $equipmentRequests = [];
 foreach ($equipments as $equipment) {
-    $equipmentRequests[] = new EquipmentRequest($equipment[0], $equipment[1]);
+    $equipmentRequests[] = new EquipmentRequest($equipment[0], $equipment[1], $equipment[2]);
 }
 
 $reservationMapper = new ReservationMapper();
@@ -78,8 +77,17 @@ if (!empty($timeValidationErrors)) {
     return;
 }
 
+$reservationRequestBuilder = new ReservationRequestBuilder();
+$reservationRequestBuilder
+    ->title($title)
+    ->roomId($roomId)
+    ->startTimeDate($startTimeDate)
+    ->endTimeDate($endTimeDate)
+    ->equipmentRequests($equipmentRequests);
+$reservationRequest = $reservationRequestBuilder->build();
+
 $modifyReservationSession = new ModifyReservationSession();
-$errors = $modifyReservationSession->modify($reservationId, $roomId, $startTimeDate, $endTimeDate, $title, $changedEquipment, $computerAlt, $projectorAlt, $equipmentRequests);
+$errors = $modifyReservationSession->modify($reservationId, $changedEquipment, $reservationRequest);
 if (!empty($errors)) {
     ?>
     <div class="alert alert-danger">
