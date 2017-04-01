@@ -74,7 +74,7 @@ class EquipmentRequest
      */
     public function allowAssignAlternative()
     {
-        return $this->_equipmentType;
+        return $this->_allowAssignAlternative;
     }
 
     /**

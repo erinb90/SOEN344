@@ -120,7 +120,7 @@ class ReservationManager
             // Go through the wait list
             foreach ($waitList as $waitingReservation) {
                 // If the current reservation was accommodated
-                $canBeAccommodated = false;
+                $canBeAccommodated = true;
 
                 $equipmentRequests = [];
                 $loanedEquipments = $this->getLoanedEquipmentForReservation($waitingReservation->getReservationID());
@@ -146,19 +146,31 @@ class ReservationManager
 
                 $equipmentRequests = $reservationRequest->getEquipmentRequests();
                 $reservationConflicts = $this->checkForConflicts($waitingReservation->getReservationID(), $reservationRequest);
-                $equipmentReassignmentErrors = $this->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
 
-                // There were no conflicts
-                if(empty($reservationConflicts)){
-                    $canBeAccommodated = true;
-                } else if(empty($equipmentReassignmentErrors)) {
-                    $canBeAccommodated = true;
-                    // Re-map loaned equipment with new ids
-                    foreach ($equipmentRequests as $i => $equipmentRequest) {
-                        $loanedEquipments[$i]->setEquipmentId($equipmentRequest->getEquipmentId());
-                        $this->_loanedEquipmentMapper->uowUpdate($loanedEquipments[$i]);
+                $hasTimeConflicts = false;
+                $hasEquipmentConflicts = true;
+                foreach ($reservationConflicts as $reservationConflict) {
+                    if (!empty($reservationConflict->getDateTimes())) {
+                        $hasTimeConflicts = true;
                     }
-                    $this->_loanedEquipmentMapper->commit();
+                    if (!empty($reservationConflict->getEquipments())) {
+                        $hasEquipmentConflicts = true;
+                    }
+                }
+
+                // There were time conflicts or re-assignment also caused errors
+                if ($hasTimeConflicts || !empty($equipmentReassignmentErrors)) {
+                    $canBeAccommodated = false;
+                } else if($hasEquipmentConflicts) {
+                    $equipmentReassignmentErrors = $this->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
+                    if (empty($equipmentReassignmentErrors)) {
+                        // Re-map loaned equipment with new ids
+                        foreach ($equipmentRequests as $i => $equipmentRequest) {
+                            $loanedEquipments[$i]->setEquipmentId($equipmentRequest->getEquipmentId());
+                            $this->_loanedEquipmentMapper->uowUpdate($loanedEquipments[$i]);
+                        }
+                        $this->_loanedEquipmentMapper->commit();
+                    }
                 }
 
                 // Update the reservation status to active
@@ -321,27 +333,59 @@ class ReservationManager
             return [];
         }
 
+        // Extract conflicting ids
+        $conflictingIds = [];
+        foreach ($reservationConflicts as $reservationConflict) {
+            foreach ($reservationConflict->getEquipments() as $equipmentConflict) {
+                $conflictingIds[] = $equipmentConflict->getEquipmentId();
+            }
+        }
+
+        /**
+         * @var EquipmentRequest[] $nonAssignedEquipment
+         */
+        $nonAssignedEquipment = [];
+        $assignedIds = [];
+
+        // Filter equipment requests that need to be re-assigned
+        foreach ($equipmentRequests as $equipmentRequest) {
+            $needReassignment = in_array($equipmentRequest->getEquipmentId(), $conflictingIds);
+            if ($needReassignment) {
+                $nonAssignedEquipment[] = $equipmentRequest;
+            } else {
+                $assignedIds[] = $equipmentRequest->getEquipmentId();
+            }
+        }
+
         /**
          * @var string[] $errors from equipment re-assignment.
          */
         $errors = [];
 
-        // Attempt to resolve equipment conflicts
-        foreach ($reservationConflicts as $reservationConflict) {
-            // Attempt re-assignment of equipment ids
-            foreach ($reservationConflict->getEquipments() as $equipmentConflict) {
-                foreach ($equipmentRequests as $equipmentRequest) {
-                    if ($equipmentConflict->getEquipmentId() == $equipmentRequest->getEquipmentId()) {
-                        if ($equipmentRequest->allowAssignAlternative()) {
-                            $availableEquipmentIds = $this->findAvailableEquipmentIds($equipmentRequest->getEquipmentType());
-                            if (count($availableEquipmentIds) >= 1) {
-                                $equipmentRequest->setEquipmentId($availableEquipmentIds[0]);
-                            } else {
-                                $this->noAlternativeError($equipmentRequest, $errors);
-                            }
-                        }
+        /* Attempt to resolve equipment conflicts.
+        This algorithm checks for available equipment ids for the same equipment type,
+        and re-assigns the id for the equipment request to one that is available.
+        Once re-assigned, that available equipment id is considered assigned, and cannot be given to another
+        request that needs an alternative.
+        */
+        foreach ($nonAssignedEquipment as $equipmentRequest) {
+            $wasAssigned = false;
+            $allowAlternative = $equipmentRequest->allowAssignAlternative();
+            if ($allowAlternative) {
+                $availableEquipmentIds = $this->findAvailableEquipmentIds($equipmentRequest->getEquipmentType());
+                foreach ($availableEquipmentIds as $availableEquipmentId) {
+                    $isAlreadyAssigned = in_array($availableEquipmentId, $assignedIds);
+                    if (!$isAlreadyAssigned) {
+                        $equipmentRequest->setEquipmentId($availableEquipmentId);
+                        $assignedIds[] = $availableEquipmentId;
+                        $wasAssigned = true;
+                        break;
                     }
                 }
+            }
+
+            if (!$wasAssigned) {
+                $this->noAlternativeError($equipmentRequest, $errors, $allowAlternative);
             }
         }
 
@@ -353,10 +397,11 @@ class ReservationManager
      *
      * @param EquipmentRequest $equipmentRequest from the attempted reservation booking.
      * @param String[] $errors to add.
+     * @param boolean $allowAlternative for the equipment.
      *
      * @return void
      */
-    private function noAlternativeError(&$equipmentRequest, &$errors)
+    private function noAlternativeError(&$equipmentRequest, &$errors, $allowAlternative)
     {
         $equipment = $this->_equipmentManager->getEquipmentForId($equipmentRequest->getEquipmentId());
 
@@ -367,8 +412,13 @@ class ReservationManager
         } else if ($equipmentRequest->getEquipmentType() == EquipmentType::Projector) {
             $equipmentType = 'Projector';
         }
-        $errors[] = "No alternative " . $equipmentType . " could be found for "
-            . $equipment->getManufacturer() . " - " . $equipment->getProductLine();
+        if ($allowAlternative) {
+            $errors[] = "No alternative " . $equipmentType . " could be found for "
+                . $equipment->getManufacturer() . " - " . $equipment->getProductLine();
+        } else {
+            $errors[] = "No alternative allowed for "
+                . $equipment->getManufacturer() . " - " . $equipment->getProductLine();
+        }
     }
 
     /**

@@ -7,6 +7,7 @@ namespace Stark {
     use Stark\RequestModels\EquipmentRequest;
     use Stark\RequestModels\ReservationRequest;
     use Stark\RequestModels\ReservationRequestBuilder;
+    use Stark\Utilities\ReservationConflict;
     use Stark\Utilities\ReservationManager;
 
     class CreateReservationSession
@@ -100,7 +101,7 @@ namespace Stark {
                     // Create a pending reservation
                     $reservation = $this->_reservationMapper->createReservation(
                         $this->_reservationRequest->getUserId(),
-                        $this->_reservationRequest->getUserId(),
+                        $this->_reservationRequest->getRoomId(),
                         $date['start'],
                         $date['end'],
                         $this->_reservationRequest->getTitle(),
@@ -170,8 +171,6 @@ namespace Stark {
          */
         private function validateRepeats($repeatedDates)
         {
-            $isValid = true;
-
             foreach ($repeatedDates as $repeatedDate) {
 
                 $startTimeDate = $repeatedDate['start'];
@@ -191,23 +190,42 @@ namespace Stark {
                     ->checkForConflicts(self::NO_RESERVATION_ID, $reservationRequest);
 
                 $errors = $this->_reservationManager->convertConflictsToErrors($reservationConflicts);
-                $equipmentReassignmentErrors = $this->_reservationManager->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
-
-                // There were conflicts and re-assignment also caused errors
-                if(!empty($reservationConflicts) && !empty($equipmentReassignmentErrors)){
-                    $isValid = false;
-                }
 
                 foreach ($errors as $error) {
                     $this->_errors[] = $error;
                 }
 
-                foreach ($equipmentReassignmentErrors as $error) {
-                    $this->_errors[] = $error;
+                $hasTimeConflicts = false;
+                $hasEquipmentConflicts = true;
+                foreach ($reservationConflicts as $reservationConflict) {
+                    if (!empty($reservationConflict->getDateTimes())) {
+                        $hasTimeConflicts = true;
+                    }
+                    if (!empty($reservationConflict->getEquipments())) {
+                        $hasEquipmentConflicts = true;
+                    }
+                }
+
+                // There were time conflicts
+                if ($hasTimeConflicts) {
+                    return false;
+                }
+
+                if($hasEquipmentConflicts){
+                    $equipmentReassignmentErrors = $this->_reservationManager->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
+
+                    foreach ($equipmentReassignmentErrors as $error) {
+                        $this->_errors[] = $error;
+                    }
+
+                    // There were unresolved equipment conflicts
+                    if (!empty($equipmentReassignmentErrors)) {
+                        return false;
+                    }
                 }
             }
 
-            return $isValid;
+            return true;
         }
 
         /**

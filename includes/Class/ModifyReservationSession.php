@@ -4,12 +4,13 @@ namespace Stark;
 
 use Stark\Mappers\LoanContractMapper;
 use Stark\Mappers\LoanedEquipmentMapper;
-use Stark\Models\EquipmentRequest;
+use Stark\RequestModels\EquipmentRequest;
 use Stark\Models\LoanContract;
 use Stark\Models\LoanedEquipment;
 use Stark\Models\Reservation;
 use Stark\Mappers\ReservationMapper;
 use Stark\RequestModels\ReservationRequest;
+use Stark\RequestModels\ReservationRequestBuilder;
 use Stark\Utilities\ReservationManager;
 
 class ModifyReservationSession
@@ -89,26 +90,52 @@ class ModifyReservationSession
             $removedLoanedEquipment = $this->filterRemovedLoanedEquipment($loanedEquipments, $equipmentRequests);
         }
 
+        $reservationRequestBuilder = new ReservationRequestBuilder();
+        $reservationRequestBuilder
+            ->roomId($roomId)
+            ->startTimeDate($newStartTimeDate)
+            ->endTimeDate($newEndTimeDate)
+            ->equipmentRequests($newEquipmentRequests);
+        $reservationRequest = $reservationRequestBuilder->build();
+
         // Check for conflicts
         $reservationConflicts = $this->_ReservationManager
-            ->checkForConflicts($reservationId, $roomId, $newStartTimeDate, $newEndTimeDate, $newEquipmentRequests);
+            ->checkForConflicts($reservationId, $reservationRequest);
 
-        // Get errors
+        $canBeAccommodated = true;
+
         $errors = $this->_ReservationManager->convertConflictsToErrors($reservationConflicts);
-        $equipmentReassignmentErrors = $this->_ReservationManager->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
+
+        $hasTimeConflicts = false;
+        $hasEquipmentConflicts = true;
+        foreach ($reservationConflicts as $reservationConflict) {
+            if (!empty($reservationConflict->getDateTimes())) {
+                $hasTimeConflicts = true;
+            }
+            if (!empty($reservationConflict->getEquipments())) {
+                $hasEquipmentConflicts = true;
+            }
+        }
+
+        $equipmentReassignmentErrors = [];
+
+        // There were time conflicts
+        if ($hasTimeConflicts) {
+            $canBeAccommodated = false;
+        } else if ($hasEquipmentConflicts) {
+            $equipmentReassignmentErrors = $this->_ReservationManager->assignAlternateEquipmentId($reservationConflicts, $newEquipmentRequests);
+
+            // There were unresolved equipment conflicts
+            if (!empty($equipmentReassignmentErrors)) {
+                $canBeAccommodated = false;
+            }
+        }
 
         // Merge errors to display to user
         $displayErrors = $this->mergeErrors($errors, $equipmentReassignmentErrors);
 
-        $canBeAccommodated = true;
-
-        // There were conflicts and re-assignment also caused errors
-        if (!empty($reservationConflicts) && !empty($equipmentReassignmentErrors)) {
-            $canBeAccommodated = false;
-        }
-
         if ($canBeAccommodated) {
-            if($changedEquipment){
+            if ($changedEquipment) {
                 $this->addNewEquipment($reservationId, $newEquipmentRequests);
                 $this->removeLoanedEquipment($removedLoanedEquipment);
             }
@@ -171,6 +198,10 @@ class ModifyReservationSession
      */
     private function removeLoanedEquipment($removedLoanedEquipment)
     {
+        if (empty($removedLoanedEquipment)) {
+            return;
+        }
+
         foreach ($removedLoanedEquipment as $loanedEquipment) {
             $this->_LoanedEquipmentMapper->uowDelete($loanedEquipment);
         }
@@ -186,6 +217,10 @@ class ModifyReservationSession
      */
     private function addNewEquipment($reservationId, $newEquipmentRequests)
     {
+        if (empty($newEquipmentRequests)) {
+            return;
+        }
+
         // Search for existing loan contract
         $loanContract = $this->_LoanContractMapper->findByReservationId($reservationId);
         if ($loanContract == null) {

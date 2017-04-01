@@ -34,7 +34,7 @@ namespace Stark\Mappers
          */
         public function __construct()
         {
-            $this->_tdg = new LoanedEquipmentTDG("loaned_equipment", "LoanContractId");
+            $this->_tdg = new LoanedEquipmentTDG("loaned_equipment", "LoanedEquipmentId");
         }
 
 
@@ -81,6 +81,7 @@ namespace Stark\Mappers
             }
 
             $LoanedEquipment = new LoanedEquipment();
+            $LoanedEquipment->setLoanedEquipmentId($data['LoanedEquipmentId']);
             $LoanedEquipment->setEquipmentId($data['EquipmentId']);
             $LoanedEquipment->setLoanContractId($data['LoanContractId']);
 

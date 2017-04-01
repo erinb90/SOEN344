@@ -94,7 +94,7 @@ class ReservationRequest
      */
     public function getRoomId()
     {
-        return $this->userId;
+        return $this->roomId;
     }
 
     /**

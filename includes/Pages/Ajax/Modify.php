@@ -114,7 +114,7 @@ if (!empty($errors)) {
                 $('#modifyReservationModal').dialog('close');
             }, false);
 
-            $('#calendar').fullCalendar('refetchEvents'  );
+            $('#calendar').fullCalendar('refetchEvents');
         });
 
     </script>

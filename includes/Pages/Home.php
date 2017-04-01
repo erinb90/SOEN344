@@ -283,9 +283,12 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 var changedEquipment = false;
 
                 var roomId = reservation.rid;
-                //var roomName = $('#newRoomOptions option[value=' + roomId + ']').select = 'true';
                 $('#newRoomOptions').val(roomId.toString());
 
+                $('input#newDate').val(reservation.Date);
+                $('input#newStartTime').val(reservation.StartTime);
+                $('input#newEndTime').val(reservation.EndTime);
+                $('input#newTitle').val(reservation.title);
 
                 $('#modifyReservationModal').dialog({
                     width: 600,
