@@ -47,6 +47,9 @@ namespace Stark\TDG
                     "EquipmentId" => $object->getEquipmentId()
                 ]
             );
+
+            $lastId = Registry::getConnection()->lastInsertId();
+            $object->setLoanedEquipmentId($lastId);
         }
 
         /**
@@ -59,7 +62,7 @@ namespace Stark\TDG
         {
             Registry::getConnection()->delete($this->getTable(),
                 [
-                    $this->getPk() => $object->getLoanContractId()
+                    $this->getPk() => $object->getLoanedEquipmentId()
                 ]
             );
         }
@@ -77,7 +80,7 @@ namespace Stark\TDG
                 [
                     "EquipmentId" => $object->getEquipmentId()
                 ],
-                [$this->getPk() => $object->getLoanContractId()]
+                [$this->getPk() => $object->getLoanedEquipmentId()]
             );
         }
     }

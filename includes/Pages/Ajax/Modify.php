@@ -1,8 +1,9 @@
 <?php
 use Stark\Mappers\ReservationMapper;
-use Stark\Models\EquipmentRequest;
+use Stark\RequestModels\EquipmentRequest;
 use Stark\Models\Reservation;
 use Stark\ModifyReservationSession;
+use Stark\RequestModels\ReservationRequestBuilder;
 use Stark\TimeValidator;
 use Stark\Utilities\ReservationSanitizer;
 
@@ -22,7 +23,7 @@ $roomId = intval($_REQUEST['roomId']);
 // Convert to equipment requests
 $equipmentRequests = [];
 foreach ($equipments as $equipment) {
-    $equipmentRequests[] = new EquipmentRequest($equipment[0], $equipment[1]);
+    $equipmentRequests[] = new EquipmentRequest($equipment[0], $equipment[1], $equipment[2]);
 }
 
 $reservationMapper = new ReservationMapper();
@@ -76,8 +77,17 @@ if (!empty($timeValidationErrors)) {
     return;
 }
 
+$reservationRequestBuilder = new ReservationRequestBuilder();
+$reservationRequestBuilder
+    ->title($title)
+    ->roomId($roomId)
+    ->startTimeDate($startTimeDate)
+    ->endTimeDate($endTimeDate)
+    ->equipmentRequests($equipmentRequests);
+$reservationRequest = $reservationRequestBuilder->build();
+
 $modifyReservationSession = new ModifyReservationSession();
-$errors = $modifyReservationSession->modify($reservationId, $roomId, $date, $startTimeDate, $endTimeDate, $title, $changedEquipment, $equipmentRequests);
+$errors = $modifyReservationSession->modify($reservationId, $changedEquipment, $reservationRequest);
 if (!empty($errors)) {
     ?>
     <div class="alert alert-danger">
@@ -104,7 +114,7 @@ if (!empty($errors)) {
                 $('#modifyReservationModal').dialog('close');
             }, false);
 
-            $('#calendar').fullCalendar('refetchEvents'  );
+            $('#calendar').fullCalendar('refetchEvents');
         });
 
     </script>
