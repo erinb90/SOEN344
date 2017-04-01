@@ -49,8 +49,7 @@ namespace Stark\TDG
                 [
                     "Manufacturer" => $computer->getManufacturer(),
                     "ProductLine"  => $computer->getProductLine(),
-                    "Description"  => $computer->getDescription(),
-                    "Quantity"     => $computer->getQuantity()
+                    "Description"  => $computer->getDescription()
                 ]
             );
 
@@ -111,8 +110,7 @@ namespace Stark\TDG
                 [
                     "Manufacturer" => $object->getManufacturer(),
                     "ProductLine"  => $object->getProductLine(),
-                    "Description"  => $object->getDescription(),
-                    "Quantity"     => $object->getQuantity()
+                    "Description"  => $object->getDescription()
                 ],
                 [$this->getParentPk() => $object->getEquipmentId()]
             );

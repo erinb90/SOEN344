@@ -108,16 +108,5 @@ namespace Stark {
         {
             return $this->getLoanContract() != null;
         }
-
-
-        /**
-         * @param $reservationId
-         *
-         * @return mixed
-         */
-        public static function find($reservationId)
-        {
-            return null;
-        }
     }
 }

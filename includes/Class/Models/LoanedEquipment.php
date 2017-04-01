@@ -14,6 +14,11 @@ namespace Stark\Models
     {
 
         /**
+         * @var int
+         */
+        private $_LoanedEquipmentId;
+
+        /**
          * @var
          */
         private $_LoanContractId;
@@ -22,6 +27,22 @@ namespace Stark\Models
          * @var
          */
         private $_EquipmentId;
+
+        /**
+         * @return mixed
+         */
+        public function getLoanedEquipmentId()
+        {
+            return $this->_LoanedEquipmentId;
+        }
+
+        /**
+         * @param mixed $LoanedEquipmentId
+         */
+        public function setLoanedEquipmentId($LoanedEquipmentId)
+        {
+            $this->_LoanedEquipmentId = $LoanedEquipmentId;
+        }
 
         /**
          * @return mixed

@@ -33,10 +33,9 @@ $RoomDirectory = new \Stark\RoomDirectory();
     <!-- DataTable Select Extension -->
     <link href="../../plugins/datatables/extensions/Select/css/select.dataTables.min.css" rel="stylesheet">
     <!-- FUll calendar CSS-->
-    <link href='../../plugins/fullcalendar/fullcalendar.css' rel='stylesheet' />
+    <link href='../../plugins/fullcalendar/fullcalendar.css' rel='stylesheet'/>
     <link href='../../plugins/fullcalendar/scheduler.min.css' rel="stylesheet">
-    <link href='../../plugins/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />
-
+    <link href='../../plugins/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print'/>
 
 
     <!-- jQuery -->
@@ -62,11 +61,11 @@ $RoomDirectory = new \Stark\RoomDirectory();
     <script src="../../js/calendar.js"></script>
 
 
-
     <script>
 
         //todo: needs some refactoring
-        USER_ID = '<?php echo WebUser::getUser()->getUserId()?>';;
+        USER_ID = '<?php echo WebUser::getUser()->getUserId()?>';
+        ;
         //todo: needs some refactoring (yeah no kidding...)
 
         CCOUNT = "<?php echo \Stark\CoreConfig::settings()['reservations']['lock']; ?>";
@@ -284,10 +283,12 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 var changedEquipment = false;
 
                 var roomId = reservation.rid;
-                //var roomName = $('#newRoomOptions option[value=' + roomId + ']').select = 'true';
                 $('#newRoomOptions').val(roomId.toString());
 
-
+                $('input#newDate').val(reservation.Date);
+                $('input#newStartTime').val(reservation.StartTime);
+                $('input#newEndTime').val(reservation.EndTime);
+                $('input#newTitle').val(reservation.title);
 
                 $('#modifyReservationModal').dialog({
                     width: 600,
@@ -305,7 +306,6 @@ $RoomDirectory = new \Stark\RoomDirectory();
                             var newEndTime = $('input#newEndTime').val();
                             var newTitle = $('input#newTitle').val();
                             var newRoomId = $('#newRoomOptions').val();
-                            var newRoomId = $('#newRoomOptions').val();
 
                             $.ajax({
                                 url: 'Ajax/Modify.php',
@@ -315,9 +315,9 @@ $RoomDirectory = new \Stark\RoomDirectory();
                                     startTime: newStartTime,
                                     endTime: newEndTime,
                                     title: newTitle,
+                                    roomId: newRoomId,
                                     equipment: JSON.stringify(equipment),
-                                    changedEquipment: changedEquipment,
-                                    roomId: newRoomId
+                                    changedEquipment: changedEquipment
                                 },
                                 error: function () {
                                     alert('An error occurred');
@@ -390,16 +390,17 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
                                         equipment = [];
                                         changedEquipment = true;
+                                        var computerAlt = $('#computerAltModify').is(':checked');
+                                        var projectorAlt = $('#projectorAltModify').is(':checked');
 
                                         projectorsListTableModify.rows('.selected').every(function (rowIdx, tableLoop, rowLoop) {
                                             var data = this.data();
-                                            equipment.push([data.EquipmentId, 'c']);
-
+                                            equipment.push([data.EquipmentId, 'c', computerAlt]);
                                         });
 
                                         computersListTableModify.rows('.selected').every(function (rowIdx, tableLoop, rowLoop) {
                                             var data = this.data();
-                                            equipment.push([data.EquipmentId, 'p']);
+                                            equipment.push([data.EquipmentId, 'p', projectorAlt]);
                                         });
 
                                         $(this).dialog("destroy");
@@ -507,10 +508,10 @@ $RoomDirectory = new \Stark\RoomDirectory();
             $(document).on('click', '#third-r', function () {
 
                 $('#myReservationsModal').dialog({
-                    width : 1000,
+                    width: 1000,
                     height: 800,
-                    modal : true,
-                    title : 'My Reservations'
+                    modal: true,
+                    title: 'My Reservations'
                 });
 
             });
@@ -549,19 +550,20 @@ $RoomDirectory = new \Stark\RoomDirectory();
             // when click on the big reserve button to create  a reservation
             $(document).on('click', '#createReservation', function () {
 
+                var computerAlt = $('#computerAltReserve').is(':checked');
+                var projectorAlt = $('#projectorAltReserve').is(':checked');
+
                 // capture any equipment selected
                 var equipment = [];
 
                 computersListTable.rows('.selected').every(function (rowIdx, tableLoop, rowLoop) {
                     var data = this.data();
-                    equipment.push([data.EquipmentId, 'c']);
-
+                    equipment.push([data.EquipmentId, 'c', computerAlt]);
                 });
 
                 projectorsListTable.rows('.selected').every(function (rowIdx, tableLoop, rowLoop) {
                     var data = this.data();
-                    equipment.push([data.EquipmentId, 'p']);
-
+                    equipment.push([data.EquipmentId, 'p', projectorAlt]);
                 });
 
 
@@ -823,6 +825,9 @@ $RoomDirectory = new \Stark\RoomDirectory();
                                     </div>
                                     <div id="tabs-2">
                                         <div class="text-center h1">Computers</div>
+                                        <label for="computerAltReserve">Allow alternative computers to be
+                                            assigned</label>
+                                        <input id="computerAltReserve" type="checkbox" checked="checked"/>
                                         <table id="computersListTable" width="100%" class="table table-responsive">
                                             <thead>
                                             <tr>
@@ -836,6 +841,9 @@ $RoomDirectory = new \Stark\RoomDirectory();
                                             </thead>
                                         </table>
                                         <div class="text-center h1">Projectors</div>
+                                        <label for="projectorAltReserve">Allow alternative projectors to be
+                                            assigned</label>
+                                        <input id="projectorAltReserve" type="checkbox" checked="checked"/>
                                         <table id="projectorsListTable" width="100%" class="table table-responsive">
                                             <thead>
                                             <tr>
@@ -1046,6 +1054,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
 <!-- Modify Equipment -->
 <div id="modifyEquipmentModal" style="display: none;" title="Modify Equipment">
     <div class="text-center h1">Computers</div>
+    <label for="computerAltModify">Allow alternative computers to be assigned</label>
+    <input id="computerAltModify" type="checkbox" checked="checked"/>
     <table id="computersListTableModify" width="100%" class="table table-responsive">
         <thead>
         <tr>
@@ -1059,6 +1069,8 @@ $RoomDirectory = new \Stark\RoomDirectory();
         </thead>
     </table>
     <div class="text-center h1">Projectors</div>
+    <label for="projectorAltModify">Allow alternative projectors to be assigned</label>
+    <input id="projectorAltModify" type="checkbox" checked="checked"/>
     <table id="projectorsListTableModify" width="100%" class="table table-responsive">
         <thead>
         <tr>
