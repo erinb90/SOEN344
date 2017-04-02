@@ -36,6 +36,11 @@ class ModifyReservationSession
     private $_LoanContractMapper;
 
     /**
+     * @var String[]
+     */
+    private $_errors;
+
+    /**
      * ModifyReservationSession constructor.
      */
     public function __construct()
@@ -44,6 +49,7 @@ class ModifyReservationSession
         $this->_LoanedEquipmentMapper = new LoanedEquipmentMapper();
         $this->_ReservationManager = new ReservationManager();
         $this->_LoanContractMapper = new LoanContractMapper();
+        $this->_errors = [];
     }
 
     /**
@@ -98,6 +104,34 @@ class ModifyReservationSession
             ->equipmentRequests($newEquipmentRequests);
         $reservationRequest = $reservationRequestBuilder->build();
 
+        $canBeAccommodated = $this->canBeAccommodated($reservationId, $reservationRequest);
+
+        if ($canBeAccommodated) {
+            if ($changedEquipment) {
+                $this->addNewEquipment($reservationId, $newEquipmentRequests);
+                $this->removeLoanedEquipment($removedLoanedEquipment);
+            }
+
+            $reservation->setStartTimeDate($newStartTimeDate);
+            $reservation->setEndTimeDate($newEndTimeDate);
+            $reservation->setTitle($newTitle);
+            $reservation->setRoomId($roomId);
+            $this->_ReservationMapper->uowUpdate($reservation);
+            $this->_ReservationMapper->commit();
+            $this->_ReservationManager->accommodateReservations();
+        }
+        return $this->_errors;
+    }
+
+    /**
+     * @param $reservationId
+     * @param $reservationRequest
+     * @return bool specifying if the new reservation can be accommodated
+     *
+     * Checks for time and equipment conflicts, returns true if new res can be accommodated
+     */
+    public function canBeAccommodated($reservationId, $reservationRequest)
+    {
         // Check for conflicts
         $reservationConflicts = $this->_ReservationManager
             ->checkForConflicts($reservationId, $reservationRequest);
@@ -132,25 +166,9 @@ class ModifyReservationSession
         }
 
         // Merge errors to display to user
-        $displayErrors = $this->mergeErrors($errors, $equipmentReassignmentErrors);
+        $this->_errors = $this->mergeErrors($errors, $equipmentReassignmentErrors);
 
-        if ($canBeAccommodated) {
-            if ($changedEquipment) {
-                $this->addNewEquipment($reservationId, $newEquipmentRequests);
-                $this->removeLoanedEquipment($removedLoanedEquipment);
-            }
-
-            $reservation->setStartTimeDate($newStartTimeDate);
-            $reservation->setEndTimeDate($newEndTimeDate);
-            $reservation->setTitle($newTitle);
-            $reservation->setRoomId($roomId);
-            $this->_ReservationMapper->uowUpdate($reservation);
-            $this->_ReservationMapper->commit();
-            $this->_ReservationManager->accommodateReservations();
-            return [];
-        } else {
-            return $displayErrors;
-        }
+        return $canBeAccommodated;
     }
 
     /**
