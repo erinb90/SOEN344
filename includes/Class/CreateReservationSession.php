@@ -178,6 +178,8 @@ namespace Stark {
                 $roomId = $this->_reservationRequest->getRoomId();
                 $equipmentRequests = $this->_reservationRequest->getEquipmentRequests();
 
+                // Needs to be done because there is a separate reservation request for each
+                // recurrence
                 $reservationRequestBuilder = new ReservationRequestBuilder();
                 $reservationRequestBuilder
                     ->roomId($roomId)
