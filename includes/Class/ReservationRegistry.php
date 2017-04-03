@@ -20,7 +20,7 @@ namespace Stark
         {
             $this->_reservationMapper = new ReservationMapper();
         }
-        
+
         /**
          * @return array of Reservation objects
          */
