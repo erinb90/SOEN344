@@ -91,17 +91,21 @@ namespace Stark\Mappers
             return $numberOfReservations;
         }
 
-
+        /**
+         * Returns all reservations in the system
+         *
+         * @return array
+         */
         public function getReservations()
         {
             $dbEntries = $this->getTdg()->findAll();
-            $activeReservations = [];
+            $reservations = [];
             foreach ($dbEntries as $row)
             {
-                $activeReservations[] = $this->getModel($row);
+                $reservations[] = $this->getModel($row);
             }
 
-            return $activeReservations;
+            return $reservations;
         }
 
         /**
