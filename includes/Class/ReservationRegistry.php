@@ -18,8 +18,9 @@ namespace Stark
          */
         public function __construct()
         {
-
+            $this->_reservationMapper = new ReservationMapper();
         }
+        
         /**
          * @return array of Reservation objects
          */
