@@ -91,7 +91,7 @@ namespace Stark {
             $Session->getReservationMapper()->uowDelete($currentReservation);
             $Session->getReservationMapper()->commit();
 
-            $Session->getReservationManager()->accommodateReservations();
+            $Session->getReservationManager()->accommodateWaitlistedReservations();
 
             return true;
         }

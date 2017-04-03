@@ -110,7 +110,7 @@ class ModifyReservationSession
             $reservation->setRoomId($roomId);
             $this->_ReservationMapper->uowUpdate($reservation);
             $this->_ReservationMapper->commit();
-            $this->_ReservationManager->accommodateReservations();
+            $this->_ReservationManager->accommodateWaitlistedReservations();
         }
         return $this->_errors;
     }
