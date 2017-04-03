@@ -106,6 +106,11 @@ if (!empty($errors)) {
     <?php
 } else {
     ?>
+    <div id="modifyMessage" title="Success">
+        <div class="alert alert-success">
+            You have successfully modified your reservation!
+        </div>
+    </div>
     <script>
         // Refresh user reservations
         $(function () {
