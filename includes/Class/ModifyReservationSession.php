@@ -96,13 +96,7 @@ class ModifyReservationSession
             $removedLoanedEquipment = $this->filterRemovedLoanedEquipment($loanedEquipments, $equipmentRequests);
         }
 
-        $reservationRequestBuilder = new ReservationRequestBuilder();
-        $reservationRequestBuilder
-            ->roomId($roomId)
-            ->startTimeDate($newStartTimeDate)
-            ->endTimeDate($newEndTimeDate)
-            ->equipmentRequests($newEquipmentRequests);
-        $reservationRequest = $reservationRequestBuilder->build();
+        $reservationRequest->setEquipmentRequests($newEquipmentRequests);
 
         $canBeAccommodated = $this->canBeAccommodated($reservationId, $reservationRequest);
 
