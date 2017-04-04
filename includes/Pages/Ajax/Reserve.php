@@ -56,11 +56,10 @@ $reservationRequestBuilder
     ->equipmentRequests($equipmentRequests);
 $reservationRequest = $reservationRequestBuilder->build();
 
-// TODO : Prevent user from creating duplicate reservations (even if waitlisted)
 // Create reservation session
 $ReservationSession = new CreateReservationSession($reservationRequest);
-
-if ($ReservationSession->reserve()) {
+$statusCode = $ReservationSession->reserve();
+if ($statusCode === 1) {
     ?>
     <div id="successReservation" title="Success">
         <div class="alert alert-success">
@@ -79,15 +78,28 @@ if ($ReservationSession->reserve()) {
         }, false);
     </script>
     <?php
-} else if (count($ReservationSession->getErrors()) > 0) {
+} else {
     $waitListPosition = $ReservationSession->getWaitListPosition();
     $conflicts = $ReservationSession->getErrors();
+    $displayMessage = "Something went wrong.";
+    $alertClass = "alert-danger";
+    switch ($statusCode){
+        case 0:
+            $displayMessage = "Your reservation has been wait listed at position" . $waitListPosition . " due to conflicts!";
+            $alertClass = "alert-warning";
+            break;
+        case 2:
+            $displayMessage = "Failed to create reservation.";
+            $alertClass = "alert-danger";
+            break;
+        default:
+            break;
+    }
     ?>
     <div id="waitlistReservation" style="display: none;" title="Waitlist">
         <div id="reservationResult">
-            <div class="alert alert-warning">
-                Your reservation has been wait listed at position
-                <?php echo $waitListPosition ?> due to conflicts!
+            <div class="alert <?php echo $alertClass ?>">
+                <?php echo $displayMessage ?>
             </div>
             <div class="alert alert-info">
                 <?php

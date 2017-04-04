@@ -63,20 +63,37 @@ class ModifyReservationSession
     }
 
     /**
+     * Returns the session errors.
+     *
+     * @return string[] errors during the modification.
+     */
+    public function getErrors()
+    {
+        return $this->_errors;
+    }
+
+    /**
      * Attempt to modify an existing reservation.
      *
-     * @param int $reservationId of the reservation to modify.
      * @param boolean $changedEquipment if the user made an equipment change.
      * @param ReservationRequest $reservationRequest for the modification.
-     * @return String[] errors to to display if the modification failed, or empty if succeeded.
+     * @return boolean if the modification was successful.
      */
-    public function modify($reservationId, $changedEquipment, $reservationRequest)
+    public function modify($changedEquipment, $reservationRequest)
     {
         $equipmentRequests = $reservationRequest->getEquipmentRequests();
         $roomId = $reservationRequest->getRoomId();
         $newStartTimeDate = $reservationRequest->getStartTimeDate();
         $newEndTimeDate = $reservationRequest->getEndTimeDate();
         $newTitle = $reservationRequest->getTitle();
+        $reservationId = $reservationRequest->getReservationId();
+
+        $totalBookingTimeWithinLimit =
+            $this->_ReservationManager->validateMaxBookingTimePerWeek($reservationRequest, $this->_errors);
+
+        if (!$totalBookingTimeWithinLimit) {
+            return false;
+        }
 
         // Current reservation
         /**
@@ -98,7 +115,7 @@ class ModifyReservationSession
 
         $reservationRequest->setEquipmentRequests($newEquipmentRequests);
 
-        if ($this->validateNewReservation($reservationId, $reservationRequest)) {
+        if ($this->validateNewReservation($reservationRequest)) {
             if ($changedEquipment) {
                 $this->addNewEquipment($reservationId, $newEquipmentRequests);
                 $this->removeLoanedEquipment($removedLoanedEquipment);
@@ -111,22 +128,23 @@ class ModifyReservationSession
             $this->_ReservationMapper->uowUpdate($reservation);
             $this->_ReservationMapper->commit();
             $this->_ReservationManager->accommodateWaitlistedReservations();
+            return true;
         }
-        return $this->_errors;
+
+        return false;
     }
 
     /**
-     * @param int $reservationId
      * @param ReservationRequest $reservationRequest
      * @return bool specifying if the new reservation can be accommodated
      *
      * Checks for time and equipment conflicts, returns true if new res can be accommodated
      */
-    public function validateNewReservation($reservationId, $reservationRequest)
+    public function validateNewReservation($reservationRequest)
     {
         // Check for conflicts
         $reservationConflicts = $this->_ReservationManager
-            ->checkForConflicts($reservationId, $reservationRequest);
+            ->checkForConflicts($reservationRequest);
 
         $errors = $this->_ReservationManager->convertConflictsToErrors($reservationConflicts);
 

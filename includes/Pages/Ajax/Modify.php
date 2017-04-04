@@ -6,6 +6,7 @@ use Stark\ModifyReservationSession;
 use Stark\RequestModels\ReservationRequestBuilder;
 use Stark\TimeValidator;
 use Stark\Utilities\ReservationSanitizer;
+use Stark\WebUser;
 
 session_start();
 require_once($_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php');
@@ -77,8 +78,12 @@ if (!empty($timeValidationErrors)) {
     return;
 }
 
+$user = WebUser::getUser();
+
 $reservationRequestBuilder = new ReservationRequestBuilder();
 $reservationRequestBuilder
+    ->userId($user->getUserId())
+    ->reservationId($reservationId)
     ->title($title)
     ->roomId($roomId)
     ->startTimeDate($startTimeDate)
@@ -87,7 +92,8 @@ $reservationRequestBuilder
 $reservationRequest = $reservationRequestBuilder->build();
 
 $modifyReservationSession = new ModifyReservationSession();
-$errors = $modifyReservationSession->modify($reservationId, $changedEquipment, $reservationRequest);
+$modifyReservationSession->modify($changedEquipment, $reservationRequest);
+$errors = $modifyReservationSession->getErrors();
 if (!empty($errors)) {
     ?>
     <div class="alert alert-danger">

@@ -90,6 +90,9 @@ namespace Stark {
             $Session = new DeleteReservationSession($reservationId);
             $currentReservation = $Session->getReservation();
 
+            if(!$currentReservation)
+                return true;
+
             // Delete the reservation
             $Session->getReservationMapper()->uowDelete($currentReservation);
             $Session->getReservationMapper()->commit();
