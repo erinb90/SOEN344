@@ -15,6 +15,10 @@ if ($reservationId == null) {
     $reservationId = intval($_REQUEST['reservationId']);
 }
 
+if($date == ""){
+    $date = date("Y-m-d");
+}
+
 // Sanitize input data
 $reservationSanitizer = new ReservationSanitizer();
 $startTimeDate = $reservationSanitizer->convertToDateTime($date, $startTime);
