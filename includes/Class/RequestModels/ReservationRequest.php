@@ -10,9 +10,19 @@ use Stark\CoreConfig;
 class ReservationRequest
 {
     /**
+     * Default value if a reservation Id has not yet been assigned.
+     */
+    const NO_RESERVATION_ID = -1;
+
+    /**
      * @var int $maxRecurrences for a reservation.
      */
     private $maxRecurrences;
+
+    /**
+     * @var int $reservationId of an existing reservation or -1 if new.
+     */
+    private $reservationId;
 
     /**
      * @var string $title of the reservation.
@@ -54,7 +64,8 @@ class ReservationRequest
      */
     public function __construct()
     {
-        $this->maxRecurrences = CoreConfig::settings()['reservations']['max_per_week'];
+        $this->reservationId = self::NO_RESERVATION_ID;
+        $this->maxRecurrences = CoreConfig::settings()['reservations']['max_repeats'];
     }
 
     /**
@@ -65,6 +76,26 @@ class ReservationRequest
     public function getMaxRecurrences()
     {
         return $this->maxRecurrences;
+    }
+
+    /**
+     * Gets the reservationId of the reservation.
+     *
+     * @return int id of the reservation.
+     */
+    public function getReservationId()
+    {
+        return $this->reservationId;
+    }
+
+    /**
+     * Sets the reservationId of the reservation.
+     *
+     * @param int $reservationId of the reservation.
+     */
+    public function setReservationId($reservationId)
+    {
+        $this->reservationId = $reservationId;
     }
 
     /**

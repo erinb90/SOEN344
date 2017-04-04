@@ -22,6 +22,19 @@ class ReservationRequestBuilder implements Builder
     }
 
     /**
+     * Builds the reservationId of the reservation.
+     *
+     * @param int $reservationId of the reservation.
+     * @return ReservationRequestBuilder for the reservation.
+     */
+    public function reservationId($reservationId)
+    {
+        $this->reservationRequest->setReservationId($reservationId);
+        return $this;
+    }
+
+
+    /**
      * Builds the title of the reservation.
      *
      * @param string $title of the reservation.

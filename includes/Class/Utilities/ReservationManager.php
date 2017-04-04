@@ -2,6 +2,8 @@
 
 namespace Stark\Utilities;
 
+use DateTime;
+use Stark\CoreConfig;
 use Stark\Enums\EquipmentType;
 use Stark\Interfaces\Equipment;
 use Stark\Mappers\LoanedEquipmentMapper;
@@ -13,6 +15,7 @@ use Stark\Models\Reservation;
 use Stark\Models\User;
 use Stark\RequestModels\ReservationRequest;
 use Stark\RequestModels\ReservationRequestBuilder;
+use Stark\Utilities;
 
 class ReservationManager
 {
@@ -138,6 +141,7 @@ class ReservationManager
 
                 $reservationRequestBuilder = new ReservationRequestBuilder();
                 $reservationRequestBuilder
+                    ->reservationId($waitingReservation->getReservationID())
                     ->roomId($waitingReservation->getRoomId())
                     ->startTimeDate($waitingReservation->getStartTimeDate())
                     ->endTimeDate($waitingReservation->getEndTimeDate())
@@ -145,7 +149,7 @@ class ReservationManager
                 $reservationRequest = $reservationRequestBuilder->build();
 
                 $equipmentRequests = $reservationRequest->getEquipmentRequests();
-                $reservationConflicts = $this->checkForConflicts($waitingReservation->getReservationID(), $reservationRequest);
+                $reservationConflicts = $this->checkForConflicts($reservationRequest);
 
                 $hasTimeConflicts = false;
                 $hasEquipmentConflicts = true;
@@ -161,7 +165,7 @@ class ReservationManager
                 // There were time conflicts or re-assignment also caused errors
                 if ($hasTimeConflicts || !empty($equipmentReassignmentErrors)) {
                     $canBeAccommodated = false;
-                } else if($hasEquipmentConflicts) {
+                } else if ($hasEquipmentConflicts) {
                     $equipmentReassignmentErrors = $this->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
                     if (empty($equipmentReassignmentErrors)) {
                         // Re-map loaned equipment with new ids
@@ -282,15 +286,14 @@ class ReservationManager
     /**
      * Find conflicting active reservations based on a yet to be created reservation.
      *
-     * @param int $reservationId of the the reservation
      * @param ReservationRequest $reservationRequest to check for conflicts.
      *
      * @return ReservationConflict[] with active reservations.
      */
-    public function checkForConflicts($reservationId, $reservationRequest)
+    public function checkForConflicts($reservationRequest)
     {
         $activeReservations = $this->_reservationMapper->findAllActive();
-        return $this->checkForTimeConflicts($reservationId, $reservationRequest, $activeReservations);
+        return $this->checkForTimeConflicts($reservationRequest, $activeReservations);
     }
 
     /**
@@ -435,17 +438,101 @@ class ReservationManager
     }
 
     /**
+     * Validates the that the reservation request respects the max booking time per week.
+     *
+     * @param ReservationRequest $reservationRequest for the user.
+     * @param string[] $errors from the session.
+     * @return bool if the total booking minutes for the user is within the limit.
+     */
+    public function validateMaxBookingTimePerWeek($reservationRequest, &$errors)
+    {
+        if (!isset($errors)) {
+            $errors = [];
+        }
+
+        $maxReservationTime = CoreConfig::settings()['reservations']['max_per_reservation'];
+        $totalBookingTime = $this->calculateTotalBookedTimeForWeek($reservationRequest);
+        if ($totalBookingTime > $maxReservationTime) {
+            $errors[] = "Total reservation time of " . $totalBookingTime . " minutes exceeds max limit of " . $maxReservationTime . " minutes per week.";
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Returns the total booked time for a given week based on the start time date.
+     *
+     * @param ReservationRequest $reservationRequest from the user.
+     *
+     * @return int user's total booked reservation time for the week.
+     */
+    private function calculateTotalBookedTimeForWeek($reservationRequest)
+    {
+        // Get week dates based on start time date
+        $weekDates = Utilities::getWeek($reservationRequest->getStartTimeDate());
+        $startDateWeek = $weekDates[0];
+        $endDateWeek = $weekDates[1];
+
+        /**
+         * @var Reservation[] $reservations
+         */
+        $reservations = $this->_reservationMapper->findAllStudentReservations($reservationRequest->getUserId());
+        $totalBookedReservationTime = 0;
+        foreach ($reservations as $reservation) {
+            // Do not add time in case of a reservation modification
+            if($reservation->getReservationID() === $reservationRequest->getReservationId()){
+                continue;
+            }
+            if (strtotime($reservation->getStartTimeDate()) >= strtotime($startDateWeek) && strtotime($reservation->getEndTimeDate()) <= strtotime($endDateWeek)) {
+                $totalBookedReservationTime += $this->calculateDuration($reservation->getStartTimeDate(), $reservation->getEndTimeDate());
+            }
+        }
+
+        // Add the time for the current booking request
+        $totalBookedReservationTime += $this->calculateDuration($reservationRequest->getStartTimeDate(), $reservationRequest->getEndTimeDate());
+        return $totalBookedReservationTime;
+    }
+
+    /**
+     * Calculates duration of a reservation.
+     *
+     * @param string $start
+     * @param string $end
+     * @return int duration in minutes
+     */
+    private function calculateDuration($start, $end)
+    {
+        $dateFormat = "Y-m-d H:i:s";
+        $startTimeDate = DateTime::createFromFormat($dateFormat, $start);
+        $endTimeDate = DateTime::createFromFormat($dateFormat, $end);
+        $interval = $startTimeDate->diff($endTimeDate);
+        $totalMinutes = $this->getTotalMinutes($interval);
+        return $totalMinutes;
+    }
+
+    /**
+     * Gets total minutes for a Date interval.
+     *
+     * @param \DateInterval $interval
+     * @return int total minutes.
+     */
+    private function getTotalMinutes($interval)
+    {
+        return ($interval->d * 24 * 60) + ($interval->h * 60) + $interval->i;
+    }
+
+    /**
      * Find conflicting active reservations based on startTimeDate and endTimeDate of the pending reservation.
      *
-     * @param int $reservationId of the reservation.
      * @param ReservationRequest $reservationRequest to check for conflicts.
      * @param Reservation[] $activeReservations in the system
      *
      * @return ReservationConflict[] of conflicting reservations or empty if none
      */
-    private function checkForTimeConflicts($reservationId, $reservationRequest, $activeReservations)
+    private function checkForTimeConflicts($reservationRequest, $activeReservations)
     {
-        if (!isset($reservationId) || !isset($reservationRequest) || empty($activeReservations)) {
+        if (!isset($reservationRequest) || empty($activeReservations)) {
             return [];
         }
 
@@ -458,7 +545,7 @@ class ReservationManager
         $conflictingReservations = [];
 
         foreach ($activeReservations as $activeReservation) {
-            if ($reservationId == $activeReservation->getReservationID()) {
+            if ($reservationRequest->getReservationId() == $activeReservation->getReservationID()) {
                 // Same reservation
                 continue;
             }

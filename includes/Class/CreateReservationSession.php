@@ -13,11 +13,6 @@ namespace Stark {
     class CreateReservationSession
     {
         /**
-         * Default value if a reservation Id has not yet been assigned.
-         */
-        const NO_RESERVATION_ID = -1;
-
-        /**
          * @var ReservationRequest $_reservationRequest for the create reservation session.
          */
         private $_reservationRequest;
@@ -83,15 +78,17 @@ namespace Stark {
         /**
          * Attempts to create a reservation for the user's reservation request.
          *
-         * @return boolean returns true if the reservation was successful with no time conflicts.
+         * @return int returns status code for reservation (0 wait list, 1 success, 2 error).
          */
         public function reserve()
         {
             $repeatedDates = $this->getReservationRecurrenceDates();
             $recurrencesWithinLimit = $this->validateRecurrences($repeatedDates);
+            $totalBookingTimeWithinLimit =
+                $this->_reservationManager->validateMaxBookingTimePerWeek($this->_reservationRequest, $this->_errors);
 
-            if (!$recurrencesWithinLimit) {
-                return false;
+            if (!$recurrencesWithinLimit || !$totalBookingTimeWithinLimit) {
+                return 2;
             }
 
             $isWaiting = !$this->validateRepeats($repeatedDates);
@@ -129,7 +126,7 @@ namespace Stark {
                 }
             }
 
-            return !$isWaiting;
+            return $isWaiting ? 0 : 1;
         }
 
         /**
@@ -156,10 +153,12 @@ namespace Stark {
                 $this->setError("Max recurrences not set in configuration.");
                 return false;
             }
+
             if (count($repeatedDates) > $maxRecurrences) {
                 $this->setError("Cannot repeat reservation more than " . $maxRecurrences . " times.");
                 return false;
             }
+
             return true;
         }
 
@@ -188,7 +187,7 @@ namespace Stark {
                     ->equipmentRequests($equipmentRequests);
                 $reservationRequest = $reservationRequestBuilder->build();
 
-                if(!$this->validateNewReservation(self::NO_RESERVATION_ID, $reservationRequest)) {
+                if (!$this->validateNewReservation($reservationRequest)) {
                     return false;
                 }
             }
@@ -196,17 +195,16 @@ namespace Stark {
         }
 
         /**
-         * @param int $reservationId
          * @param ReservationRequest $reservationRequest
          * @return bool specifying if the new reservation can be accommodated
          *
          * Checks for time and equipment conflicts, returns true if new res can be accommodated
          */
-        public function validateNewReservation($reservationId, $reservationRequest)
+        public function validateNewReservation($reservationRequest)
         {
             // Check for conflicts
             $reservationConflicts = $this->_reservationManager
-                ->checkForConflicts($reservationId, $reservationRequest);
+                ->checkForConflicts($reservationRequest);
 
             $errors = $this->_reservationManager->convertConflictsToErrors($reservationConflicts);
 

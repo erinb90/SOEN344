@@ -1,8 +1,7 @@
 <?php
 
-namespace Stark\Mappers
-{
-
+namespace Stark\Mappers {
+    
     use Stark\Interfaces\AbstractMapper;
     use Stark\Models\Reservation;
     use Stark\TDG\ReservationTDG;
@@ -30,7 +29,7 @@ namespace Stark\Mappers
         public function __construct()
         {
 
-            $this->_tdg = new ReservationTDG("reservations","ReservationId");
+            $this->_tdg = new ReservationTDG("reservations", "ReservationId");
         }
 
         /**
@@ -52,8 +51,7 @@ namespace Stark\Mappers
         {
             $dbEntries = $this->getTdg()->findAllStudentReservations($userid);
             $reservations = [];
-            foreach ($dbEntries as $row)
-            {
+            foreach ($dbEntries as $row) {
                 $reservations[] = $this->getModel($row);
             }
 
@@ -77,13 +75,10 @@ namespace Stark\Mappers
             /**
              * @var $Reservation Reservation
              */
-            foreach ($reservations as $Reservation)
-            {
+            foreach ($reservations as $Reservation) {
                 // find this user's reservations
-                if ($Reservation->getUserId() == $uid)
-                {
-                    if (strtotime($Reservation->getStartTimeDate()) >= strtotime($startDateWeek) && strtotime($Reservation->getEndTimeDate()) <= strtotime($endDateWeek))
-                    {
+                if ($Reservation->getUserId() == $uid) {
+                    if (strtotime($Reservation->getStartTimeDate()) >= strtotime($startDateWeek) && strtotime($Reservation->getEndTimeDate()) <= strtotime($endDateWeek)) {
                         $numberOfReservations++;
                     }
                 }
@@ -100,8 +95,7 @@ namespace Stark\Mappers
         {
             $dbEntries = $this->getTdg()->findAll();
             $reservations = [];
-            foreach ($dbEntries as $row)
-            {
+            foreach ($dbEntries as $row) {
                 $reservations[] = $this->getModel($row);
             }
 
@@ -142,8 +136,7 @@ namespace Stark\Mappers
         {
             $dbEntries = $this->getTdg()->findAllWaitlisted();
             $waitlistedReservations = [];
-            foreach ($dbEntries as $row)
-            {
+            foreach ($dbEntries as $row) {
                 $waitlistedReservations[] = $this->getModel($row);
             }
 
@@ -159,8 +152,7 @@ namespace Stark\Mappers
         {
             $dbEntries = $this->getTdg()->findAllActive();
             $activeReservations = [];
-            foreach ($dbEntries as $row)
-            {
+            foreach ($dbEntries as $row) {
                 $activeReservations[] = $this->getModel($row);
             }
 
@@ -176,8 +168,7 @@ namespace Stark\Mappers
          */
         public function getModel(array $data = null)
         {
-            if (!$data)
-            {
+            if (!$data) {
                 return NULL;
             }
             $Reservation = new Reservation();
