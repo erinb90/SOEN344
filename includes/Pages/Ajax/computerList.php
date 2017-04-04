@@ -8,8 +8,6 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/includes/dbc.php');
 $date = $_REQUEST['date'];
 $startTime = $_REQUEST['startTime'];
 $endTime = $_REQUEST['endTime'];
-$endTime = $_REQUEST['endTime'];
-$reservationId = intval($_REQUEST['reservationId']);
 $reservationId = $_REQUEST['reservationId'];
 if ($reservationId == null) {
     $reservationId = -1;
