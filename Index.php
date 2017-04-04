@@ -43,7 +43,7 @@ $Test->test();
         <div class="row">
             <div class="col-lg-12">
                 <div class="intro-message">
-                    <h1><span class="title" style="font-size: 150%">The Architecture Strikes Back</span></h1>
+                    <h1><span class="title" style="font-size: 125%">The Architecture Strikes Back</span></h1>
                     <h3><span class="subtitle" style="font-size: 130%">Concordia University Room Reserver</span></h3>
                     <hr class="intro-divider">
                     <ul class="list-inline intro-social-buttons">
