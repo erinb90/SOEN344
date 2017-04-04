@@ -107,6 +107,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
         ;
 
         function openReservation(roomid) {
+            refreshEquipmentList();
             // open modal
             $('#myModal').dialog({
                 width: 1200,
@@ -172,7 +173,6 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 dateFormat: 'yy-mm-dd',
                 minDate: 0
             });
-
 
             // bind accordion to equipment
             $("#accordionEquipment").accordion({
@@ -568,75 +568,9 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
             // On equipment tab click
             $('#tabs').tabs({
-                activate: function(event, ui) {
-                    if(ui.newPanel[0].id === "tabs-2") {
-                        var rDate = $('input#rDate').val();
-                        var startTime = $('input#startTime').val();
-                        var endTime = $('input#endTime').val();
-
-                        // list of static computeres
-                        computersListTable = $('#computersListTable').DataTable({
-                            "processing": true,
-                            "destroy": true,
-                            "serverSide": false,
-                            "select": true,
-                            "displayLength": 25,
-                            "ajax": {
-                                "url": 'Ajax/computerList.php',
-                                "type": "POST",
-                                "data": {
-                                    date: rDate,
-                                    startTime: startTime,
-                                    endTime: endTime
-                                }
-                            },
-                            "columns": [
-                                {"data": "EquipmentId"},
-                                {"data": "Available"},
-                                {"data": "Manufacturer"},
-                                {"data": "ProductLine"},
-                                {"data": "Description"},
-                                {"data": "Cpu"},
-                                {"data": "Ram"}
-                            ],
-                            'order': [[0, "asc"]],
-                            columnDefs: [{
-                                orderable: false,
-                                targets: [5]
-                            }],
-                        });
-
-                        // list of static projects
-                        projectorsListTable = $('#projectorsListTable').DataTable({
-                            "processing": true,
-                            "destroy": true,
-                            "serverSide": false,
-                            "select": true,
-                            "displayLength": 25,
-                            "ajax": {
-                                "url": 'Ajax/projectorList.php',
-                                "type": "POST",
-                                "data": {
-                                    date: rDate,
-                                    startTime: startTime,
-                                    endTime: endTime
-                                }
-                            },
-                            "columns": [
-                                {"data": "EquipmentId"},
-                                {"data": "Available"},
-                                {"data": "Manufacturer"},
-                                {"data": "ProductLine"},
-                                {"data": "Description"},
-                                {"data": "Display"},
-                                {"data": "Resolution"}
-                            ],
-                            'order': [[0, "asc"]],
-                            columnDefs: [{
-                                orderable: false,
-                                targets: [5]
-                            }],
-                        });
+                activate: function (event, ui) {
+                    if (ui.newPanel[0].id === "tabs-2") {
+                        refreshEquipmentList()
                     }
                 }
             });
@@ -761,6 +695,76 @@ $RoomDirectory = new \Stark\RoomDirectory();
 
 
         })
+
+        function refreshEquipmentList() {
+            var rDate = $('input#rDate').val();
+            var startTime = $('input#startTime').val();
+            var endTime = $('input#endTime').val();
+
+            // list of static computeres
+            computersListTable = $('#computersListTable').DataTable({
+                "processing": true,
+                "destroy": true,
+                "serverSide": false,
+                "select": true,
+                "displayLength": 25,
+                "ajax": {
+                    "url": 'Ajax/computerList.php',
+                    "type": "POST",
+                    "data": {
+                        date: rDate,
+                        startTime: startTime,
+                        endTime: endTime
+                    }
+                },
+                "columns": [
+                    {"data": "EquipmentId"},
+                    {"data": "Available"},
+                    {"data": "Manufacturer"},
+                    {"data": "ProductLine"},
+                    {"data": "Description"},
+                    {"data": "Cpu"},
+                    {"data": "Ram"}
+                ],
+                'order': [[0, "asc"]],
+                columnDefs: [{
+                    orderable: false,
+                    targets: [5]
+                }],
+            });
+
+            // list of static projects
+            projectorsListTable = $('#projectorsListTable').DataTable({
+                "processing": true,
+                "destroy": true,
+                "serverSide": false,
+                "select": true,
+                "displayLength": 25,
+                "ajax": {
+                    "url": 'Ajax/projectorList.php',
+                    "type": "POST",
+                    "data": {
+                        date: rDate,
+                        startTime: startTime,
+                        endTime: endTime
+                    }
+                },
+                "columns": [
+                    {"data": "EquipmentId"},
+                    {"data": "Available"},
+                    {"data": "Manufacturer"},
+                    {"data": "ProductLine"},
+                    {"data": "Description"},
+                    {"data": "Display"},
+                    {"data": "Resolution"}
+                ],
+                'order': [[0, "asc"]],
+                columnDefs: [{
+                    orderable: false,
+                    targets: [5]
+                }],
+            });
+        }
     </script>
 
 </head>
