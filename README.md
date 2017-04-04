@@ -4,7 +4,11 @@ URL: http://soen344.icubicksolutions.com
 
 Sample credentials for testing:
 
-Username			Password
-admin				1234
-admin2				1234
-admin3				1234
+Username: admin
+Password: 1234
+
+Username: admin2
+Password: 1234
+
+Username: admin3
+Password: 1234
