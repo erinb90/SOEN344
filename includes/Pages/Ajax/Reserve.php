@@ -59,7 +59,7 @@ $reservationRequest = $reservationRequestBuilder->build();
 // Create reservation session
 $ReservationSession = new CreateReservationSession($reservationRequest);
 $statusCode = $ReservationSession->reserve();
-if ($statusCode === 1) {
+if ($statusCode === CreateReservationSession::SUCCESS) {
     ?>
     <div id="successReservation" title="Success">
         <div class="alert alert-success">
@@ -84,11 +84,11 @@ if ($statusCode === 1) {
     $displayMessage = "Something went wrong.";
     $alertClass = "alert-danger";
     switch ($statusCode){
-        case 0:
-            $displayMessage = "Your reservation has been wait listed at position" . $waitListPosition . " due to conflicts!";
+        case CreateReservationSession::WAITLIST:
+            $displayMessage = "Your reservation has been wait listed at position " . $waitListPosition . " due to conflicts!";
             $alertClass = "alert-warning";
             break;
-        case 2:
+        case CreateReservationSession::ERROR:
             $displayMessage = "Failed to create reservation.";
             $alertClass = "alert-danger";
             break;

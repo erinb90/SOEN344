@@ -12,6 +12,10 @@ namespace Stark {
 
     class CreateReservationSession
     {
+        const WAITLIST = 0;
+        const SUCCESS = 1;
+        const ERROR = 2;
+
         /**
          * @var ReservationRequest $_reservationRequest for the create reservation session.
          */
@@ -88,7 +92,7 @@ namespace Stark {
                 $this->_reservationManager->validateMaxBookingTimePerWeek($this->_reservationRequest, $this->_errors);
 
             if (!$recurrencesWithinLimit || !$totalBookingTimeWithinLimit) {
-                return 2;
+                return self::ERROR;
             }
 
             $isWaiting = !$this->validateRepeats($repeatedDates);
@@ -109,6 +113,7 @@ namespace Stark {
 
                     // Commit the unit of work
                     $this->_reservationMapper->commit();
+                    $this->_reservationRequest->setReservationId($reservation->getReservationID());
 
                     // Create a loan contract Id and associate request equipment
                     $equipmentRequests = $this->_reservationRequest->getEquipmentRequests();
@@ -126,7 +131,7 @@ namespace Stark {
                 }
             }
 
-            return $isWaiting ? 0 : 1;
+            return $isWaiting ? self::WAITLIST : self::SUCCESS;
         }
 
         /**

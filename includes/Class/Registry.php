@@ -2,7 +2,9 @@
 namespace Stark;
 
 use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\Driver\PDOException;
 use Doctrine\DBAL\DriverManager;
+use RuntimeException;
 
 /**
  * Class Registry

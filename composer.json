@@ -15,9 +15,6 @@
         "phpunit/phpunit": "^5.7",
         "phpunit/dbunit": "^1.2",
         "doctrine/annotations": "v1.2.7"
-
-
-
     },
     "autoload": {
         "psr-4": {
