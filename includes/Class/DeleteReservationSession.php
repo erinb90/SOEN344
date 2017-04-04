@@ -84,6 +84,9 @@ namespace Stark {
          */
         public static function delete($reservationId)
         {
+			if(!$currentReservation)
+                return true;
+			
             $Session = new DeleteReservationSession($reservationId);
             $currentReservation = $Session->getReservation();
 
