@@ -98,9 +98,7 @@ class ModifyReservationSession
 
         $reservationRequest->setEquipmentRequests($newEquipmentRequests);
 
-        $canBeAccommodated = $this->canBeAccommodated($reservationId, $reservationRequest);
-
-        if ($canBeAccommodated) {
+        if ($this->validateNewReservation($reservationId, $reservationRequest)) {
             if ($changedEquipment) {
                 $this->addNewEquipment($reservationId, $newEquipmentRequests);
                 $this->removeLoanedEquipment($removedLoanedEquipment);
@@ -112,27 +110,29 @@ class ModifyReservationSession
             $reservation->setRoomId($roomId);
             $this->_ReservationMapper->uowUpdate($reservation);
             $this->_ReservationMapper->commit();
-            $this->_ReservationManager->accommodateReservations();
+            $this->_ReservationManager->accommodateWaitlistedReservations();
         }
         return $this->_errors;
     }
 
     /**
-     * @param $reservationId
-     * @param $reservationRequest
+     * @param int $reservationId
+     * @param ReservationRequest $reservationRequest
      * @return bool specifying if the new reservation can be accommodated
      *
      * Checks for time and equipment conflicts, returns true if new res can be accommodated
      */
-    public function canBeAccommodated($reservationId, $reservationRequest)
+    public function validateNewReservation($reservationId, $reservationRequest)
     {
         // Check for conflicts
         $reservationConflicts = $this->_ReservationManager
             ->checkForConflicts($reservationId, $reservationRequest);
 
-        $canBeAccommodated = true;
-
         $errors = $this->_ReservationManager->convertConflictsToErrors($reservationConflicts);
+
+        foreach ($errors as $error) {
+            $this->_errors[] = $error;
+        }
 
         $hasTimeConflicts = false;
         $hasEquipmentConflicts = true;
@@ -145,24 +145,25 @@ class ModifyReservationSession
             }
         }
 
-        $equipmentReassignmentErrors = [];
+        $equipmentRequests = $reservationRequest->getEquipmentRequests();
 
         // There were time conflicts
         if ($hasTimeConflicts) {
-            $canBeAccommodated = false;
+            return false;
         } else if ($hasEquipmentConflicts) {
-            $equipmentReassignmentErrors = $this->_ReservationManager->assignAlternateEquipmentId($reservationConflicts, $newEquipmentRequests);
+            $equipmentReassignmentErrors = $this->_ReservationManager->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
+
+            foreach ($equipmentReassignmentErrors as $error) {
+                $this->_errors[] = $error;
+            }
 
             // There were unresolved equipment conflicts
             if (!empty($equipmentReassignmentErrors)) {
-                $canBeAccommodated = false;
+                return false;
             }
         }
 
-        // Merge errors to display to user
-        $this->_errors = $this->mergeErrors($errors, $equipmentReassignmentErrors);
-
-        return $canBeAccommodated;
+        return true;
     }
 
     /**
@@ -177,30 +178,6 @@ class ModifyReservationSession
          * @var Reservation $reservation
          */
         return $this->_ReservationManager->getLoanedEquipmentForReservation($reservationId);
-    }
-
-    /**
-     * Merges errors.
-     *
-     * @param string[] $errors
-     * @param string[] $equipmentReassignmentErrors
-     * @return string[] merged errors.
-     */
-    private function mergeErrors($errors, $equipmentReassignmentErrors)
-    {
-        /**
-         * @var $string [] mergedErrors
-         */
-        $mergedErrors = [];
-        foreach ($errors as $error) {
-            $mergedErrors[] = $error;
-        }
-
-        foreach ($equipmentReassignmentErrors as $error) {
-            $mergedErrors[] = $error;
-        }
-
-        return $mergedErrors;
     }
 
     /**

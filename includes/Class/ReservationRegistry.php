@@ -9,24 +9,24 @@ namespace Stark
     class ReservationRegistry
     {
         /**
-         * @var array of Reservation objects
+         * @var ReservationMapper
          */
-        private $reservations;
+        private $_reservationMapper;
+
         /**
          * ReservationRegistry constructor.
          */
         public function __construct()
         {
-
+            $this->_reservationMapper = new ReservationMapper();
         }
+
         /**
          * @return array of Reservation objects
          */
         public function getReservations()
         {
-            $ReservationMapper = new ReservationMapper();
-            $_Reservations = $ReservationMapper->getReservations();
-            return $_Reservations;
+            return $this->_reservationMapper->getReservations();
         }
     }
 }

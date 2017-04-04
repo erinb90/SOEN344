@@ -108,7 +108,7 @@ class ReservationManager
     /**
      * Attempts to accommodate wait listed reservations after a change to an active one.
      */
-    public function accommodateReservations()
+    public function accommodateWaitlistedReservations()
     {
         $waitList = $this->getOrderedWaitingReservations();
 

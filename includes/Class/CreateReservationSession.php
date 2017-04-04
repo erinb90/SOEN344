@@ -188,42 +188,58 @@ namespace Stark {
                     ->equipmentRequests($equipmentRequests);
                 $reservationRequest = $reservationRequestBuilder->build();
 
-                $reservationConflicts = $this->_reservationManager
-                    ->checkForConflicts(self::NO_RESERVATION_ID, $reservationRequest);
+                if(!$this->validateNewReservation(self::NO_RESERVATION_ID, $reservationRequest)) {
+                    return false;
+                }
+            }
+            return true;
+        }
 
-                $errors = $this->_reservationManager->convertConflictsToErrors($reservationConflicts);
+        /**
+         * @param int $reservationId
+         * @param ReservationRequest $reservationRequest
+         * @return bool specifying if the new reservation can be accommodated
+         *
+         * Checks for time and equipment conflicts, returns true if new res can be accommodated
+         */
+        public function validateNewReservation($reservationId, $reservationRequest)
+        {
+            // Check for conflicts
+            $reservationConflicts = $this->_reservationManager
+                ->checkForConflicts($reservationId, $reservationRequest);
 
-                foreach ($errors as $error) {
+            $errors = $this->_reservationManager->convertConflictsToErrors($reservationConflicts);
+
+            foreach ($errors as $error) {
+                $this->_errors[] = $error;
+            }
+
+            $hasTimeConflicts = false;
+            $hasEquipmentConflicts = true;
+            foreach ($reservationConflicts as $reservationConflict) {
+                if (!empty($reservationConflict->getDateTimes())) {
+                    $hasTimeConflicts = true;
+                }
+                if (!empty($reservationConflict->getEquipments())) {
+                    $hasEquipmentConflicts = true;
+                }
+            }
+
+            $equipmentRequests = $reservationRequest->getEquipmentRequests();
+
+            // There were time conflicts
+            if ($hasTimeConflicts) {
+                return false;
+            } else if ($hasEquipmentConflicts) {
+                $equipmentReassignmentErrors = $this->_reservationManager->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
+
+                foreach ($equipmentReassignmentErrors as $error) {
                     $this->_errors[] = $error;
                 }
 
-                $hasTimeConflicts = false;
-                $hasEquipmentConflicts = true;
-                foreach ($reservationConflicts as $reservationConflict) {
-                    if (!empty($reservationConflict->getDateTimes())) {
-                        $hasTimeConflicts = true;
-                    }
-                    if (!empty($reservationConflict->getEquipments())) {
-                        $hasEquipmentConflicts = true;
-                    }
-                }
-
-                // There were time conflicts
-                if ($hasTimeConflicts) {
+                // There were unresolved equipment conflicts
+                if (!empty($equipmentReassignmentErrors)) {
                     return false;
-                }
-
-                if($hasEquipmentConflicts){
-                    $equipmentReassignmentErrors = $this->_reservationManager->assignAlternateEquipmentId($reservationConflicts, $equipmentRequests);
-
-                    foreach ($equipmentReassignmentErrors as $error) {
-                        $this->_errors[] = $error;
-                    }
-
-                    // There were unresolved equipment conflicts
-                    if (!empty($equipmentReassignmentErrors)) {
-                        return false;
-                    }
                 }
             }
 
@@ -268,8 +284,7 @@ namespace Stark {
          * @param EquipmentRequest[] $equipmentRequests The equipment requests to associate with the loan contract.
          * @return void
          */
-        private
-        function associateLoanedEquipment($loanContractId, $equipmentRequests)
+        private function associateLoanedEquipment($loanContractId, $equipmentRequests)
         {
             $loanedEquipmentMapper = new LoanedEquipmentMapper();
 
