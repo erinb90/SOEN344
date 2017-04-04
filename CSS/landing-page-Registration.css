@@ -37,6 +37,7 @@ body{
 }
 
 ul.topnav {
+    text-align: center;
     list-style-type: none;
     height: 5%;
     margin: 0;
@@ -47,7 +48,7 @@ ul.topnav {
     min-width: 60em;
 }
 
-ul.topnav li {float: left;}
+ul.topnav li {    display: -webkit-inline-box;  }
 
 ul.topnav li a {
     display: inline-block;

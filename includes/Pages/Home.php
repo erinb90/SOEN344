@@ -788,7 +788,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
     <div class="container">
         <div class="row">
             <!-- Div for datepicker -->
-            <div id="datepickerContainer" style="width:1200px;">
+            <div id="datepickerContainer">
                 <h1 class="title">THE FORCE AWAKENS</h1>
                 <h3 class="subtitle">Room Reserver</h3>
                 <div id="datepickerInline"></div>
