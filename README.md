@@ -26,7 +26,7 @@ Syrine Krim	| 29773118
 
 Ryan Lee | 27752504
 
-Jeremy Melnyk 26374603
+Jeremy Melnyk | 26374603
 
 Dimitri Topaloglou | 29358269
 
