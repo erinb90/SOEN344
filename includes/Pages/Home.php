@@ -329,6 +329,11 @@ $RoomDirectory = new \Stark\RoomDirectory();
                         },
                         "Change Equipment": function () {
 
+                            var newDate = $('input#newDate').val();
+                            var newStartTime = $('input#newStartTime').val();
+                            var newEndTime = $('input#newEndTime').val();
+                            var newTitle = $('input#newTitle').val();
+
                             // list of database equipment
                             var computersListTableModify = $('#computersListTableModify').DataTable({
                                 "processing": true,
@@ -339,9 +344,16 @@ $RoomDirectory = new \Stark\RoomDirectory();
                                 "ajax": {
                                     "url": 'Ajax/computerList.php',
                                     "type": "POST",
+                                    "data": {
+                                        date: newDate,
+                                        startTime: newStartTime,
+                                        endTime: newEndTime,
+                                        reservationId: reservationId
+                                    }
                                 },
                                 "columns": [
                                     {"data": "EquipmentId"},
+                                    {"data": "Available"},
                                     {"data": "Manufacturer"},
                                     {"data": "ProductLine"},
                                     {"data": "Description"},
@@ -364,9 +376,16 @@ $RoomDirectory = new \Stark\RoomDirectory();
                                 "ajax": {
                                     "url": 'Ajax/projectorList.php',
                                     "type": "POST",
+                                    "data": {
+                                        date: newDate,
+                                        startTime: newStartTime,
+                                        endTime: newEndTime,
+                                        reservationId: reservationId
+                                    }
                                 },
                                 "columns": [
                                     {"data": "EquipmentId"},
+                                    {"data": "Available"},
                                     {"data": "Manufacturer"},
                                     {"data": "ProductLine"},
                                     {"data": "Description"},
@@ -547,6 +566,81 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 });
             });
 
+            // On equipment tab click
+            $('#tabs').tabs({
+                activate: function(event, ui) {
+                    if(ui.newPanel[0].id === "tabs-2") {
+                        var rDate = $('input#rDate').val();
+                        var startTime = $('input#startTime').val();
+                        var endTime = $('input#endTime').val();
+
+                        // list of static computeres
+                        computersListTable = $('#computersListTable').DataTable({
+                            "processing": true,
+                            "destroy": true,
+                            "serverSide": false,
+                            "select": true,
+                            "displayLength": 25,
+                            "ajax": {
+                                "url": 'Ajax/computerList.php',
+                                "type": "POST",
+                                "data": {
+                                    date: rDate,
+                                    startTime: startTime,
+                                    endTime: endTime
+                                }
+                            },
+                            "columns": [
+                                {"data": "EquipmentId"},
+                                {"data": "Available"},
+                                {"data": "Manufacturer"},
+                                {"data": "ProductLine"},
+                                {"data": "Description"},
+                                {"data": "Cpu"},
+                                {"data": "Ram"}
+                            ],
+                            'order': [[0, "asc"]],
+                            columnDefs: [{
+                                orderable: false,
+                                targets: [5]
+                            }],
+                        });
+
+                        // list of static projects
+                        projectorsListTable = $('#projectorsListTable').DataTable({
+                            "processing": true,
+                            "destroy": true,
+                            "serverSide": false,
+                            "select": true,
+                            "displayLength": 25,
+                            "ajax": {
+                                "url": 'Ajax/projectorList.php',
+                                "type": "POST",
+                                "data": {
+                                    date: rDate,
+                                    startTime: startTime,
+                                    endTime: endTime
+                                }
+                            },
+                            "columns": [
+                                {"data": "EquipmentId"},
+                                {"data": "Available"},
+                                {"data": "Manufacturer"},
+                                {"data": "ProductLine"},
+                                {"data": "Description"},
+                                {"data": "Display"},
+                                {"data": "Resolution"}
+                            ],
+                            'order': [[0, "asc"]],
+                            columnDefs: [{
+                                orderable: false,
+                                targets: [5]
+                            }],
+                        });
+                    }
+                }
+            });
+
             // when click on the big reserve button to create  a reservation
             $(document).on('click', '#createReservation', function () {
 
@@ -601,60 +695,6 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 });
 
             });
-
-
-            // list of static computeres
-            computersListTable = $('#computersListTable').DataTable({
-                "processing": true,
-                "destroy": true,
-                "serverSide": false,
-                "select": true,
-                "displayLength": 25,
-                "ajax": {
-                    "url": 'Ajax/computerList.php',
-                    "type": "POST",
-                },
-                "columns": [
-                    {"data": "EquipmentId"},
-                    {"data": "Manufacturer"},
-                    {"data": "ProductLine"},
-                    {"data": "Description"},
-                    {"data": "Cpu"},
-                    {"data": "Ram"}
-                ],
-                'order': [[0, "asc"]],
-                columnDefs: [{
-                    orderable: false,
-                    targets: [5]
-                }],
-            });
-
-            // list of static projects
-            projectorsListTable = $('#projectorsListTable').DataTable({
-                "processing": true,
-                "destroy": true,
-                "serverSide": false,
-                "select": true,
-                "displayLength": 25,
-                "ajax": {
-                    "url": 'Ajax/projectorList.php',
-                    "type": "POST",
-                },
-                "columns": [
-                    {"data": "EquipmentId"},
-                    {"data": "Manufacturer"},
-                    {"data": "ProductLine"},
-                    {"data": "Description"},
-                    {"data": "Display"},
-                    {"data": "Resolution"}
-                ],
-                'order': [[0, "asc"]],
-                columnDefs: [{
-                    orderable: false,
-                    targets: [5]
-                }],
-            });
-
 
             // variable that holds the user's reservations
             userReservations = $('#reservationsTable').DataTable({
@@ -832,6 +872,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
                                             <thead>
                                             <tr>
                                                 <th>Equipment ID</th>
+                                                <th>Available</th>
                                                 <th>Manufacturer</th>
                                                 <th>Product Line</th>
                                                 <th>Description</th>
@@ -848,6 +889,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
                                             <thead>
                                             <tr>
                                                 <th>Equipment ID</th>
+                                                <th>Available</th>
                                                 <th>Manufacturer</th>
                                                 <th>Product Line</th>
                                                 <th>Description</th>
@@ -1060,6 +1102,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
         <thead>
         <tr>
             <th>Equipment ID</th>
+            <th>Available</th>
             <th>Manufacturer</th>
             <th>Product Line</th>
             <th>Description</th>
@@ -1075,6 +1118,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
         <thead>
         <tr>
             <th>Equipment ID</th>
+            <th>Available</th>
             <th>Manufacturer</th>
             <th>Product Line</th>
             <th>Description</th>
