@@ -44,13 +44,12 @@ class TDGAspect implements Aspect
         {
             $invocation->proceed();
             $lastId = Registry::getConnection()->lastInsertId();
+            Registry::getConnection()->commit();
         }
         catch (\Exception $e)
         {
             Registry::getConnection()->rollBack();
         }
-
-        Registry::getConnection()->commit();
 
         return $lastId;
 
