@@ -157,6 +157,40 @@ if ($statusCode === CreateReservationSession::SUCCESS) {
                 width: 400
             });
             userReservations.ajax.reload(function (json) {
+
+                //unlock room
+                $.ajax({
+                    type: "POST",
+                    url: "Lock.php", //file name
+                    dataType: "json",
+                    data: {
+                        action: "unlock",
+                        roomID: "<?php echo  $requestParameters['roomID']; ?>"
+                    },
+                    success: function (data) {
+
+                        console.log(data);
+                        if (data.success) {
+                            // stop timer
+                            CCOUNT = data.secondsDefault;
+                            cdpause();
+                        }
+                        else {
+                            $('#lockMessageModal').dialog({
+
+                                width: 300,
+                                height: 200
+                            });
+
+                            $('#lockMessage').html(data.error);
+
+                            return;
+                        }
+
+
+                    },
+                });
+
             }, false);
 
             $('#calendar').fullCalendar('refetchEvents'  );
