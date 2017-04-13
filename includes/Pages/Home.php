@@ -122,6 +122,7 @@ $RoomDirectory = new \Stark\RoomDirectory();
                 },
                 Close: function () {
                     // erase any error messages that might have been created
+                    cdreset();
                     $('#resultsReservation').html("");
                 },
                 beforeClose: function (event, ui) {
